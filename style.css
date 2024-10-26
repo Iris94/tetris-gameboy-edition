@@ -1,0 +1,341 @@
+:root {
+    --screen-wrap: #616a79;
+    --test-screen: #292929;
+    --red: #79295b;
+    --blue: #1e2499;
+}
+
+* {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: var(--blue)
+}
+
+@font-face {
+    font-family: 'nintendo';
+    src: url('/fonts/nintendo.otf') format('otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.nintendo {
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.game-boy {
+    font-weight: 600;
+    font-style: italic;
+    font-size: 21px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: slategrey;
+}
+
+.gameboy {
+    position: relative;
+    width: 450px;
+    height: 90%;
+    border-radius: 10px 2.5px 90px 10px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(0deg, rgba(183, 186, 196, 1) 0%, rgba(193, 192, 199, 1) 100%);
+    overflow: hidden;
+    box-shadow: inset -2px -2px 8px 1px black;
+}
+
+.gameboy::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    left: 5px;
+    background-color: #dee5e5;
+    z-index: 1;
+    box-shadow: 0 0 3px 1px #dee5e5;
+}
+
+.gameboy-top {
+    width: 100%;
+    height: 70%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameboy-bottom {
+    width: 100%;
+    height: 30%;
+    display: grid;
+    grid-template-rows: 10% 45% 45%;
+    padding: 5px;
+    gap: 5px;
+}
+
+.gameboy-heading {
+    padding-left: 15px;
+    position: relative;
+    bottom: 35px;
+}
+
+.gameboy-buttons {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    position: relative;
+    bottom: 20px;
+}
+
+.x-line {
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    top: 20px;
+    left: 0;
+    background-color: #3b3b3b;
+    z-index: 2;
+}
+
+.y-line-1,
+.y-line-2 {
+    position: absolute;
+    width: 5px;
+    height: 20px;
+    background-color: #3b3b3b;
+    top: 0;
+}
+
+.y-line-1 {
+    left: 50px;
+}
+
+.y-line-2 {
+    right: 50px;
+}
+
+.speakers {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 30%;
+    height: 10%;
+    transform: rotate(-25deg);
+    display: flex;
+    justify-content: center;
+    gap: 7.5px;
+}
+
+.speaker {
+    width: 7.5px;
+    height: 75%;
+    background-color: #a3a5a7;
+    border-radius: 15px;
+    box-shadow: inset 1px 1px 2px 1px #5b5a5a;
+}
+
+.gameboy-screen-wrap {
+    background-color: var(--screen-wrap);
+    width: 90%;
+    height: 85%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px 10px 50px 10px;
+    box-shadow: inset 1px 1px 5px 1px black;
+    position: relative;
+}
+
+.screen-text {
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    top: 0;
+    display: grid;
+    grid-template-columns: 30% 50% 20%;
+}
+
+.screen-text-left,
+.screen-text-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.screen-text-center {
+    color: #8b96a2;
+}
+
+.blue-line {
+    width: 100%;
+    height: 3px;
+    background-color: var(--blue);
+}
+
+.red-line {
+    width: 100%;
+    height: 3px;
+    background-color: var(--red);
+}
+
+.trackpad {
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 30px 0 #a7a9af;
+}
+
+.y-track {
+    height: 100%;
+    width: 35%;
+    background: linear-gradient(to right, #353535, #141414);
+    border-radius: 12px;
+    position: absolute;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.y-track::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    left: 4px;
+    background-color: #545454;
+    z-index: 1;
+    box-shadow: 0 0 5px 0 #888c8c;
+    ;
+}
+
+.x-track {
+    height: 35%;
+    width: 100%;
+    background: linear-gradient(to right, #353535, #141414);
+    border-radius: 12px;
+    position: absolute;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.x-track::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    left: 4px;
+    background-color: #545454;
+    z-index: 1;
+    box-shadow: 0 0 5px 0 #888c8c;
+    ;
+}
+
+
+
+
+.button {
+    padding: 10px 20px;
+    display: flex;
+    transform: rotate(-25deg);
+    box-shadow: inset 0 0 30px 0 #a7a9af;
+    border-radius: 75px;
+}
+
+.button-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.button-red {
+    position: relative;
+    background: linear-gradient(to right, var(--red), #700f0f);
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    box-shadow: inset 1px 1px 3px 0 rgb(236, 236, 236),
+        1px 1px 3px 1px black
+}
+
+.button-red>p {
+    margin-top: 52px;
+    margin-left: 10px;
+    font-weight: 900;
+}
+
+
+.gameboy-options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.options {
+    width: 50px;
+    height: 12.5px;
+    border-radius: 20px;
+    transform: rotate(-25deg);
+    position: relative;
+    bottom: 20px;
+    text-align: center;
+    background: linear-gradient(to top, #3f3f3f, #8e8e8e);
+    padding: 1px;
+    box-shadow: inset 0 0 5px 0 rgb(33, 32, 32);
+}
+
+.options>p {
+    font-weight: 900;
+    font-size: 13px;
+}
+
+.screen {
+    background-color: var(--test-screen);
+    width: 85%;
+    height: 85%;
+    box-shadow: inset 2px 2px 10px 1px black;
+    display: flex;
+}
+
+#canvas {
+    width: 60%;
+    height: 100%;
+}
+
+.screen-special {
+    width: 20%;
+    height: 100%;
+    border-right: 2px rgb(106, 105, 105) solid;
+}
+
+.screen-score {
+    width: 20%;
+    height: 100%;
+    border-left:2px rgb(106, 105, 105) solid;
+}
+

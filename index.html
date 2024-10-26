@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" type="module" defer></script>
+    <title>Super Tetris</title>
+</head>
+<body>
+    <main>
+        <div class="gameboy">
+            <div class="gameboy-top">
+                <div class="x-line"></div>
+                <div class="y-line-1"></div>
+                <div class="y-line-2"></div>
+
+                <div class="gameboy-screen-wrap">
+                    <div class="screen-text">
+                        <div class="screen-text-left">
+                            <div class="red-line"></div>
+                            <div class="blue-line"></div>
+                        </div>
+                        <div class="screen-text-center">
+                            dot matrix with stereo sound
+                        </div>
+                        <div class="screen-text-right">
+                            <div class="red-line"></div>
+                            <div class="blue-line"></div>
+                        </div>
+                    </div>
+
+                    <div class="screen">
+                        
+                        <div class="screen-special"></div>
+                        <canvas id="canvas"></canvas>
+                        <div class="screen-score"></div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="gameboy-bottom">
+                <div class="gameboy-heading">
+                    <span class="nintendo">Nintendo</span>
+                    <span class="game-boy">GAME BOY&trade;</span>
+                </div>
+                <div class="gameboy-buttons">
+                    <div class="trackpad">
+                        <div class="x-track"></div>
+                        <div class="y-track"></div>
+                    </div>
+                    <div class="button">
+                        <div class="button-top">
+                            <div class="button-red"><p>A</p></div>
+                            <div class="button-red"><p>B</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gameboy-options">
+                    <div class="options"><p>SELECT</p></div>
+                    <div class="options"><p>START</p></div>
+                </div>
+            </div>
+
+            <div class="speakers">
+                <div class="speaker"></div>
+                <div class="speaker"></div>
+                <div class="speaker"></div>
+                <div class="speaker"></div>
+                <div class="speaker"></div>
+                <div class="speaker"></div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
