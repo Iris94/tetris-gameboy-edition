@@ -1,7 +1,6 @@
 import { ctx, canvas, tetromino, boardMatrix } from "./board.js";
 import { boardLoop, tetrominoLoop } from "./math.js";
 import { CellHeight, CellWidth } from "./config.js";
-import { collision } from "./collision.js";
 
 export function clearCanvas() {
      ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -1,46 +1,34 @@
 import { boardMatrix, tetromino } from "./board.js";
 import { CellWidth } from "./config.js";
+import { maxCol, rotateCells } from "./math.js";
+
+let wallkick;
 
 export function rotation() {
+
      if (tetromino.name == 'O') return;
-     let centerX = tetromino.cells[2].x; 
-     let centerY = tetromino.cells[2].y;
-     let wallkick = false;
+
+     wallkick = false;
+
+     rotateCells();
+
+     while (!wallkick) {
+          wallkick = true;
           
-     tetromino.cells.forEach(cell => {
+          tetromino.cells.forEach(cell => {
+               let precisePixelX = Math.round(cell.pixelX / CellWidth);
 
-          let dx = cell.x - centerX;
-          let dy = cell.y - centerY;
+               if (precisePixelX < 0) {
+                    tetromino.cells.forEach(cell => cell.pixelX += CellWidth);
+                    wallkick = false;
+                    return; 
+               }
 
-          let newX = centerX - dy;
-          let newY = centerY + dx;
-
-          cell.x = newX;
-          cell.y = newY;
-
-
-          console.log(cell.x / CellWidth)
-
-          if ((cell.x / CellWidth > 9)) {
-               console.log('test')
-          }
-     });
-
-
-     // while (!wallkick) {
-     //      wallkick = true;
-          
-     //      let leftWallKick = tetromino.cells.some(cell => cell.x < (-1));
-     //      let rightWallKick = tetromino.cells.some(cell => cell.x > (canvas.width + 1));
-     
-     //      if (leftWallKick) {
-     //           tetromino.cells.forEach(cell => cell.x += CellWidth);
-     //           wallkick = false; 
-     //      }
-     
-     //      else if (rightWallKick) {
-     //           tetromino.cells.forEach(cell => cell.x -= CellWidth);
-     //           wallkick = false; 
-     //      }
-     // }
-}
+               if (precisePixelX > maxCol()) {
+                    tetromino.cells.forEach(cell => cell.pixelX -= CellWidth);
+                    wallkick = false;
+                    return; 
+               }
+          });
+     }
+}              

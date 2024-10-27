@@ -20,20 +20,20 @@ class Tetromino {
      }
 
      moveLeft() {
-          this.cells.forEach((cell) => {
-               cell.x -= CellWidth;
+          this.cells.forEach(cell => {
+               cell.pixelX -= CellWidth;
           })
      }
 
      moveRight() {
-          this.cells.forEach((cell) => {
-               cell.x += CellWidth;
+          this.cells.forEach(cell => {
+               cell.pixelX += CellWidth;
           })
      }
 
      moveDown() {
-          this.cells.forEach((cell) => {
-               cell.y += CellHeight;
+          this.cells.forEach(cell => {
+               cell.pixelY += CellHeight;
           })
      }
 
