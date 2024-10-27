@@ -1,20 +1,11 @@
 export const canvas = document.querySelector('#canvas');
 export const ctx = canvas.getContext('2d');
 
-canvas.width = canvas.offsetWidth;
-canvas.height = canvas.offsetHeight;
-
-export const Rows = 20;
-export const Cols = 10;
-export const CellWidth = canvas.width / Cols;
-export const CellHeight = canvas.height / Rows;
-export const Y_Axis = canvas.height / Rows;
-export const X_Axis = canvas.width / Cols;
-
+import { CellWidth, CellHeight, Rows, Cols, collisionDetected, setCollisionDetected, leftWallDetected, rightWallDetected } from "./config.js";
 import { iCells, jCells, lCells, tCells, sCells, zCells, oCells } from "./tetrominos.js";
-import { clearCanvas, drawBoard, drawTetromino, fillMatrix, fillBoard } from "./updates.js";
+import { clearCanvas, drawBoard, drawTetromino, fillMatrix } from "./logic.js";
 import { randomTetromino} from "./math.js";
-import { watchguard, leftStop, rightStop } from "./rules.js";
+import { collision } from "./collision.js";
 import { rotation } from "./rotation.js";
 
 export let boardMatrix = Array.from({ length: Rows }, () => Array(Cols).fill(null));
@@ -30,19 +21,19 @@ class Tetromino {
 
      moveLeft() {
           this.cells.forEach((cell) => {
-               cell.x -= X_Axis;
+               cell.x -= CellWidth;
           })
      }
 
      moveRight() {
           this.cells.forEach((cell) => {
-               cell.x += X_Axis;
+               cell.x += CellWidth;
           })
      }
 
      moveDown() {
           this.cells.forEach((cell) => {
-               cell.y += Y_Axis;
+               cell.y += CellHeight;
           })
      }
 
@@ -63,46 +54,49 @@ export const Tetrominos = [I, J, L, O, S, T, Z];
 
 tetromino = randomTetromino();
 
-export function updateBoard() {
-     clearCanvas();
-     drawBoard();
-     fillBoard();
-     drawTetromino();
-}
+export function gameEngine () {
+     
+     collision();
 
-export function nextTetromino() {
+     if (!collisionDetected) {
+          clearCanvas();
+          drawBoard();
+          drawTetromino();
+          return;
+     }
+
      fillMatrix();
      tetromino.defaultCoordinates();
+     clearCanvas();
      tetromino = randomTetromino();
+     drawBoard();
+     setCollisionDetected(false)
 }
 
-drawBoard()
-drawTetromino()
+drawBoard();
+drawTetromino();
+gameEngine();
 
 window.onkeydown = function (e) {
 
-     if (e.keyCode == 37 && !leftStop) {
+     if (e.keyCode == 37 && !leftWallDetected) {
           tetromino.moveLeft();
-          updateBoard();
-          watchguard()
+          gameEngine();
      }
 
-     if (e.keyCode == 39 && !rightStop) {
+     if (e.keyCode == 39 && !rightWallDetected) {
           tetromino.moveRight();
-          updateBoard();
-          watchguard();
+          gameEngine();
      }
 
      if (e.keyCode == 40) {
           tetromino.moveDown();
-          updateBoard();
-          watchguard();
+          gameEngine();
      }
 
      if (e.keyCode == 38) {
           rotation();
-          updateBoard();
-          watchguard();
+          gameEngine();
      }
 };
 
