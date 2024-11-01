@@ -13,36 +13,44 @@ function rotate() {
 export function rotation() {
      if (tetromino.name === 'O') return;
 
-     let offsetX;
+     let wallKickData = [-1, +2, -1]
+     let rotate1 = false;
+
      rotate();
 
-     const collisionDetected = tetromino.cells.some(cell =>
-          cell.x < 0 ||
-          cell.x >= COLS ||
-          grid[cell.y][cell.x] !== 0
-     );
+     for (let kick of wallKickData) {
 
-     if (!collisionDetected) return;
+          const collisionDetected = tetromino.cells.some(cell =>
+               cell.x < 0 ||
+               cell.x >= COLS ||
+               grid[cell.y][cell.x] !== 0
+          );
 
-     const collisionDirection = tetromino.cells.every(cell => {
-
-          if (cell.x > 0 && grid[cell.y][cell.x - 1] === 0) {
-               offsetX = -1;
-               return true;
+          if (!collisionDetected) {
+               rotate1 = true;
+               break;
           }
 
-          if (cell.x < COLS - 1 && grid[cell.y][cell.x + 1] === 0) {
-               offsetX = +1;
-               return true;
-          }
-
-          return false;
-     });
-
-     if (collisionDirection) {
-          tetromino.cells.forEach(cell => cell.x += offsetX);
-          return;
+          tetromino.cells.forEach(cell => cell.x += kick);
      }
 
+     if (rotate1) return;
+
      rotate();
+
+     for (let kick of wallKickData) {
+
+          const collisionDetected = tetromino.cells.some(cell =>
+               cell.x < 0 ||
+               cell.x >= COLS ||
+               grid[cell.y][cell.x] !== 0
+          );
+
+          if (!collisionDetected) {
+               rotate1 = true;
+               break;
+          }
+
+          tetromino.cells.forEach(cell => cell.x += kick);
+     }
 }
