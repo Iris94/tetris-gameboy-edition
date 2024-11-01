@@ -1,50 +1,73 @@
-import { CellWidth, CellHeight, Min } from "./config.js";
+export const tetrominoShapes = [
+    {
+        name: 'I',
+        color: '#00aec3',
+        cells: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 2, y: 0 },
+            { x: 3, y: 0 },
+        ]
+    },
+    {
+        name: 'J',
+        color: '#007fcd',
+        cells: [
+            { x: 0, y: 0 },
+            { x: 0, y: 1 },
+            { x: 1, y: 1 },
+            { x: 2, y: 1 },
+        ]
+    },
+    {
+        name: 'L',
+        color: '#d49600',
+        cells: [
+            { x: 2, y: 0 },
+            { x: 0, y: 1 },
+            { x: 1, y: 1 },
+            { x: 2, y: 1 },
+        ]
+    },
+    {
+        name: 'O',
+        color: '#beae00',
+        cells: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 1, y: 1 },
+        ]
+    },
+    {
+        name: 'S',
+        color: '#37cd00',
+        cells: [
+            { x: 1, y: 0 },
+            { x: 2, y: 0 },
+            { x: 1, y: 1 },
+            { x: 0, y: 1 },
+        ]
+    },
+    {
+        name: 'T',
+        color: '#9300cd',
+        cells: [
+            { x: 0, y: 1 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+            { x: 2, y: 1 },
+        ]
+    },
+    {
+        name: 'Z',
+        color: '#cd0a00',
+        cells: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+            { x: 2, y: 1 },
+        ]
+    }
+];
 
-export const iCells = [
-     { pixelX: 3 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 4 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 5 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 6 * CellWidth, pixelY: -CellHeight },
-]
-
-export const jCells = [
-     { pixelX: 4 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 4 * CellWidth, pixelY: Min },
-     { pixelX: 5 * CellWidth, pixelY: Min },
-     { pixelX: 6 * CellWidth, pixelY: Min },
-]
-
-export const lCells = [
-     { pixelX: 6 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 4 * CellWidth, pixelY: Min },
-     { pixelX: 5 * CellWidth, pixelY: Min },
-     { pixelX: 6 * CellWidth, pixelY: Min },
-]
-
-export const oCells = [
-     { pixelX: 4 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 5 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 4 * CellWidth, pixelY: Min },
-     { pixelX: 5 * CellWidth, pixelY: Min },
-]
-
-export const sCells = [
-     { pixelX: 5 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 6 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 5 * CellWidth, pixelY: Min },
-     { pixelX: 4 * CellWidth, pixelY: Min },
-]
-
-export const tCells = [
-     { pixelX: 5 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 4 * CellWidth, pixelY: Min },
-     { pixelX: 5 * CellWidth, pixelY: Min },
-     { pixelX: 6 * CellWidth, pixelY: Min },
-]
-
-export const zCells = [
-     { pixelX: 4 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 5 * CellWidth, pixelY: -CellHeight },
-     { pixelX: 5 * CellWidth, pixelY: Min },
-     { pixelX: 6 * CellWidth, pixelY: Min },
-]

@@ -1,34 +1,48 @@
-import { boardMatrix, tetromino } from "./board.js";
-import { CellWidth } from "./config.js";
-import { maxCol, rotateCells } from "./math.js";
+import { COLS } from "./config.js";
+import { grid, tetromino } from "./engine.js";
 
-let wallkick;
+function rotate() {
+     tetromino.cells.forEach(cell => {
+          let dx = cell.x - tetromino.cells[2].x;
+          let dy = cell.y - tetromino.cells[2].y;
+          cell.x = tetromino.cells[2].x - dy;
+          cell.y = tetromino.cells[2].y + dx;
+     });
+}
 
 export function rotation() {
+     if (tetromino.name === 'O') return;
 
-     if (tetromino.name == 'O') return;
+     let offsetX;
+     rotate();
 
-     wallkick = false;
+     const collisionDetected = tetromino.cells.some(cell =>
+          cell.x < 0 ||
+          cell.x >= COLS ||
+          grid[cell.y][cell.x] !== 0
+     );
 
-     rotateCells();
+     if (!collisionDetected) return;
 
-     while (!wallkick) {
-          wallkick = true;
-          
-          tetromino.cells.forEach(cell => {
-               let precisePixelX = Math.round(cell.pixelX / CellWidth);
+     const collisionDirection = tetromino.cells.every(cell => {
 
-               if (precisePixelX < 0) {
-                    tetromino.cells.forEach(cell => cell.pixelX += CellWidth);
-                    wallkick = false;
-                    return; 
-               }
+          if (cell.x > 0 && grid[cell.y][cell.x - 1] === 0) {
+               offsetX = -1;
+               return true;
+          }
 
-               if (precisePixelX > maxCol()) {
-                    tetromino.cells.forEach(cell => cell.pixelX -= CellWidth);
-                    wallkick = false;
-                    return; 
-               }
-          });
+          if (cell.x < COLS - 1 && grid[cell.y][cell.x + 1] === 0) {
+               offsetX = +1;
+               return true;
+          }
+
+          return false;
+     });
+
+     if (collisionDirection) {
+          tetromino.cells.forEach(cell => cell.x += offsetX);
+          return;
      }
-}              
+
+     rotate();
+}
