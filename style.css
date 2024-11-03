@@ -333,9 +333,11 @@ main {
     border-right: 2px rgb(106, 105, 105) solid;
 }
 
-.screen-score {
+#scoreCanvas {
     width: 20%;
     height: 100%;
     border-left:2px rgb(106, 105, 105) solid;
+    padding-left: 5px;
+    padding-top: 25px;
 }
 

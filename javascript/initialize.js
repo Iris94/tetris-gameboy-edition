@@ -1,7 +1,8 @@
-import { COLS, ROWS, CTX, DX, DY } from "./config.js";
+import { COLS, ROWS, CTX, DX, DY, STRING_EMPTY } from "./config.js";
+import { tetromino, grid } from "./engine.js";
 
 export function createGrid () {
-     return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+     return Array.from({ length: ROWS }, () => Array(COLS).fill(STRING_EMPTY));
 }
 
 export function drawGrid () {
@@ -18,4 +19,41 @@ export function drawGrid () {
                CTX.strokeRect(x, y, DX, DY)
           }
      }
+}
+
+export function redrawTetrominos () {
+     CTX.lineWidth = 1;
+     CTX.strokeStyle = "#ffff";
+     CTX.shadowColor = "#000";
+     CTX.shadowOffsetX = 1;
+     CTX.shadowOffsetY = 1;
+     CTX.shadowBlur = 5
+
+     for (let row = 0; row < ROWS; row++) {
+          for (let col = 0; col < COLS; col++) {
+
+               if (grid[row][col] !== STRING_EMPTY) {
+
+                    CTX.fillStyle = grid[row][col];
+                    CTX.fillRect(col * DX, row * DY, DX, DY);
+                    CTX.strokeRect(col * DX, row * DY, DX, DY);
+               }
+          }
+     }
+}
+
+export function drawTetromino () {
+     CTX.fillStyle = tetromino.color;
+     CTX.lineWidth = 1;
+     CTX.strokeStyle = "#ffff";
+     CTX.shadowColor = "#000";
+     CTX.shadowOffsetX = 1;
+     CTX.shadowOffsetY = 1;
+     CTX.shadowBlur = 5
+
+     tetromino.cells.forEach(cell => {
+
+          CTX.fillRect(cell.x * DX, cell.y * DY, DX, DY);
+          CTX.strokeRect(cell.x * DX, cell.y * DY, DX, DY);
+     })
 }

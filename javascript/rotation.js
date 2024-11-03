@@ -1,4 +1,4 @@
-import { COLS } from "./config.js";
+import { COLS, STRING_EMPTY } from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
 function rotate() {
@@ -10,47 +10,32 @@ function rotate() {
      });
 }
 
+function wallkicks (data) {
+     for (let kick of data) {
+          const collisionDetected = tetromino.cells.some(cell =>
+               cell.x < 0 ||
+               cell.x >= COLS ||
+               grid[cell.y][cell.x] !== STRING_EMPTY
+          );
+
+          if (!collisionDetected) {
+               return true;
+          }
+
+          tetromino.cells.forEach(cell => cell.x += kick);
+     }
+     return false;
+}
+
 export function rotation() {
      if (tetromino.name === 'O') return;
 
-     let wallKickData = [-1, +2, -1]
-     let rotate1 = false;
+     let wallkickData = [-1, +2, -1]
+     
+     rotate();
+     
+     if (wallkicks(wallkickData)) return;
 
      rotate();
-
-     for (let kick of wallKickData) {
-
-          const collisionDetected = tetromino.cells.some(cell =>
-               cell.x < 0 ||
-               cell.x >= COLS ||
-               grid[cell.y][cell.x] !== 0
-          );
-
-          if (!collisionDetected) {
-               rotate1 = true;
-               break;
-          }
-
-          tetromino.cells.forEach(cell => cell.x += kick);
-     }
-
-     if (rotate1) return;
-
-     rotate();
-
-     for (let kick of wallKickData) {
-
-          const collisionDetected = tetromino.cells.some(cell =>
-               cell.x < 0 ||
-               cell.x >= COLS ||
-               grid[cell.y][cell.x] !== 0
-          );
-
-          if (!collisionDetected) {
-               rotate1 = true;
-               break;
-          }
-
-          tetromino.cells.forEach(cell => cell.x += kick);
-     }
+     wallkicks(wallkickData);
 }

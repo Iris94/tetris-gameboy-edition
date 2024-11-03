@@ -1,0 +1,18 @@
+     for (let row = 19; row >= 0; row--) {
+          let clearRow = true;
+
+          for (let col = 9; col >= 0; col--) {
+               
+               if (grid[row][col] === '') {
+                    clearRow = false;
+                    break;
+               }
+          }
+
+          if (clearRow) {
+               console.log(`initialize clearing on row ${row}`) 
+          }
+
+          console.log(grid[row], `row: ${row}`)
+
+     }
