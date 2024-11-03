@@ -1,9 +1,8 @@
-import { drawGrid, createGrid, drawTetromino, redrawTetrominos } from "./initialize.js";
-import { clearGridData, clearRow, getGridData, putGridData, randomize, updateGrid } from "./logic.js";
+import { drawGrid, drawTetromino, redrawTetrominos, drawNextGrid, drawNextTetromino } from "./draws.js";
+import { clearGridState, clearNextGridState, clearRow, copyGridState, pasteGridState, updateGrid } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
-import { ROWS, COLS, STRING_EMPTY } from "./config.js";
+import { ROWS, COLS, STRING_EMPTY, createGrid, Randomize, POSITION } from "./config.js";
 import { rotation } from "./rotation.js";
-import { drawNextTetromino, drawScore, pickNextTetromino } from "./score.js";
 
 export let grid;
 export let gridData;
@@ -66,8 +65,7 @@ function assembleTetrominos() {
      for (let shape of tetrominoShapes) {
           for (let cell of shape.cells) {
 
-               cell.x += 4;
-
+               cell.x += POSITION;
           }
 
           tetrominosArray.push(
@@ -82,12 +80,12 @@ function assembleTetrominos() {
 
 function initializeGame() {
      drawGrid();
-     drawScore();
-     gridData = getGridData();
+     drawNextGrid();
+     gridData = copyGridState();
      assembleTetrominos();
      grid = createGrid();
-     nextTetromino = pickNextTetromino(tetrominosArray);
-     tetromino = randomize(tetrominosArray);
+     nextTetromino = Randomize(tetrominosArray);
+     tetromino = Randomize(tetrominosArray);
      tetrisLoop();
 }
 
@@ -98,29 +96,30 @@ function tetrisLoop () {
 
 function gameEngine() {
      if (collision) {
-
           updateGrid();
+          clearNextGridState();
+          tetromino = nextTetromino;
+          nextTetromino = Randomize(tetrominosArray);
+          drawNextGrid();
+          drawNextTetromino();
           
           if (clearRow()) {
-               clearGridData();
                drawGrid();
                redrawTetrominos();
-               gridData = getGridData();
+               gridData = copyGridState();
                tetromino.defaultCoordinates();
-               tetromino = randomize(tetrominosArray);
+               tetromino = nextTetromino;
                drawTetromino();
                collision = false;
                return;
           }
 
-          gridData = getGridData();
+          gridData = copyGridState();
           tetromino.defaultCoordinates();
-          nextTetromino = pickNextTetromino(tetrominosArray);
-          tetromino = randomize(tetrominosArray);
      }
-    
-     clearGridData();
-     putGridData(gridData);
+     
+     clearGridState();
+     pasteGridState(gridData);
      drawTetromino();
      collision = false;
 }

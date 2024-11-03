@@ -1,11 +1,10 @@
-import { COLS, CTX, DX, DY, ROWS, STRING_EMPTY } from "./config.js";
+import { COLS, CTX, HUD_CTX, STRING_EMPTY } from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
-export const getGridData = () => CTX.getImageData(0, 0, canvas.width, canvas.height);
-export const putGridData = (data) => CTX.putImageData(data, 0, 0);
-
-export const clearGridData = () => CTX.clearRect(0, 0, canvas.width, canvas.height);
-export const randomize = (data) => data[Math.floor(Math.random() * data.length)];
+export const copyGridState = () => CTX.getImageData(0, 0, canvas.width, canvas.height);
+export const pasteGridState = (data) => CTX.putImageData(data, 0, 0);
+export const clearGridState = () => CTX.clearRect(0, 0, canvas.width, canvas.height);
+export const clearNextGridState = () => HUD_CTX.clearRect(0, 0, hudCanvas.width, hudCanvas.height)
 
 export function updateGrid() {
      tetromino.cells.forEach(cell => {

@@ -328,13 +328,13 @@ main {
 }
 
 .screen-special {
-    width: 20%;
+    width: 15%;
     height: 100%;
     border-right: 2px rgb(106, 105, 105) solid;
 }
 
-#scoreCanvas {
-    width: 20%;
+#hudCanvas {
+    width: 25%;
     height: 100%;
     border-left:2px rgb(106, 105, 105) solid;
     padding-left: 5px;
