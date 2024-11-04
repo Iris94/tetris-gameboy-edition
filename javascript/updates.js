@@ -17,9 +17,9 @@ export function clearRow() {
           tetromino.cells
                .filter(cell => grid[cell.y].every(col => col !== STRING_EMPTY))
                .map(cell => cell.y)
-               .sort((a, b) => b - a)
+               .sort((a, b) => a - b)
      )];
-
+     console.log(rows)
      if (rows.length === 0) return false;
 
      for (let row of rows) {

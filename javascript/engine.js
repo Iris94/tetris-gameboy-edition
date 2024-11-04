@@ -98,24 +98,27 @@ function gameEngine() {
      if (collision) {
           updateGrid();
           clearNextGridState();
-          tetromino = nextTetromino;
-          nextTetromino = Randomize(tetrominosArray);
           drawNextGrid();
-          drawNextTetromino();
           
           if (clearRow()) {
+               clearGridState();
                drawGrid();
                redrawTetrominos();
                gridData = copyGridState();
                tetromino.defaultCoordinates();
                tetromino = nextTetromino;
+               nextTetromino = Randomize(tetrominosArray);
                drawTetromino();
+               drawNextTetromino();
                collision = false;
                return;
           }
 
           gridData = copyGridState();
           tetromino.defaultCoordinates();
+          tetromino = nextTetromino;
+          nextTetromino = Randomize(tetrominosArray);
+          drawNextTetromino();
      }
      
      clearGridState();
