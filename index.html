@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link href="style.css" rel="stylesheet">
     <script src="script.js" type="module" defer></script>
     <title>Super Tetris</title>
 </head>
@@ -31,9 +31,16 @@
                     </div>
 
                     <div class="screen">
-                        
-                        <div class="screen-special"></div>
-                        <canvas id="canvas"></canvas>
+                        <canvas id="overlay"></canvas>
+                        <canvas id="overlayContent"></canvas>
+
+                        <canvas id="manaCanvas"></canvas>
+                        <div class="canvasWrap">
+                            <canvas id="canvas"></canvas>
+                            <canvas id="special"></canvas>
+                            <canvas id="clear"></canvas>
+                            <canvas id="drop"></canvas>
+                        </div>
                         <canvas id="hudCanvas"></canvas>
 
                     </div>

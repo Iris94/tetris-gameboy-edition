@@ -1,4 +1,4 @@
-import { COLS, STRING_EMPTY } from "./config.js";
+import { Cols} from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
 function rotate() {
@@ -14,8 +14,8 @@ function wallkicks (data) {
      for (let kick of data) {
           const collisionDetected = tetromino.cells.some(cell =>
                cell.x < 0 ||
-               cell.x >= COLS ||
-               grid[cell.y][cell.x] !== STRING_EMPTY
+               cell.x >= Cols ||
+               grid[cell.y][cell.x] !== 0
           );
 
           if (!collisionDetected) {

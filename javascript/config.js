@@ -1,8 +1,28 @@
-export const CANVAS = document.querySelector('#canvas');
-export const CTX = canvas.getContext("2d", { willReadFrequently: true });
+export const canvas = document.querySelector('#canvas');
+export const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-export const HUD_CANVAS = document.querySelector('#hudCanvas');
-export const HUD_CTX = HUD_CANVAS.getContext('2d', { willReadFrequently: true });
+export const hudCanvas = document.querySelector('#hudCanvas');
+export const hctx = hudCanvas.getContext('2d', { willReadFrequently: true });
+
+export const manaCanvas = document.querySelector('#manaCanvas');
+export const mctx = manaCanvas.getContext("2d", { willReadFrequently: true });
+
+export const special = document.querySelector('#special');
+export const sctx = special.getContext("2d", { willReadFrequently: true });
+
+export const clear = document.querySelector('#clear');
+export const cctx = clear.getContext("2d", { willReadFrequently: true });
+
+export const drop = document.querySelector('#drop');
+export const dctx = drop.getContext("2d", { willReadFrequently: true });
+
+export const overlay = document.querySelector('#overlay');
+export const octx = overlay.getContext("2d", { willReadFrequently: true });
+
+export const ocontent = document.querySelector('#overlayContent');
+export const occtx = ocontent.getContext("2d", { willReadFrequently: true });
+
+
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
@@ -10,14 +30,47 @@ canvas.height = canvas.offsetHeight;
 hudCanvas.width = hudCanvas.offsetWidth;
 hudCanvas.height = hudCanvas.offsetHeight;
 
-export const ROWS = 20;
-export const COLS = 10;
-export const STRING_EMPTY = '';
+manaCanvas.width = manaCanvas.offsetWidth;
+manaCanvas.height = manaCanvas.offsetHeight;
 
-export const DX = canvas.width / COLS;
-export const DY = canvas.height / ROWS;
-export const POSITION = 4;
+special.width = special.offsetWidth;
+special.height = special.offsetHeight;
 
-export const createGrid = () => Array.from({ length: ROWS }, () => Array(COLS).fill(STRING_EMPTY));
+clear.width = clear.offsetWidth;
+clear.height = clear.offsetHeight;
+
+drop.width = drop.offsetWidth;
+drop.height = drop.offsetHeight;
+
+overlay.width = overlay.offsetWidth;
+overlay.height = overlay.offsetHeight;
+
+ocontent.width = ocontent.offsetWidth;
+ocontent.height = ocontent.offsetHeight;
+
+
+
+export const Rows = 20;
+export const Cols = 10;
+export const Dx = canvas.width / Cols;
+export const Dy = canvas.height / Rows;
+export const Position = 4;
+
+export const createGrid = () => Array.from({ length: Rows }, () => Array(Cols).fill(0));
+export const particlesObjectPool = () => Array.from({ length: 15000 }, () => ({}));
+export const tetrominoObjectPool = () => Array.from({ length: 250 }, () => ({}));
+export const activeTetrominoPool = () => Array.from({ length: 250 }, () => null);
 export const Randomize = (data) => data[Math.floor(Math.random() * data.length)];
 
+
+
+
+
+export const Ninja = new Image();
+Ninja.src = './assets/ninjas.png';
+
+export const Invasion = new Image();
+Invasion.src = './assets/red-army.png';
+
+export const Artillery = new Image();
+Artillery.src = './assets/artillery.png';

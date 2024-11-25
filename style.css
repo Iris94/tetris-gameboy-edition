@@ -253,9 +253,6 @@ main {
     ;
 }
 
-
-
-
 .button {
     padding: 10px 20px;
     display: flex;
@@ -320,24 +317,79 @@ main {
     height: 85%;
     box-shadow: inset 2px 2px 10px 1px black;
     display: flex;
+    position: relative;
+}
+
+.canvasWrap {
+    width: 60%;
+    height: 100%;
+    border-left: 2px rgb(106, 105, 105) solid;
+    border-right: 2px rgb(106, 105, 105) solid;
+    position: relative;
 }
 
 #canvas {
-    width: 60%;
+    width: 100%;
     height: 100%;
+    display: block;
 }
 
-.screen-special {
+#special {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+#overlayContent {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    image-rendering: pixelated;
+}
+
+#clear {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+#drop {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+#manaCanvas {
     width: 15%;
     height: 100%;
-    border-right: 2px rgb(106, 105, 105) solid;
+    position: relative;
+    bottom: 15px;
 }
 
 #hudCanvas {
     width: 25%;
     height: 100%;
-    border-left:2px rgb(106, 105, 105) solid;
     padding-left: 5px;
-    padding-top: 25px;
+    position: relative;
+    top: 25px;
 }
-

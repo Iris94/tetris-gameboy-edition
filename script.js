@@ -5,3 +5,8 @@ import './javascript/updates.js';
 import './javascript/draws.js';
 import './javascript/rotation.js';
 import './javascript/metrics.js';
+
+import './javascript/animations/drops.js';
+import './javascript/animations/clears.js';
+import './javascript/animations/ninjaStrike.js';
+import './javascript/animations/artilleryStrike.js';
