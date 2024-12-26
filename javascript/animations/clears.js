@@ -34,14 +34,13 @@ function clearCell(x, y, clearName) {
     );
 
     const cellId = grid[y][x];
-    const active = activeTetrominos[cellId - 1];
-    cellAnimation(active, clearName, cellId, y, x, 1000);
+    cellAnimation(clearName, cellId, y, x, 1000);
 
     ctx.strokeRect(x * Dx + 0.5, y * Dy + 0.5, Dx - 1, Dy - 1);
     sctx.clearRect(x * Dx, y * Dy, Dx, Dy);
 }
 
-function cellAnimation(cell, clearName, id, y, x, duration) {
+function cellAnimation(clearName, id, y, x, duration) {
     const particles = initiateParticles(x * Dx, y * Dy, id, clearName);
     const startTime = performance.now();
 
@@ -85,7 +84,7 @@ function cellAnimation(cell, clearName, id, y, x, duration) {
 
 function initiateParticles(x, y, id, clearName) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const maxParticles = isMobile ? 50 : 350;
+    const maxParticles = isMobile ? 150 : 450;
     let particles = [];
 
     const colorPalettes = {
