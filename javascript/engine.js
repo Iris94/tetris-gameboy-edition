@@ -374,13 +374,13 @@ window.addEventListener('touchmove', (e) => {
         return; 
     }
 
-    if (Math.abs(deltaX) > 20) {
+    if (Math.abs(deltaX) > 5) {
         deltaX > 0 ? tetromino.moveRight() : tetromino.moveLeft();
         touchStartX = currentTouchX; 
         gameEngine();
     }
 
-    if (Math.abs(deltaY) > 20) {
+    if (Math.abs(deltaY) > 5) {
         tetromino.moveDown();
         touchStartY = currentTouchY; 
         gameEngine();
