@@ -84,7 +84,7 @@ function invasionStrikeAnimation(targetCells, completed) {
 
     const animation = (currentTime) => {
         const elapsedTime = currentTime - startTime;
-        const progress = Math.min(elapsedTime / 500, 1);
+        const progress = Math.min(elapsedTime / 3500, 1);
 
         sctx.clearRect(0, 0, special.width, special.height);
 

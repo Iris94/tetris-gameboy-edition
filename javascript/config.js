@@ -25,7 +25,7 @@ export const occtx = ocontent.getContext("2d", { willReadFrequently: true });
 
 
 canvas.width = canvas.offsetWidth;
-canvas.height = canvas.offsetHeight;
+canvas.height = canvas.offsetHeight
 
 hudCanvas.width = hudCanvas.offsetWidth;
 hudCanvas.height = hudCanvas.offsetHeight;
@@ -50,7 +50,7 @@ ocontent.height = ocontent.offsetHeight;
 
 
 
-export const Rows = 20;
+export const Rows = 22;
 export const Cols = 10;
 export const Dx = canvas.width / Cols;
 export const Dy = canvas.height / Rows;

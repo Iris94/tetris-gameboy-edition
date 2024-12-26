@@ -8,8 +8,8 @@ export const clearHud = () => hctx.clearRect(0, 0, hudCanvas.width, hudCanvas.he
 export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.height);
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const deepCopy = (data) => JSON.parse(JSON.stringify(data));
-
 export const clearFilteredRows = (data) => data.forEach(row => grid[row] = Array(Cols).fill(0));
+export const gameoverCheck = () => grid[0].some(cell => cell !== 0);
 
 export function updateGrid() {
      tetromino.cells.forEach(cell => {
@@ -44,7 +44,6 @@ export function updateTetrominoInfoByCol(data) {
         delete active[key];
     }
 }
-
 
 export function updateTetrominoInfoByRow(data) {
      const idColorData = new Map();
