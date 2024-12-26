@@ -349,17 +349,17 @@ let touchStartTime = 0;
 let touchEndTime = 0;
 let touchStartX = 0;
 let touchStartY = 0;
-const tapThreshold = 200; 
-const moveThreshold = 10; 
+let isMoving = false;
+const tapThreshold = 200;
+const moveThreshold = 10;
 
 window.addEventListener('touchstart', (e) => {
     if (pause) return;
-
-    touchStartTime = performance.now(); 
+    touchStartTime = performance.now();
     touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY; 
-
+    touchStartY = e.touches[0].clientY;
     e.preventDefault();
+    isMoving = false;
 });
 
 window.addEventListener('touchmove', (e) => {
@@ -371,19 +371,21 @@ window.addEventListener('touchmove', (e) => {
     const deltaY = currentTouchY - touchStartY;
 
     if (Math.abs(deltaX) > moveThreshold || Math.abs(deltaY) > moveThreshold) {
-        return; 
+        isMoving = true;
     }
 
-    if (Math.abs(deltaX) > 5) {
-        deltaX > 0 ? tetromino.moveRight() : tetromino.moveLeft();
-        touchStartX = currentTouchX; 
-        gameEngine();
-    }
+    if (isMoving) {
+        if (Math.abs(deltaX) > 15) {
+            deltaX > 0 ? tetromino.moveRight() : tetromino.moveLeft();
+            touchStartX = currentTouchX;
+            gameEngine();
+        }
 
-    if (Math.abs(deltaY) > 5) {
-        tetromino.moveDown();
-        touchStartY = currentTouchY; 
-        gameEngine();
+        if (Math.abs(deltaY) > 15) {
+            tetromino.moveDown();
+            touchStartY = currentTouchY;
+            gameEngine();
+        }
     }
 });
 
@@ -392,8 +394,8 @@ window.addEventListener('touchend', (e) => {
 
     touchEndTime = performance.now();
 
-    if (touchEndTime - touchStartTime < tapThreshold && Math.abs(touchStartX - e.changedTouches[0].clientX) < moveThreshold && Math.abs(touchStartY - e.changedTouches[0].clientY) < moveThreshold) {
-        rotation(); 
+    if (!isMoving && touchEndTime - touchStartTime < tapThreshold) {
+        rotation();
         gameEngine();
     }
 });
