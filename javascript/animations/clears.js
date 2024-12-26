@@ -14,41 +14,33 @@ export function animateClears(data, clearName) {
 
     if (clearName === 'invasion') {
         const { x, y } = data;
-        ctx.clearRect(
-            x * Dx - padding,
-            y * Dy - padding,
-            Dx + padding * 2,
-            Dy + padding * 2
-        );
-
-        const cellId = grid[y][x];
-        const active = activeTetrominos[cellId - 1];
-        cellAnimation(active, clearName, cellId, y, x, 1000);
-
-        ctx.strokeRect(x * Dx + 0.5, y * Dy + 0.5, Dx - 1, Dy - 1);
-        sctx.clearRect(x * Dx, y * Dy, Dx, Dy); 
-
+        clearCell(x, y, clearName);
     } else {
-
         for (let y of data) {
             for (let x = 0; x < Cols; x++) {
                 if (grid[y][x] === 0) continue;
-
-                ctx.clearRect(
-                    x * Dx - padding,
-                    y * Dy - padding,
-                    Dx + padding * 2,
-                    Dy + padding * 2
-                );
-
-                const cellId = grid[y][x];
-                const active = activeTetrominos[cellId - 1];
-                cellAnimation(active, clearName, cellId, y, x, 1000);
-
-                ctx.strokeRect(x * Dx + 0.5, y * Dy + 0.5, Dx - 1, Dy - 1);
+                clearCell(x, y, clearName);
             }
         }
     }
+}
+
+function clearCell(x, y, clearName) {
+    const padding = 1;
+    
+    ctx.clearRect(
+        x * Dx - padding,
+        y * Dy - padding,
+        Dx + padding * 2,
+        Dy + padding * 2
+    );
+
+    const cellId = grid[y][x];
+    const active = activeTetrominos[cellId - 1];
+    cellAnimation(active, clearName, cellId, y, x, 1000);
+
+    ctx.strokeRect(x * Dx + 0.5, y * Dy + 0.5, Dx - 1, Dy - 1);
+    sctx.clearRect(x * Dx, y * Dy, Dx, Dy);
 }
 
 function cellAnimation(cell, clearName, id, y, x, duration) {
@@ -61,6 +53,8 @@ function cellAnimation(cell, clearName, id, y, x, duration) {
 
         cctx.globalAlpha = 1 - progress;
 
+        // Batch draw particles
+        cctx.beginPath();
         for (let i = 0; i < particles.length; i++) {
             cctx.clearRect(particles[i].x, particles[i].y, particles[i].size, particles[i].size);
 
@@ -68,13 +62,14 @@ function cellAnimation(cell, clearName, id, y, x, duration) {
             particles[i].y += particles[i].directionY;
 
             cctx.fillStyle = particles[i].color;
-            cctx.fillRect(particles[i].x, particles[i].y, particles[i].size, particles[i].size);
+            cctx.rect(particles[i].x, particles[i].y, particles[i].size, particles[i].size);
         }
+        cctx.fill();
 
         if (progress < 1) {
             requestAnimationFrame(animation);
         } else {
-            cctx.clearRect(0, 0, special.width, special.height);
+            cctx.clearRect(0, 0, cctx.canvas.width, cctx.canvas.height);
             cctx.globalAlpha = 1;
 
             particles.forEach(particle => {
@@ -92,6 +87,8 @@ function cellAnimation(cell, clearName, id, y, x, duration) {
 }
 
 function initiateParticles(x, y, id, clearName) {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const maxParticles = isMobile ? 150 : 450;
     let particles = [];
 
     const colorPalettes = {
@@ -119,7 +116,7 @@ function initiateParticles(x, y, id, clearName) {
 
     const sovietRed = 'hsl(0, 85%, 40%)';
 
-    for (let i = 0; i < 450; i++) {
+    for (let i = 0; i < maxParticles; i++) {
         let lendedParticleObject = particlesPool.pop();
         let startX = x;
         let endX = x + Dx;

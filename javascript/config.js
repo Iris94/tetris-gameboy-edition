@@ -1,5 +1,5 @@
 export const canvas = document.querySelector('#canvas');
-export const ctx = canvas.getContext("2d", { willReadFrequently: true });
+export const ctx = canvas.getContext("2d", { willReadFrequently: true }, {alpha: false});
 
 export const hudCanvas = document.querySelector('#hudCanvas');
 export const hctx = hudCanvas.getContext('2d', { willReadFrequently: true });

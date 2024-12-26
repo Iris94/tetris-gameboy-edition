@@ -10,6 +10,10 @@
     color: var(--blue)
 }
 
+canvas {
+    will-change: transform, opacity;
+}
+
 @font-face {
     font-family: 'nintendo';
     src: url('/fonts/nintendo.otf') format('otf');
