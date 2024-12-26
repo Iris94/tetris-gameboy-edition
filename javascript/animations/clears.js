@@ -2,8 +2,6 @@ import { grid, activeTetrominos, particlesPool, idColorStorage } from "../engine
 import { cctx, ctx, Dx, Dy, Cols, sctx } from "../config.js";
 
 export function animateClears(data, clearName) {
-    const padding = 1;
-
     ctx.shadowColor = 'transparent';
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
@@ -53,7 +51,6 @@ function cellAnimation(cell, clearName, id, y, x, duration) {
 
         cctx.globalAlpha = 1 - progress;
 
-        // Batch draw particles
         cctx.beginPath();
         for (let i = 0; i < particles.length; i++) {
             cctx.clearRect(particles[i].x, particles[i].y, particles[i].size, particles[i].size);
@@ -88,7 +85,7 @@ function cellAnimation(cell, clearName, id, y, x, duration) {
 
 function initiateParticles(x, y, id, clearName) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const maxParticles = isMobile ? 150 : 450;
+    const maxParticles = isMobile ? 50 : 350;
     let particles = [];
 
     const colorPalettes = {

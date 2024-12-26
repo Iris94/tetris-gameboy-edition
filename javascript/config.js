@@ -1,26 +1,26 @@
 export const canvas = document.querySelector('#canvas');
-export const ctx = canvas.getContext("2d", { willReadFrequently: true }, {alpha: false});
+export const ctx = canvas.getContext("2d", { willReadFrequently: true});
 
 export const hudCanvas = document.querySelector('#hudCanvas');
-export const hctx = hudCanvas.getContext('2d', { willReadFrequently: true });
+export const hctx = hudCanvas.getContext('2d');
 
 export const manaCanvas = document.querySelector('#manaCanvas');
-export const mctx = manaCanvas.getContext("2d", { willReadFrequently: true });
+export const mctx = manaCanvas.getContext("2d");
 
 export const special = document.querySelector('#special');
-export const sctx = special.getContext("2d", { willReadFrequently: true });
+export const sctx = special.getContext("2d");
 
 export const clear = document.querySelector('#clear');
-export const cctx = clear.getContext("2d", { willReadFrequently: true });
+export const cctx = clear.getContext("2d");
 
 export const drop = document.querySelector('#drop');
-export const dctx = drop.getContext("2d", { willReadFrequently: true });
+export const dctx = drop.getContext("2d");
 
 export const overlay = document.querySelector('#overlay');
-export const octx = overlay.getContext("2d", { willReadFrequently: true });
+export const octx = overlay.getContext("2d");
 
 export const ocontent = document.querySelector('#overlayContent');
-export const occtx = ocontent.getContext("2d", { willReadFrequently: true });
+export const occtx = ocontent.getContext("2d");
 
 
 

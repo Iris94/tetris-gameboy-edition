@@ -345,34 +345,55 @@ window.addEventListener('click', (e) => {
      gameEngine();
 });
 
-window.addEventListener('touchmove', (e) => {
-     if (pause) return;
-
-     const currentTouchX = e.touches[0].clientX;
-     const currentTouchY = e.touches[0].clientY;
-     const deltaX = currentTouchX - previousTouchX;
-     const deltaY = currentTouchY - previousTouchY;
-
-     if (Math.abs(deltaX) > 5) {
-          deltaX > 0
-               ? tetromino.moveRight()
-               : tetromino.moveLeft();
-
-          previousTouchX = currentTouchX;
-          gameEngine();
-     }
-
-     if (Math.abs(deltaY) > 5) {
-          tetromino.moveDown();
-          previousTouchY = currentTouchY;
-          gameEngine();
-     }
-});
+let touchStartTime = 0;
+let touchEndTime = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+const tapThreshold = 200; 
+const moveThreshold = 10; 
 
 window.addEventListener('touchstart', (e) => {
-     if (pause) return;
+    if (pause) return;
 
-     e.preventDefault();
-     rotation();
-     gameEngine();
+    touchStartTime = performance.now(); 
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY; 
+
+    e.preventDefault();
+});
+
+window.addEventListener('touchmove', (e) => {
+    if (pause) return;
+
+    const currentTouchX = e.touches[0].clientX;
+    const currentTouchY = e.touches[0].clientY;
+    const deltaX = currentTouchX - touchStartX;
+    const deltaY = currentTouchY - touchStartY;
+
+    if (Math.abs(deltaX) > moveThreshold || Math.abs(deltaY) > moveThreshold) {
+        return; 
+    }
+
+    if (Math.abs(deltaX) > 20) {
+        deltaX > 0 ? tetromino.moveRight() : tetromino.moveLeft();
+        touchStartX = currentTouchX; 
+        gameEngine();
+    }
+
+    if (Math.abs(deltaY) > 20) {
+        tetromino.moveDown();
+        touchStartY = currentTouchY; 
+        gameEngine();
+    }
+});
+
+window.addEventListener('touchend', (e) => {
+    if (pause) return;
+
+    touchEndTime = performance.now();
+
+    if (touchEndTime - touchStartTime < tapThreshold && Math.abs(touchStartX - e.changedTouches[0].clientX) < moveThreshold && Math.abs(touchStartY - e.changedTouches[0].clientY) < moveThreshold) {
+        rotation(); 
+        gameEngine();
+    }
 });
