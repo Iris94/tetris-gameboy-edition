@@ -32,7 +32,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 0;
+export let manaLevel = 92;
 export let pause = false;
 export let previousMouseX = 0;
 export let previousTouchX = 0;
@@ -250,9 +250,9 @@ function specialsPhase() {
           : null
 
      manaLevel === 100
-          ? (pauseGame(), Randomize(allSpecials)())
+          ? (pauseGame(), startArtillery())
           : null
-
+// (pauseGame(), Randomize(allSpecials)())
      function startInvasion() {
           invasionStrike((bonusScore) => {
                clearMainBoard();
@@ -368,11 +368,3 @@ window.addEventListener('touchmove', (e) => {
           gameEngine();
      }
 });
-
-// window.addEventListener('touchstart', (e) => {
-//      if (pause) return;
-
-//      e.preventDefault();
-//      rotation();
-//      gameEngine();
-// });
