@@ -1,26 +1,58 @@
-import { filterRowsData, grid, activeTetrominos, particlesPool, idColorStorage } from "../engine.js";
-import { cctx, ctx, Dx, Dy, Cols } from "../config.js";
+import { grid, activeTetrominos, particlesPool, idColorStorage } from "../engine.js";
+import { cctx, ctx, Dx, Dy, Cols, sctx } from "../config.js";
 
-export function animateClears() {
-    for (let y of filterRowsData) {
-        for (let x = 0; x < Cols; x++) {
+export function animateClears(data, clearName) {
+    const padding = 1;
 
-            ctx.strokeStyle = 'rgba(220, 215, 186, 0.1)';
-            ctx.fillStyle = '#292929';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x * Dx, y * Dy, Dx, Dy);
-            ctx.fillRect(x * Dx, y * Dy, Dx, Dy);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = 0;
 
-            const cellId = grid[y][x];
-            const active = activeTetrominos[cellId - 1];
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(220, 215, 186, 0.05)';
 
-            cellAnimation(active, cellId, y, x, 1000);
+    if (clearName === 'invasion') {
+        const { x, y } = data;
+        ctx.clearRect(
+            x * Dx - padding,
+            y * Dy - padding,
+            Dx + padding * 2,
+            Dy + padding * 2
+        );
+
+        const cellId = grid[y][x];
+        const active = activeTetrominos[cellId - 1];
+        cellAnimation(active, clearName, cellId, y, x, 1000);
+
+        ctx.strokeRect(x * Dx + 0.5, y * Dy + 0.5, Dx - 1, Dy - 1);
+        sctx.clearRect(x * Dx, y * Dy, Dx, Dy); 
+
+    } else {
+
+        for (let y of data) {
+            for (let x = 0; x < Cols; x++) {
+                if (grid[y][x] === 0) continue;
+
+                ctx.clearRect(
+                    x * Dx - padding,
+                    y * Dy - padding,
+                    Dx + padding * 2,
+                    Dy + padding * 2
+                );
+
+                const cellId = grid[y][x];
+                const active = activeTetrominos[cellId - 1];
+                cellAnimation(active, clearName, cellId, y, x, 1000);
+
+                ctx.strokeRect(x * Dx + 0.5, y * Dy + 0.5, Dx - 1, Dy - 1);
+            }
         }
     }
 }
 
-function cellAnimation(cell, id, y, x, duration) {
-    const particles = initiateParticles(x * Dx, y * Dy, id);
+function cellAnimation(cell, clearName, id, y, x, duration) {
+    const particles = initiateParticles(x * Dx, y * Dy, id, clearName);
     const startTime = performance.now();
 
     const animation = (currentTime) => {
@@ -59,7 +91,7 @@ function cellAnimation(cell, id, y, x, duration) {
     requestAnimationFrame(animation);
 }
 
-function initiateParticles(x, y, id) {
+function initiateParticles(x, y, id, clearName) {
     let particles = [];
 
     const colorPalettes = {
@@ -72,8 +104,22 @@ function initiateParticles(x, y, id) {
         Z: ['#C34043', '#CF4C4E', '#DB595A', '#E66666', '#F17272', '#FC7F7F', '#A63437', '#87292C', '#671F22', '#481618'],
     };
 
-    for (let i = 0; i < 200; i++) {
+    const fireColors = [
+        'hsl(6, 84%, 25%)',
+        'hsl(20, 91%, 47%)',
+        'hsl(10, 66%, 11%)'
+    ];
 
+    const ninjaColors = [
+        'hsl(0, 0%, 10%)',
+        'hsl(0, 0%, 12%)',
+        'hsl(0, 0%, 15%)',
+        'hsl(0, 0%, 8%)'
+    ];
+
+    const sovietRed = 'hsl(0, 85%, 40%)';
+
+    for (let i = 0; i < 450; i++) {
         let lendedParticleObject = particlesPool.pop();
         let startX = x;
         let endX = x + Dx;
@@ -81,10 +127,31 @@ function initiateParticles(x, y, id) {
         let endY = y + Dy;
         let directionX = (Math.random() * 2 - 1);
         let directionY = (Math.random() * 2 - 1);
-        let size = Math.random() * 3 + 2;
-        let speed = Math.random() * 2 + 0.75;
-        let color = colorPalettes[idColorStorage.get(id)]
-                    [Math.floor(Math.random() * colorPalettes[idColorStorage.get(id)].length)];
+        let size = Math.random() * 5;
+        let speed = Math.random() * 1.25 + 0.25;
+
+        let color;
+        switch (clearName) {
+            case 'default':
+                color = colorPalettes[idColorStorage.get(id)][Math.floor(Math.random() * colorPalettes[idColorStorage.get(id)].length)];
+                break;
+
+            case 'artillery':
+                color = fireColors[Math.floor(Math.random() * fireColors.length)];
+                break;
+
+            case 'ninja':
+                color = ninjaColors[Math.floor(Math.random() * ninjaColors.length)];
+                break;
+
+            case 'invasion':
+                color = sovietRed;
+                break;
+
+            default:
+                color = 'white';
+                break;
+        }
 
         lendedParticleObject.x = Math.random() * (endX - startX + 1) + startX;
         lendedParticleObject.y = Math.random() * (endY - startY + 1) + startY;
@@ -93,7 +160,7 @@ function initiateParticles(x, y, id) {
         lendedParticleObject.size = size;
         lendedParticleObject.color = color;
 
-        particles.push(lendedParticleObject)
+        particles.push(lendedParticleObject);
     }
 
     return particles;

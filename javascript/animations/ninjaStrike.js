@@ -1,5 +1,8 @@
 import { Randomize, sctx, Rows, Cols, Dx, Dy, ctx, Ninja, octx, occtx, ocontent } from "../config.js";
-import { tetrominosArray, grid, activeTetrominos } from "../engine.js";
+import { tetrominosArray, grid, activeTetrominos, score } from "../engine.js";
+import { deepCopy, updateGridWithFilteredRows, updateTetrominoInfoByCol } from "../updates.js";
+import { drops } from "./drops.js";
+import { specialsIntro } from "./overlay.js";
 
 function getDataNinjaStrike() {
     const tetrominoShapes = ['O', 'I', 'T', 'S', 'Z', 'L', 'J'];
@@ -22,86 +25,44 @@ function getDataNinjaStrike() {
     return collectTargets;
 }
 
-export function ninjaStrike(completed) {
-    ninjaStrikeIntro(() => {
-        ninjaStrikeAnimation(completed);
+export async function ninjaStrike(completed) {
+    const ninjaTargets = [...getDataNinjaStrike()];
+    let targetsAcquired = true;
+    let bonusScore = 0;
+
+    ninjaTargets.length === 0 ? targetsAcquired = false : null;
+
+    await specialsIntro('ninja', targetsAcquired);
+
+    if (!targetsAcquired) {
+        completed(false);
+        return;
+    }
+
+    ninjaStrikeAnimation(ninjaTargets, (bonusIncrement) => {
+        bonusScore += bonusIncrement;
+    }, () => {
+        finalizeNinjaStrike();
+        completed(true, bonusScore);
     });
 }
 
-function ninjaStrikeIntro(completed) {
-    const img = new Image();
-    img.src = './assets/ninjas.png';
+async function finalizeNinjaStrike () {
+    let localCopiedActiveTetromino;
 
-    const textOptions = [
-        'We are here to serve',
-        'The shadows are your ally.',
-        'Silence is your weapon.'
-    ];
-
-    img.onload = () => {
-        sctx.clearRect(0, 0, special.width, special.height);
-        const randomText = textOptions[Math.floor(Math.random() * textOptions.length)];
-        let startPosition = special.width * 2;
-
-        function screenOverlay() {
-            octx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-            octx.fillRect(0, 0, overlay.width, overlay.height);
-        }
-
-        function animateImage() {
-            if (startPosition > ocontent.width * 0.25) {
-                startPosition -= 30;
-
-                occtx.clearRect(0, 0, ocontent.width, ocontent.height);
-                occtx.drawImage(img, startPosition, 0, special.width + (special.width * 0.75), special.height);
-
-                requestAnimationFrame(animateImage);
-            } else {
-                showText();
-            }
-        }
-
-        function showText() {
-            screenOverlay();
-            occtx.font = '1rem Gill Sans';
-            occtx.fillStyle = 'whitesmoke';
-            occtx.fillText(randomText, 15, ocontent.height / 10, ocontent.width);
-
-            setTimeout(() => {
-                removeTextAndMoveImage();
-            }, 2000);
-        }
-
-        function removeTextAndMoveImage() {
-            function animateOut() {
-                startPosition += 30;
-
-                if (startPosition > special.width + 200) {
-                    octx.clearRect(0, 0, overlay.width, overlay.height);
-                    completed();
-                } else {
-                    occtx.clearRect(0, 0, ocontent.width, ocontent.height);
-                    occtx.drawImage(img, startPosition, 0, special.width + (special.width * 0.75), special.height);
-                    requestAnimationFrame(animateOut);
-                }
-            }
-            animateOut();
-        }
-
-        animateImage();
-    };
+    localCopiedActiveTetromino = deepCopy(activeTetrominos);
+    updateGridWithFilteredRows();
+    await drops(Rows - 1, localCopiedActiveTetromino)
 }
 
-
-
-function ninjaStrikeAnimation(completed) {
-    const ninjaTargets = getDataNinjaStrike();
+function ninjaStrikeAnimation(ninjaTargets, bonusScore, completed) {
     const targetLocations = [];
 
     ninjaTargets.forEach(target => {
         activeTetrominos[target - 1].cells.forEach(cell => {
             targetLocations.push({ x: cell.x, y: cell.y });
         });
+        updateTetrominoInfoByCol(target)
     });
 
     targetLocations.forEach((cell, index) => {
@@ -119,9 +80,9 @@ function ninjaStrikeAnimation(completed) {
 
     setTimeout(() => {
         animation(targetLocations, 1000, completed);
+        bonusScore(Math.round(score / 50))
     }, targetLocations.length * 100);
 }
-
 
 function animation(coordinates, duration, completed) {
     const startTime = performance.now();
@@ -158,6 +119,4 @@ function animation(coordinates, duration, completed) {
 
     requestAnimationFrame(animationProcess);
 }
-
-
 

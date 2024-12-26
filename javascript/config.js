@@ -57,7 +57,7 @@ export const Dy = canvas.height / Rows;
 export const Position = 4;
 
 export const createGrid = () => Array.from({ length: Rows }, () => Array(Cols).fill(0));
-export const particlesObjectPool = () => Array.from({ length: 15000 }, () => ({}));
+export const particlesObjectPool = () => Array.from({ length: 20000 }, () => ({}));
 export const tetrominoObjectPool = () => Array.from({ length: 250 }, () => ({}));
 export const activeTetrominoPool = () => Array.from({ length: 250 }, () => null);
 export const Randomize = (data) => data[Math.floor(Math.random() * data.length)];
@@ -67,10 +67,10 @@ export const Randomize = (data) => data[Math.floor(Math.random() * data.length)]
 
 
 export const Ninja = new Image();
-Ninja.src = './assets/ninjas.png';
+Ninja.src = './assets/ninja.png';
 
 export const Invasion = new Image();
-Invasion.src = './assets/red-army.png';
+Invasion.src = './assets/invasion.png';
 
 export const Artillery = new Image();
 Artillery.src = './assets/artillery.png';

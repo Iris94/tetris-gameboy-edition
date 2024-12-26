@@ -9,7 +9,7 @@ export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.he
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const deepCopy = (data) => JSON.parse(JSON.stringify(data));
 
-export const clearFilteredRows = () => filterRowsData.forEach(row => grid[row] = Array(Cols).fill(0));
+export const clearFilteredRows = (data) => data.forEach(row => grid[row] = Array(Cols).fill(0));
 
 export function updateGrid() {
      tetromino.cells.forEach(cell => {
@@ -30,11 +30,29 @@ export function initiateTetrominoInfo() {
      });
 }
 
-export function updateTetrominoInfo() {
-     const idColorData = new Map ();
+export function updateTetrominoInfoByCol(data) {
+    let active = activeTetrominos[data - 1];
+    if (!active) return;
 
-     for (let y of filterRowsData) {
+    active.cells.forEach(cell => {
+        grid[cell.y][cell.x] = 0;
+    });
+
+    reuseObjectIdArray.push(active.id);
+
+    for (let key in active) {
+        delete active[key];
+    }
+}
+
+
+export function updateTetrominoInfoByRow(data) {
+     const idColorData = new Map();
+
+     for (let y of data) {
           for (let x = 0; x < Cols; x++) {
+
+               if (grid[y][x] === 0) continue;
 
                let cellId = grid[y][x];
                let active = activeTetrominos[cellId - 1];
@@ -47,7 +65,7 @@ export function updateTetrominoInfo() {
 
                if (active.cells.length === 0) {
                     reuseObjectIdArray.push(active.id);
-                    
+
                     for (let key in active) {
                          delete active[key]
                     }
@@ -69,7 +87,7 @@ export function filterRows() {
      return filter.length !== 0 ? filter : false;
 }
 
-export function shiftFilteredRows(data = filterRowsData) {
+export function shiftFilteredRows(data) {
      let movedId = new Set();
 
      for (let row of data) {
@@ -84,7 +102,7 @@ export function shiftFilteredRows(data = filterRowsData) {
           }
      }
 
-     movedId.forEach(id => activeTetrominos[id - 1].cells.forEach(cell => cell.y += filterRowsData.length))
+     movedId.forEach(id => activeTetrominos[id - 1].cells.forEach(cell => cell.y += data.length))
 }
 
 export function updateGridWithFilteredRows() {
@@ -92,8 +110,6 @@ export function updateGridWithFilteredRows() {
           let recursion = false;
 
           for (let y = Rows - 2; y > 0; y--) {
-               if (grid[y].every(cell => cell === 0)) break;
-
                for (let x = 0; x < Cols; x++) {
 
                     if (grid[y][x] === 0) continue;
@@ -124,14 +140,14 @@ export function updateGridWithFilteredRows() {
 export function recheckRowState() {
      let targetRows = [];
      for (let y = Rows - 1; y > 0; y--) {
-         if (grid[y].every(cell => cell === 0)) break;
-         if (grid[y].every(cell => cell !== 0)) {
-             targetRows.push(y);
-         }
+          if (grid[y].every(cell => cell === 0)) break;
+          if (grid[y].every(cell => cell !== 0)) {
+               targetRows.push(y);
+          }
      }
 
      return targetRows;
- }
+}
 
 export function initiateId() {
      let id = 0;
