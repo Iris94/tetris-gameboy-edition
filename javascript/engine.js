@@ -345,58 +345,34 @@ window.addEventListener('click', (e) => {
      gameEngine();
 });
 
-let touchStartTime = 0;
-let touchEndTime = 0;
-let touchStartX = 0;
-let touchStartY = 0;
-let isMoving = false;
-const tapThreshold = 200;
-const moveThreshold = 10;
-
-window.addEventListener('touchstart', (e) => {
-    if (pause) return;
-    touchStartTime = performance.now();
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    isMoving = false;
-    e.preventDefault(); // Prevent scrolling
-});
-
 window.addEventListener('touchmove', (e) => {
-    if (pause) return;
+     if (pause) return;
 
-    const currentTouchX = e.touches[0].clientX;
-    const currentTouchY = e.touches[0].clientY;
-    const deltaX = currentTouchX - touchStartX;
-    const deltaY = currentTouchY - touchStartY;
+     const currentTouchX = e.touches[0].clientX;
+     const currentTouchY = e.touches[0].clientY;
+     const deltaX = currentTouchX - previousTouchX;
+     const deltaY = currentTouchY - previousTouchY;
 
-    if (Math.abs(deltaX) > moveThreshold || Math.abs(deltaY) > moveThreshold) {
-        isMoving = true;
-    }
+     if (Math.abs(deltaX) > 15) {
+          deltaX > 0
+               ? tetromino.moveRight()
+               : tetromino.moveLeft();
 
-    if (isMoving) {
-        if (Math.abs(deltaX) > 15) {
-            deltaX > 0 ? tetromino.moveRight() : tetromino.moveLeft();
-            touchStartX = currentTouchX;
-            gameEngine();
-        }
+          previousTouchX = currentTouchX;
+          gameEngine();
+     }
 
-        if (Math.abs(deltaY) > 15) {
-            tetromino.moveDown();
-            touchStartY = currentTouchY;
-            gameEngine();
-        }
-    }
+     if (Math.abs(deltaY) > 15) {
+          tetromino.moveDown();
+          previousTouchY = currentTouchY;
+          gameEngine();
+     }
 });
 
-window.addEventListener('touchend', (e) => {
-    if (pause) return;
+// window.addEventListener('touchstart', (e) => {
+//      if (pause) return;
 
-    touchEndTime = performance.now();
-
-    if (!isMoving && touchEndTime - touchStartTime < tapThreshold) {
-        rotation();
-        gameEngine();
-    }
-});
-
+//      e.preventDefault();
+//      rotation();
+//      gameEngine();
+// });
