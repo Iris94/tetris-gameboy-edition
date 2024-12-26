@@ -358,8 +358,8 @@ window.addEventListener('touchstart', (e) => {
     touchStartTime = performance.now();
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
-    e.preventDefault();
     isMoving = false;
+    e.preventDefault(); // Prevent scrolling
 });
 
 window.addEventListener('touchmove', (e) => {
@@ -399,3 +399,4 @@ window.addEventListener('touchend', (e) => {
         gameEngine();
     }
 });
+
