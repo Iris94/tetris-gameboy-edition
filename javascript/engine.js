@@ -153,7 +153,7 @@ function initializeGame() {
      grid = createGrid();
      nextTetromino = Randomize(tetrominosArray);
      tetromino = Randomize(tetrominosArray);
-     startGame();
+     // startGame();
 }
 
 function gameEngine() {

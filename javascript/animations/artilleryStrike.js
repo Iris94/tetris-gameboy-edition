@@ -30,23 +30,41 @@ function getDataArtilleryStrike() {
 
 export async function artilleryStrike(completed) {
     const artilleryTargets = [...getDataArtilleryStrike()];
+    const delay = 1000;
     let targetsAcquired = true;
     let bonusScore = 0;
 
     artilleryTargets.length === 0 ? targetsAcquired = false : null;
 
     await specialsIntro('artillery', targetsAcquired);
-    
+
     if (!targetsAcquired) {
         completed(false);
         return;
     }
 
-    artilleryStrikeAnimation(artilleryTargets, (bonusIncrement) => {
-        bonusScore += bonusIncrement;
-    }, () => {
+    const animationsOrder = artilleryTargets.map((target, index) => {
+        new Promise((resolve) => {
+
+            initiateTargets(artilleryTargets)
+                .then(() => {
+
+                    setTimeout(() => {
+                        animateBombTravel(target, delay).then(() => {
+
+                            
+                        });
+
+                        bonusScore(Math.round(score / 30));
+                    }, index * delay);
+                })
+
+        })
+    });
+
+    Promise.all(animationsOrder).then(() => {
         finalizeArtilleryStrike(artilleryTargets);
-        completed(true, bonusScore); 
+        completed(true, bonusScore);
     });
 }
 
@@ -65,220 +83,173 @@ async function finalizeArtilleryStrike(artilleryTargets) {
     await drops(targetRow, localCopiedActiveTetromino);
 }
 
-function artilleryStrikeAnimation(artilleryTargets, bonusScore, finalCallback) {
-    let particleFlightDuration = 1400;
-    let clearTimeOffset = 1700;
-    let totalDurationPerRow = particleFlightDuration * 3;
-    let totalParticles = 30;
-    let particleDelay = particleFlightDuration / totalParticles;
+function initiateTargets(artilleryTargets) {
+    return new Promise((resolve) => {
+        const startTime = performance.now();
 
-    artilleryTargets.forEach((target, index) => {
-        const startTimeForRow = index * particleFlightDuration;
+        const animationTargetsMark = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / 2000, 1);
 
-        setTimeout(() => {
-            animateRow(target, totalDurationPerRow, particleFlightDuration, totalParticles, particleDelay);
-            bonusScore(Math.round(score / 30));
-        }, startTimeForRow);
+            cctx.clearRect(0, 0, clear.width, clear.height)
+            cctx.beginPath();
+            cctx.fillStyle = `rgba(255, 0, 0, ${progress / 5})`;
 
-        setTimeout(() => {
-            animateClears([target], 'artillery');
-        }, startTimeForRow + clearTimeOffset);
-    });
+            artilleryTargets.forEach(target => {
+                cctx.fillRect(0, target * Dy, clear.width, Dy)
+            })
 
-    const finalEndTime = (artilleryTargets.length * particleFlightDuration) + particleFlightDuration;
+            cctx.fill();
+            cctx.restore();
 
-    setTimeout(() => {
-        finalCallback();
-    }, finalEndTime);
-}
-
-
-function animateRow(target, totalDurationPerRow, particleFlightDuration, totalParticles, particleDelay) {
-    const startTime = performance.now();
-
-    const colors = {
-        emberDark: { h: 10, s: 66, l: 11, a: 1 },
-        emberRed: { h: 6, s: 84, l: 25, a: 1 },
-        deepOrange: { h: 20, s: 91, l: 47, a: 1 },
-        brightOrange: { h: 33, s: 100, l: 50, a: 1 },
-        hotYellow: { h: 44, s: 100, l: 50, a: 1 },
-        whiteHot: { h: 50, s: 100, l: 89, a: 1 }
-    };
-
-    const particles = initiateArtillery(colors, target, Dy, particleDelay, particleFlightDuration, totalParticles);
-
-    function animationProcess(currentTime) {
-        const elapsedTime = currentTime - startTime;
-
-        particles.forEach((particle, index) => {
-            const particleElapsed = currentTime - (startTime + particle.delay);
-            if (particleElapsed < 0) return;
-
-            const particleProgress = Math.min(particleElapsed / particle.travelTime, 1);
-
-            const oldX = particle.x;
-            const oldY = particle.y;
-
-            let dx = particle.destinationX - particle.x;
-            let dy = particle.destinationY - particle.y;
-
-            const distance = Math.hypot(dx, dy);
-
-            sctx.clearRect(oldX - 10, oldY - 10, 20, 20);
-
-            particle.x = lerp(particle.startX, particle.destinationX, particleProgress);
-            particle.y = lerp(particle.startY, particle.destinationY, particleProgress);
-
-            sctx.beginPath();
-            sctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
-            sctx.fillStyle = particle.color;
-            sctx.fill();
-            sctx.closePath();
-
-            if (distance < 2) {
-                sctx.clearRect(particle.x - 10, particle.y - 10, 20, 20);
-
-                const shells = initiateShells(particle, colors);
-                animateShells(shells, totalParticles);
-
-                for (let key in particle) {
-                    delete particle[key];
-                }
-                particlesPool.push(particle);
-                particles.splice(index, 1);
-            }
-        });
-
-        if (elapsedTime < totalDurationPerRow) {
-            requestAnimationFrame(animationProcess);
+            progress < 1
+                ? requestAnimationFrame(animationTargetsMark)
+                : resolve();
         }
-    }
 
-    requestAnimationFrame(animationProcess);
+        requestAnimationFrame(animationTargetsMark)
+    })
 }
 
-function initiateArtillery(colors, targetRow, Dy, particleDelay, particleFlightDuration, totalParticles) {
-    const particles = [];
-    const rowTopY = targetRow * Dy;
+function animateBombTravel(target, delay) {
+    return new Promise((resolve) => {
+        const startTime = performance.now();
+        const bomb = supportBombParticle(target);
 
-    for (let i = 0; i < totalParticles; i++) {
-        let lendedParticleObject = particlesPool.pop();
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = special.width;
+        offscreenCanvas.height = special.height;
+        const offscreenCtx = offscreenCanvas.getContext('2d');
 
-        const destinationX = Math.random() * special.width;
-        const destinationY = rowTopY + Math.random() * Dy;
+        const animationBombTravel = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / delay, 1);
+            const bombArrival = Math.hypot(bomb.deltaX - bomb.x, bomb.deltaY - bomb.y);
 
-        const color = `hsla(${colors.whiteHot.h}, ${colors.whiteHot.s}%, ${colors.whiteHot.l}%, 1)`;
+            offscreenCtx.globalCompositeOperation = "destination-out";
+            offscreenCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            offscreenCtx.fillRect(0, 0, special.width, special.height);
 
-        lendedParticleObject.startX = Math.random() * special.width;
-        lendedParticleObject.startY = -5;
-        lendedParticleObject.destinationX = destinationX;
-        lendedParticleObject.destinationY = destinationY;
-        lendedParticleObject.color = color;
-        lendedParticleObject.delay = i * particleDelay;
-        lendedParticleObject.travelTime = particleFlightDuration;
+            offscreenCtx.globalCompositeOperation = "source-over";
 
-        particles.push(lendedParticleObject);
-    }
+            const prevX = bomb.x;
+            const prevY = bomb.y;
+            bomb.x = lerp(bomb.x, bomb.deltaX, progress);
+            bomb.y = lerp(bomb.y, bomb.deltaY, progress);
 
-    return particles;
+            offscreenCtx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
+            offscreenCtx.lineWidth = 2;
+            offscreenCtx.beginPath();
+            offscreenCtx.moveTo(prevX, prevY);
+            offscreenCtx.lineTo(bomb.x, bomb.y);
+            offscreenCtx.stroke();
+
+            sctx.clearRect(0, 0, special.width, special.height);
+
+            sctx.drawImage(offscreenCanvas, 0, 0);
+
+            const fire = sctx.createRadialGradient(bomb.x, bomb.y, 0, bomb.x, bomb.y, 10);
+            fire.addColorStop(0, 'hsla(50, 100%, 89%, 1)');
+            fire.addColorStop(0.3, 'hsla(44, 100%, 50%, 1)');
+            fire.addColorStop(0.5, 'hsla(33, 100%, 50%, 1)');
+            fire.addColorStop(0.7, 'hsla(20, 91%, 47%, 1)');
+            fire.addColorStop(0.9, 'hsla(6, 84%, 25%, 1)');
+            fire.addColorStop(1, 'hsla(10, 66%, 11%, 1)');
+
+            sctx.fillStyle = fire;
+            sctx.beginPath();
+            sctx.arc(bomb.x, bomb.y, 7, 0, Math.PI * 2);
+            sctx.fill();
+
+            (progress < 1 && bombArrival > 2)
+                ? requestAnimationFrame(animationBombTravel)
+                : (
+                    cctx.clearRect(0, target * Dy, clear.width, Dy),
+                    sctx.clearRect(0, 0, special.width, special.height),
+                    animateShellExplosion(bomb.deltaX, bomb.deltaY).then(resolve)
+                )
+        };
+
+        requestAnimationFrame(animationBombTravel);
+    })
 }
 
-function initiateShells(particle, colors) {
-    const particles = [];
+function animateShellExplosion(targetX, targetY) {
+    return new Promise((resolve) => {
+        const shells = supportBombShells(targetX, targetY);
+
+        const startTime = performance.now();
+
+        const animateExplosion = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+
+            sctx.clearRect(0, 0, special.width, special.height);
+
+            shells.forEach(shell => {
+                const progress = Math.min(elapsedTime / shell.duration, 1);
+
+                shell.x += shell.deltaX;
+                shell.y += shell.deltaY;
+
+                const alpha = 1 - progress; // Fade out particles over time
+
+                sctx.fillStyle = `rgba(255, 100, 50, ${alpha})`;
+                sctx.beginPath();
+                sctx.arc(shell.x, shell.y, 3, 0, Math.PI * 2);
+                sctx.fill();
+            });
+
+            if (elapsedTime < Math.max(...shells.map(shell => shell.duration))) {
+                requestAnimationFrame(animateExplosion);
+            } else {
+                // Return shells to the pool
+                shells.forEach(shell => particlesPool.push(shell));
+                sctx.clearRect(0, 0, special.width, special.height);
+                resolve();
+            }
+        };
+
+        requestAnimationFrame(animateExplosion);
+    });
+}
+
+
+function supportBombShells(x, y) {
+    let shells = [];
 
     for (let i = 0; i < 9; i++) {
         let shellParticle = particlesPool.pop();
 
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 1.5;
+        const velocity = Math.random() * 1.5 + 0.5;
+        const duration = Math.random() * 1500 + 1500;
 
-        shellParticle.x = particle.destinationX;
-        shellParticle.y = particle.destinationY;
+        shellParticle.x = x;
+        shellParticle.y = y;
+        shellParticle.deltaX = Math.cos(angle) * velocity;
+        shellParticle.deltaY = Math.sin(angle) * velocity;
+        shellParticle.duration = duration;
 
-        shellParticle.vx = Math.cos(angle) * speed;
-        shellParticle.vy = Math.sin(angle) * speed;
-
-        const coreColorOptions = [
-            colors.whiteHot,
-            colors.hotYellow,
-            colors.brightOrange
-        ];
-
-        const shadowColorOptions = [
-            colors.emberDark,
-            colors.emberRed,
-            colors.deepOrange
-        ];
-
-        const coreColor = coreColorOptions[Math.floor(Math.random() * coreColorOptions.length)];
-        const shadowColor = shadowColorOptions[Math.floor(Math.random() * shadowColorOptions.length)];
-
-        shellParticle.coreColor = coreColor;
-        shellParticle.shadowColor = shadowColor;
-
-        particles.push(shellParticle);
+        shells.push(shellParticle);
     }
 
-    return particles;
+    return shells;
 }
 
-function animateShells(particles, totalParticles) {
-    const startTime = performance.now();
+function supportBombParticle(target) {
+    let bomb;
+    let lendedParticleObject = particlesPool.pop();
 
-    function animationProcess(currentTime) {
-        const elapsedTime = currentTime - startTime;
+    const x = canvas.width * Math.random();
+    const y = 0;
+    const deltaX = Math.random() * special.width;
+    const deltaY = (target * Dy) + (Math.random() * Dy);
 
-        let count = 0;
-        const intervalId = setInterval(() => {
-            cctx.clearRect(0, 0, clear.width, clear.height);
-            count++;
+    lendedParticleObject.x = x;
+    lendedParticleObject.y = y;
+    lendedParticleObject.deltaX = deltaX;
+    lendedParticleObject.deltaY = deltaY;
 
-            if (count >= totalParticles) {
-                clearInterval(intervalId);
-            }
-        }, 300);
-
-        particles.forEach((particle, index) => {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-
-            const lifetimeProgress = Math.min(elapsedTime / 750, 1);
-
-            const coreLightness = particle.coreColor.l - (particle.coreColor.l * lifetimeProgress);
-            const shadowLightness = particle.shadowColor.l - (particle.shadowColor.l * lifetimeProgress);
-
-            const adjustedShadowBlur = 20 * (1 - lifetimeProgress);
-
-            const particleAlpha = 1 - lifetimeProgress;
-
-            cctx.beginPath();
-            cctx.shadowBlur = adjustedShadowBlur;
-            cctx.shadowColor = `hsla(${particle.shadowColor.h}, ${particle.shadowColor.s}%, ${shadowLightness}%, ${particleAlpha})`;
-            cctx.arc(particle.x, particle.y, 7, 0, Math.PI * 2);
-            cctx.fillStyle = `hsla(${particle.shadowColor.h}, ${particle.shadowColor.s}%, ${shadowLightness}%, ${particleAlpha})`;
-            cctx.fill();
-            cctx.closePath();
-
-            cctx.beginPath();
-            cctx.shadowBlur = 0;
-            cctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
-            cctx.fillStyle = `hsla(${particle.coreColor.h}, ${particle.coreColor.s}%, ${coreLightness}%, ${particleAlpha})`;
-            cctx.fill();
-            cctx.closePath();
-
-            if (lifetimeProgress >= 1) {
-                for (let key in particle) {
-                    delete particle[key];
-                }
-                particlesPool.push(particle);
-                particles.splice(index, 1);
-            }
-        });
-
-        if (particles.length > 0) {
-            requestAnimationFrame(animationProcess);
-        }
-    }
-
-    requestAnimationFrame(animationProcess);
+    bomb = lendedParticleObject;
+    return bomb
 }
