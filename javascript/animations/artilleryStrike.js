@@ -55,7 +55,7 @@ export async function artilleryStrike(completed) {
                             
                         });
 
-                        bonusScore(Math.round(score / 30));
+                        bonusScore += Math.round(score / 30);
                     }, index * delay);
                 })
 
@@ -178,46 +178,55 @@ function animateShellExplosion(targetX, targetY) {
     return new Promise((resolve) => {
         const shells = supportBombShells(targetX, targetY);
 
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = special.width;
+        offscreenCanvas.height = special.height;
+        const offscreenCtx = offscreenCanvas.getContext('2d');
+
         const startTime = performance.now();
 
         const animateExplosion = (currentTime) => {
             const elapsedTime = currentTime - startTime;
 
-            sctx.clearRect(0, 0, special.width, special.height);
+            offscreenCtx.globalCompositeOperation = "destination-out";
+            offscreenCtx.fillStyle = "rgba(0, 0, 0, 0.1)";
+            offscreenCtx.fillRect(0, 0, special.width, special.height);
 
-            shells.forEach(shell => {
-                const progress = Math.min(elapsedTime / shell.duration, 1);
+            offscreenCtx.globalCompositeOperation = "source-over";
+
+            shells.forEach((shell) => {
+                const progress = Math.min(elapsedTime / (shell.duration / 5), 1);
 
                 shell.x += shell.deltaX;
                 shell.y += shell.deltaY;
 
-                const alpha = 1 - progress; // Fade out particles over time
-
-                sctx.fillStyle = `rgba(255, 100, 50, ${alpha})`;
-                sctx.beginPath();
-                sctx.arc(shell.x, shell.y, 3, 0, Math.PI * 2);
-                sctx.fill();
+                const alpha = 1 - progress;
+                offscreenCtx.fillStyle = `hsla(50, 100%, 89%, ${alpha})`;
+                offscreenCtx.beginPath();
+                offscreenCtx.arc(shell.x, shell.y, 2, 0, Math.PI * 2);
+                offscreenCtx.fill();
             });
 
-            if (elapsedTime < Math.max(...shells.map(shell => shell.duration))) {
-                requestAnimationFrame(animateExplosion);
-            } else {
-                // Return shells to the pool
-                shells.forEach(shell => particlesPool.push(shell));
-                sctx.clearRect(0, 0, special.width, special.height);
-                resolve();
-            }
+            sctx.clearRect(0, 0, special.width, special.height);
+            sctx.drawImage(offscreenCanvas, 0, 0);
+
+            elapsedTime < Math.max(...shells.map((shell) => shell.duration))
+                ? requestAnimationFrame(animateExplosion)
+                : (
+                    shells.forEach((shell) => particlesPool.push(shell)),
+                    sctx.clearRect(0, 0, special.width, special.height),
+                    resolve()
+                )
         };
 
         requestAnimationFrame(animateExplosion);
     });
 }
 
-
 function supportBombShells(x, y) {
     let shells = [];
 
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 50; i++) {
         let shellParticle = particlesPool.pop();
 
         const angle = Math.random() * Math.PI * 2;
