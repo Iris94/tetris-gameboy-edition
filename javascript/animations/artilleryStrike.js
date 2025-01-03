@@ -34,7 +34,7 @@ export async function artilleryStrike(completed) {
     let targetsAcquired = true;
     let bonusScore = 0;
 
-    artilleryTargets.length === 0 ? targetsAcquired = false : null;
+    artilleryTargets.length === 0 ? (targetsAcquired = false) : null;
 
     await specialsIntro('artillery', targetsAcquired);
 
@@ -44,29 +44,24 @@ export async function artilleryStrike(completed) {
     }
 
     const animationsOrder = artilleryTargets.map((target, index) => {
-        new Promise((resolve) => {
-
-            initiateTargets(artilleryTargets)
-                .then(() => {
-
-                    setTimeout(() => {
-                        animateBombTravel(target, delay).then(() => {
-
-                            
-                        });
-
+        return new Promise((resolve) => {
+            initiateTargets(artilleryTargets).then(() => {
+                setTimeout(() => {
+                    animateBombTravel(target, delay).then(() => {
                         bonusScore += Math.round(score / 30);
-                    }, index * delay);
-                })
-
-        })
+                        resolve();
+                    });
+                }, index * delay);
+            });
+        });
     });
 
-    Promise.all(animationsOrder).then(() => {
-        finalizeArtilleryStrike(artilleryTargets);
-        completed(true, bonusScore);
-    });
+    await Promise.all(animationsOrder);
+
+    finalizeArtilleryStrike(artilleryTargets);
+    completed(true, bonusScore);
 }
+
 
 async function finalizeArtilleryStrike(artilleryTargets) {
     let localIdColorStorage;
@@ -166,7 +161,8 @@ function animateBombTravel(target, delay) {
                 : (
                     cctx.clearRect(0, target * Dy, clear.width, Dy),
                     sctx.clearRect(0, 0, special.width, special.height),
-                    animateShellExplosion(bomb.deltaX, bomb.deltaY).then(resolve)
+                    animateShellExplosion(bomb.deltaX, bomb.deltaY).then(resolve),
+                    animateClears([target], 'artillery')
                 )
         };
 
