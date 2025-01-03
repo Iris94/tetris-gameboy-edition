@@ -6,6 +6,7 @@ export function animateClears(data, clearName) {
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
     ctx.shadowBlur = 0;
+    console.log(data)
 
     ctx.lineWidth = 1;
     ctx.strokeStyle = 'rgba(220, 215, 186, 0.05)';
@@ -13,7 +14,22 @@ export function animateClears(data, clearName) {
     if (clearName === 'invasion') {
         const { x, y } = data;
         clearCell(x, y, clearName);
-    } else {
+    }
+
+    else if (clearName === 'artillery') {
+        let delay = 0;
+
+        for (let y of data) {
+            for (let x = 0; x < Cols; x++) {
+                setTimeout(() => {
+                    clearCell(x, y, clearName);
+                }, delay);
+                delay += 100;
+            }
+        }
+    }
+
+    else {
         for (let y of data) {
             for (let x = 0; x < Cols; x++) {
                 if (grid[y][x] === 0) continue;
@@ -25,7 +41,7 @@ export function animateClears(data, clearName) {
 
 function clearCell(x, y, clearName) {
     const padding = 1;
-    
+
     ctx.clearRect(
         x * Dx - padding,
         y * Dy - padding,
@@ -98,9 +114,10 @@ function initiateParticles(x, y, id, clearName) {
     };
 
     const fireColors = [
-        'hsl(6, 84%, 25%)',
-        'hsl(20, 91%, 47%)',
-        'hsl(10, 66%, 11%)'
+        'hsl(12, 90%, 50%)', 
+        'hsl(25, 90%, 60%)',
+        'hsl(45, 90%, 55%)', 
+        'hsl(60, 90%, 90%)'  
     ];
 
     const ninjaColors = [

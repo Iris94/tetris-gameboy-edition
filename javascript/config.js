@@ -50,7 +50,7 @@ ocontent.height = ocontent.offsetHeight;
 
 
 
-export const Rows = 22;
+export const Rows = 20;
 export const Cols = 10;
 export const Dx = canvas.width / Cols;
 export const Dy = canvas.height / Rows;
