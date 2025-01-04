@@ -106,8 +106,10 @@ function assembleTetrominos() {
      }
 }
 
-function startGame () {
+function startGame() {
      if (pause) return;
+
+     clearInterval(gameplayStatus);
 
      gameplayStatus = setInterval(() => {
           tetromino.moveDown();
@@ -130,7 +132,7 @@ function gameOver() {
      pauseGame();
 }
 
-function incrementAcceleration () {
+function incrementAcceleration() {
      if (gameplayAcceleration <= 30) return;
      gameplayAcceleration /= 1.14;
 }
@@ -172,7 +174,7 @@ function gameEngine() {
      specialsPhase()
 
      variableGoalSystem > (level * 5)
-          ? (level++ , incrementAcceleration())
+          ? (level++, incrementAcceleration())
           : null;
 
      drawLevel(level);
@@ -183,7 +185,7 @@ function gameEngine() {
 
      isCollision = false;
      clearRowsMultiplier = 1;
-     
+
      if (gameoverCheck()) return gameOver();
 }
 
@@ -252,7 +254,7 @@ function specialsPhase() {
      manaLevel === 100
           ? (pauseGame(), startNinja())
           : null
-// (pauseGame(), Randomize(allSpecials)())
+     // (pauseGame(), Randomize(allSpecials)())
      function startInvasion() {
           invasionStrike((bonusScore) => {
                clearMainBoard();
@@ -307,6 +309,8 @@ window.onkeydown = (key) => {
      switch (key.code) {
           case 'ArrowDown':
                tetromino.moveDown();
+               clearInterval(gameplayStatus);
+               startGame();
                break;
           case 'ArrowLeft':
                tetromino.moveLeft();
@@ -353,7 +357,7 @@ window.addEventListener('touchmove', (e) => {
      const deltaX = currentTouchX - previousTouchX;
      const deltaY = currentTouchY - previousTouchY;
 
-     if (Math.abs(deltaX) > 15) {
+     if (Math.abs(deltaX) > 25) {
           deltaX > 0
                ? tetromino.moveRight()
                : tetromino.moveLeft();
@@ -362,7 +366,7 @@ window.addEventListener('touchmove', (e) => {
           gameEngine();
      }
 
-     if (Math.abs(deltaY) > 20) {
+     if (Math.abs(deltaY) > 25) {
           tetromino.moveDown();
           previousTouchY = currentTouchY;
           gameEngine();
