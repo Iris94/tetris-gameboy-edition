@@ -100,7 +100,7 @@ function cellAnimation(clearName, id, y, x, duration) {
 
 function initiateParticles(x, y, id, clearName) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const maxParticles = isMobile ? 150 : 450;
+    const maxParticles = isMobile ? 250 : 450;
     let particles = [];
 
     const colorPalettes = {

@@ -1,5 +1,5 @@
 import { cctx, Cols, Dy, Randomize, Rows, sctx, special } from "../config.js";
-import { activeTetrominos, copiedActiveTetromino, grid, idColorStorage, particlesPool, score } from "../engine.js";
+import { activeTetrominos, grid, particlesPool, score } from "../engine.js";
 import { clearFilteredRows, deepCopy, shiftFilteredRows, updateGridWithFilteredRows, updateTetrominoInfoByRow } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
@@ -209,10 +209,16 @@ function animateShellExplosion(targetX, targetY) {
             elapsedTime < Math.max(...shells.map((shell) => shell.duration))
                 ? requestAnimationFrame(animateExplosion)
                 : (
-                    shells.forEach((shell) => particlesPool.push(shell)),
+                    shells.forEach((shell) => {
+                        for (let key in shell) {
+                            delete shell[key];
+                        }
+                        particlesPool.push(shell); 
+                    }),
                     sctx.clearRect(0, 0, special.width, special.height),
                     resolve()
-                )
+                );
+
         };
 
         requestAnimationFrame(animateExplosion);
