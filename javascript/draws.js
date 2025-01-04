@@ -17,64 +17,64 @@ export function drawMainBoard() {
 }
 
 export function drawTetromino() {
-    const shadowOffset = -0.75; 
-    const padding = 1; 
+     const shadowOffset = -0.75;
+     const padding = 1;
 
-    ctx.lineWidth = 1;
-    ctx.shadowColor = "#000";
-    ctx.shadowOffsetX = shadowOffset;
-    ctx.shadowOffsetY = shadowOffset;
-    ctx.shadowBlur = 0;
+     ctx.lineWidth = 1;
+     ctx.shadowColor = "#000";
+     ctx.shadowOffsetX = shadowOffset;
+     ctx.shadowOffsetY = shadowOffset;
+     ctx.shadowBlur = 0;
 
-    tetromino.cells.forEach(cell => {
-        const x = cell.x * Dx;
-        const y = cell.y * Dy;
+     tetromino.cells.forEach(cell => {
+          const x = cell.x * Dx;
+          const y = cell.y * Dy;
 
-        ctx.fillStyle = tetromino.color;
-        ctx.fillRect(x + padding, y + padding, Dx - padding * 2, Dy - padding * 2);
+          ctx.fillStyle = tetromino.color;
+          ctx.fillRect(x + padding, y + padding, Dx - padding * 2, Dy - padding * 2);
 
-        ctx.strokeStyle = "#DCD7BA";
-        ctx.strokeRect(x + 0.5 + padding, y + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
-    });
+          ctx.strokeStyle = "#DCD7BA";
+          ctx.strokeRect(x + 0.5 + padding, y + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
+     });
 
-    ctx.shadowColor = "transparent";
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur = 0;
+     ctx.shadowColor = "transparent";
+     ctx.shadowOffsetX = 0;
+     ctx.shadowOffsetY = 0;
+     ctx.shadowBlur = 0;
 }
 
 export function redrawTetrominos(target = 0) {
-    const shadowOffset = -0.75; 
-    const padding = 1;          
+     const shadowOffset = -0.75;
+     const padding = 1;
 
-    ctx.shadowColor = "#000";
-    ctx.shadowOffsetX = shadowOffset;
-    ctx.shadowOffsetY = shadowOffset;
-    ctx.shadowBlur = 0;
+     ctx.shadowColor = "#000";
+     ctx.shadowOffsetX = shadowOffset;
+     ctx.shadowOffsetY = shadowOffset;
+     ctx.shadowBlur = 0;
 
-    ctx.lineWidth = 1;
+     ctx.lineWidth = 1;
 
-    for (let row = Rows - 1; row > target; row--) {
-        for (let col = 0; col < Cols; col++) {
-            if (grid[row][col] !== 0) {
-                let active = grid[row][col];
-                const tetromino = activeTetrominos[active - 1];
-                const x = col * Dx;
-                const y = row * Dy;
+     for (let row = Rows - 1; row > target; row--) {
+          for (let col = 0; col < Cols; col++) {
+               if (grid[row][col] !== 0) {
+                    let active = grid[row][col];
+                    const tetromino = activeTetrominos[active - 1];
+                    const x = col * Dx;
+                    const y = row * Dy;
 
-                ctx.fillStyle = tetromino.color;
-                ctx.fillRect(x + padding, y + padding, Dx - padding * 2, Dy - padding * 2);
+                    ctx.fillStyle = tetromino.color;
+                    ctx.fillRect(x + padding, y + padding, Dx - padding * 2, Dy - padding * 2);
 
-                ctx.strokeStyle = "#DCD7BA";
-                ctx.strokeRect(x + 0.5 + padding, y + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
-            }
-        }
-    }
+                    ctx.strokeStyle = "#DCD7BA";
+                    ctx.strokeRect(x + 0.5 + padding, y + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
+               }
+          }
+     }
 
-    ctx.shadowColor = "transparent";
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur = 0;
+     ctx.shadowColor = "transparent";
+     ctx.shadowOffsetX = 0;
+     ctx.shadowOffsetY = 0;
+     ctx.shadowBlur = 0;
 }
 
 export function drawHud() {
@@ -93,29 +93,29 @@ export function drawHud() {
 }
 
 export function drawNextTetromino() {
-    const shadowOffset = -0.75;
-    const padding = 1;
+     const shadowOffset = -0.75;
+     const padding = 1;
 
-    hctx.lineWidth = 1;
-    hctx.shadowColor = "#000";
-    hctx.shadowOffsetX = shadowOffset;
-    hctx.shadowOffsetY = shadowOffset;
-    hctx.shadowBlur = 0;
+     hctx.lineWidth = 1;
+     hctx.shadowColor = "#000";
+     hctx.shadowOffsetX = shadowOffset;
+     hctx.shadowOffsetY = shadowOffset;
+     hctx.shadowBlur = 0;
 
-    nextTetromino.cells.forEach(cell => {
-        let x = cell.x - Position;
+     nextTetromino.cells.forEach(cell => {
+          let x = cell.x - Position;
 
-        hctx.fillStyle = nextTetromino.color; 
-        hctx.fillRect(x * Dx + padding, cell.y * Dy + padding, Dx - padding * 2, Dy - padding * 2);
+          hctx.fillStyle = nextTetromino.color;
+          hctx.fillRect(x * Dx + padding, cell.y * Dy + padding, Dx - padding * 2, Dy - padding * 2);
 
-        hctx.strokeStyle = "#DCD7BA";
-        hctx.strokeRect(x * Dx + 0.5 + padding, cell.y * Dy + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
-    });
+          hctx.strokeStyle = "#DCD7BA";
+          hctx.strokeRect(x * Dx + 0.5 + padding, cell.y * Dy + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
+     });
 
-    hctx.shadowColor = "transparent";
-    hctx.shadowOffsetX = 0;
-    hctx.shadowOffsetY = 0;
-    hctx.shadowBlur = 0;
+     hctx.shadowColor = "transparent";
+     hctx.shadowOffsetX = 0;
+     hctx.shadowOffsetY = 0;
+     hctx.shadowBlur = 0;
 }
 
 export function drawScore(score) {
@@ -148,8 +148,9 @@ export function drawMana(data) {
      mctx.clearRect(20, manaCanvas.height - maxHeight, 15, maxHeight + 5);
 
      const manaFill = mctx.createLinearGradient(0, manaCanvas.height - maxHeight, 0, manaCanvas.height);
+     manaFill.addColorStop(1, 'transparent');  
+     manaFill.addColorStop(0.75, '#064f1f');         
      manaFill.addColorStop(0, '#8bc276');
-     manaFill.addColorStop(1, 'transparent');
 
      mctx.fillStyle = manaFill;
      mctx.fillRect(20, manaCanvas.height - currentHeight, 15, currentHeight);

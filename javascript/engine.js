@@ -134,7 +134,6 @@ function resetGameplayInterval() {
 }
 
 function gameOver() {
-     console.log('test')
      pauseGame();
 }
 
@@ -161,7 +160,7 @@ function initializeGame() {
      grid = createGrid();
      nextTetromino = Randomize(tetrominosArray);
      tetromino = Randomize(tetrominosArray);
-     // startGame();
+     startGame();
 }
 
 function gameEngine() {
@@ -258,9 +257,9 @@ function specialsPhase() {
           : null
 
      manaLevel === 100
-          ? (pauseGame(), startNinja())
+          ? (pauseGame(), startInvasion())
           : null
-     // (pauseGame(), Randomize(allSpecials)())
+     
      function startInvasion() {
           invasionStrike((bonusScore) => {
                clearMainBoard();
@@ -371,7 +370,7 @@ window.addEventListener('touchmove', (e) => {
      const deltaX = currentTouchX - previousTouchX;
      const deltaY = currentTouchY - previousTouchY;
 
-     if (Math.abs(deltaX) > 25) {
+     if (Math.abs(deltaX) > 30) {
           deltaX > 0
                ? tetromino.moveRight()
                : tetromino.moveLeft();
@@ -380,7 +379,7 @@ window.addEventListener('touchmove', (e) => {
           gameEngine();
      }
 
-     if (Math.abs(deltaY) > 25) {
+     if (Math.abs(deltaY) > 30) {
           tetromino.moveDown();
           previousTouchY = currentTouchY;
           resetGameplayInterval();
