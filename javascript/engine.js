@@ -35,6 +35,7 @@ export let level = 1;
 export let manaLevel = 92;
 export let pause = false;
 export let previousMouseX = 0;
+export let previousMouseY = 0;
 export let previousTouchX = 0;
 export let previousTouchY = 0;
 export let gameplayStatus;
@@ -114,7 +115,7 @@ function startGame() {
      gameplayStatus = setInterval(() => {
           tetromino.moveDown();
           gameEngine();
-     }, gameplayAcceleration)
+     }, gameplayAcceleration);
 }
 
 function pauseGame() {
@@ -124,6 +125,11 @@ function pauseGame() {
 
 function resumeGame() {
      pause = false;
+     startGame();
+}
+
+function resetGameplayInterval() {
+     if (gameplayStatus) clearInterval(gameplayStatus);
      startGame();
 }
 
@@ -309,8 +315,7 @@ window.onkeydown = (key) => {
      switch (key.code) {
           case 'ArrowDown':
                tetromino.moveDown();
-               clearInterval(gameplayStatus);
-               startGame();
+               resetGameplayInterval();
                break;
           case 'ArrowLeft':
                tetromino.moveLeft();
@@ -330,14 +335,23 @@ window.addEventListener('mousemove', (e) => {
      if (pause) return;
 
      const currentMouseX = e.offsetX;
+     const currentMouseY = e.offsetY;
      const deltaX = currentMouseX - previousMouseX;
+     const deltaY = currentMouseY - previousMouseY;
 
-     if (Math.abs(deltaX) > 15) {
+     if (Math.abs(deltaX) > 20) {
           deltaX > 0
                ? tetromino.moveRight()
                : tetromino.moveLeft();
 
           previousMouseX = currentMouseX;
+          gameEngine();
+     }
+
+     if (deltaY > 20) {
+          tetromino.moveDown();
+          previousMouseY = currentMouseY;
+          resetGameplayInterval();
           gameEngine();
      }
 });
@@ -369,6 +383,7 @@ window.addEventListener('touchmove', (e) => {
      if (Math.abs(deltaY) > 25) {
           tetromino.moveDown();
           previousTouchY = currentTouchY;
+          resetGameplayInterval();
           gameEngine();
      }
 });
