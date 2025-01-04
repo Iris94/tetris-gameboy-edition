@@ -55,15 +55,16 @@ export const Cols = 10;
 export const Dx = canvas.width / Cols;
 export const Dy = canvas.height / Rows;
 export const Position = 4;
+export const playGameButton = document.getElementById('start');
+export const mainMenu = document.getElementById('mainMenu');
+
+
 
 export const createGrid = () => Array.from({ length: Rows }, () => Array(Cols).fill(0));
 export const particlesObjectPool = () => Array.from({ length: 20000 }, () => ({}));
 export const tetrominoObjectPool = () => Array.from({ length: 250 }, () => ({}));
 export const activeTetrominoPool = () => Array.from({ length: 250 }, () => null);
 export const Randomize = (data) => data[Math.floor(Math.random() * data.length)];
-
-
-
 
 
 export const Ninja = new Image();

@@ -1,7 +1,7 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana, drawSpecialTetra, drawSpecialNinja, drawSpecialArtillery } from "./draws.js";
 import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, updateGridWithFilteredRows, initiateId, updateTetrominoInfoByRow, initiateTetrominoInfo, shiftFilteredRows, recheckRowState, delay, deepCopy, gameoverCheck } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
-import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool } from "./config.js";
+import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, mainMenu } from "./config.js";
 import { rotation } from "./rotation.js";
 import { calculateClearingScore, calculateCollisionScore, calculateLevel, randomTetromino } from "./metrics.js";
 import { ninjaStrike } from "./animations/ninjaStrike.js";
@@ -9,6 +9,7 @@ import { drops } from "./animations/drops.js";
 import { animateClears } from "./animations/clears.js";
 import { artilleryStrike } from "./animations/artilleryStrike.js";
 import { invasionStrike } from "./animations/invasionStrike.js";
+import { playClear, playCollide, playMainTheme } from './sound.js';
 
 export let grid;
 export let copiedActiveTetromino;
@@ -32,8 +33,8 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 92;
-export let pause = false;
+export let manaLevel = 0;
+export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
 export let previousTouchX = 0;
@@ -89,6 +90,13 @@ export class Tetromino {
 initializeGame();
 drawTetromino();
 drawNextTetromino();
+
+playGameButton.onclick = () => { 
+     pause = false;
+     playMainTheme();
+     mainMenu.style.display = 'none';
+     startGame();
+}
 
 function assembleTetrominos() {
      for (let shape of tetrominoShapes) {
@@ -160,7 +168,6 @@ function initializeGame() {
      grid = createGrid();
      nextTetromino = Randomize(tetrominosArray);
      tetromino = Randomize(tetrominosArray);
-     startGame();
 }
 
 function gameEngine() {
@@ -175,7 +182,16 @@ function gameEngine() {
      nextTetromino = randomTetromino();
      drawHud();
      drawNextTetromino();
-     !filterRowsData ? collisionPhase() : clearPhase();
+
+     !filterRowsData 
+          ? (
+               playCollide(),
+               collisionPhase() )
+          : (
+               playClear(),
+               clearPhase() 
+          )
+
      specialsPhase()
 
      variableGoalSystem > (level * 5)
@@ -195,6 +211,7 @@ function gameEngine() {
 }
 
 async function clearPhase() {
+     pauseGame();
      while (filterRowsData.length > 0) {
           targetRow = filterRowsData[filterRowsData.length - 1];
           idColorStorage = updateTetrominoInfoByRow(filterRowsData);
@@ -223,6 +240,7 @@ async function clearPhase() {
      manaLevel += clearRowsMultiplier;
      scoreBonus++;
      mainBoardData = copyImageData();
+     resumeGame();
 }
 
 function collisionPhase() {
@@ -257,9 +275,9 @@ function specialsPhase() {
           : null
 
      manaLevel === 100
-          ? (pauseGame(), startInvasion())
+          ? (pauseGame(), Randomize(allSpecials)())
           : null
-     
+
      function startInvasion() {
           invasionStrike((bonusScore) => {
                clearMainBoard();
