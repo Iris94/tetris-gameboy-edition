@@ -250,7 +250,7 @@ function specialsPhase() {
           : null
 
      manaLevel === 100
-          ? (pauseGame(), startArtillery())
+          ? (pauseGame(), startNinja())
           : null
 // (pauseGame(), Randomize(allSpecials)())
      function startInvasion() {

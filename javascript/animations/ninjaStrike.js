@@ -47,7 +47,7 @@ export async function ninjaStrike(completed) {
     });
 }
 
-async function finalizeNinjaStrike () {
+async function finalizeNinjaStrike() {
     let localCopiedActiveTetromino;
 
     localCopiedActiveTetromino = deepCopy(activeTetrominos);
@@ -93,30 +93,33 @@ function animation(coordinates, duration, completed) {
 
         sctx.clearRect(0, 0, special.width, special.height);
 
+        const dx = Dx;
+        const dy = Dy;
+        const shadowBlur = 10;
+        const strokeStyle = `rgba(0, 0, 0, ${1 - progress})`;
+
         coordinates.forEach(({ x, y }) => {
+            const startX = x * dx;
+            const startY = y * dy;
+
             sctx.beginPath();
-            sctx.moveTo(x * Dx - 12, y * Dy + 13);
-            sctx.lineTo((x * Dx) + (Dx + 12), y * Dy + 4);
-            sctx.strokeStyle = `rgba(0, 0, 0, ${1 - progress})`;
+            sctx.moveTo(startX - 12, startY + 13);
+            sctx.lineTo(startX + dx + 12, startY + 4);
+            sctx.strokeStyle = strokeStyle;
             sctx.lineWidth = 5;
             sctx.shadowColor = 'red';
-            sctx.shadowBlur = 10;
+            sctx.shadowBlur = shadowBlur;
             sctx.stroke();
-
-            ctx.clearRect(x * Dx - 1, y * Dy - 1, Dx + 3, Dy + 3)
-
-            ctx.strokeStyle = 'rgba(220, 215, 186, 0.1)';
-            ctx.strokeRect(x * Dx, y * Dy, Dx, Dy);
         });
 
-        if (progress < 1) {
-            requestAnimationFrame(animationProcess);
-        } else {
-            sctx.clearRect(0, 0, special.width, special.height);
-            completed();
-        }
+
+        progress < 1
+            ? requestAnimationFrame(animationProcess)
+            : (
+                sctx.clearRect(0, 0, special.width, special.height),
+                completed()
+            );
     }
 
     requestAnimationFrame(animationProcess);
 }
-
