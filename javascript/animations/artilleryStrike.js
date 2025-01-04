@@ -1,5 +1,6 @@
 import { cctx, Cols, Dy, Randomize, Rows, sctx, special } from "../config.js";
 import { activeTetrominos, grid, particlesPool, score } from "../engine.js";
+import { playArtilleryBomb, playArtilleryGun } from "../sound.js";
 import { clearFilteredRows, deepCopy, shiftFilteredRows, updateGridWithFilteredRows, updateTetrominoInfoByRow } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
@@ -161,7 +162,9 @@ function animateBombTravel(target, delay) {
                 : (
                     cctx.clearRect(0, target * Dy, clear.width, Dy),
                     sctx.clearRect(0, 0, special.width, special.height),
+                    playArtilleryBomb(),
                     animateShellExplosion(bomb.deltaX, bomb.deltaY).then(resolve),
+                    playArtilleryGun(),
                     animateClears([target], 'artillery')
                 )
         };

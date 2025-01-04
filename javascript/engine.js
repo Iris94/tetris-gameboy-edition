@@ -33,7 +33,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 0;
+export let manaLevel = 92;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
@@ -373,12 +373,15 @@ window.addEventListener('mousemove', (e) => {
      }
 });
 
-window.addEventListener('click', (e) => {
-     if (pause) return;
-     e.preventDefault();
-     rotation();
-     gameEngine();
-});
+function handleInteraction(e) {
+    if (pause) return;
+    e.preventDefault();
+    rotation();
+    gameEngine();
+}
+
+window.addEventListener('click', handleInteraction);
+window.addEventListener('touchstart', handleInteraction);
 
 window.addEventListener('touchmove', (e) => {
      if (pause) return;
