@@ -1,4 +1,4 @@
-import { grid, activeTetrominos, particlesPool, idColorStorage } from "../engine.js";
+import { grid, particlesPool, idColorStorage } from "../engine.js";
 import { cctx, ctx, Dx, Dy, Cols, sctx } from "../config.js";
 
 export function animateClears(data, clearName) {
@@ -6,7 +6,6 @@ export function animateClears(data, clearName) {
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
     ctx.shadowBlur = 0;
-    console.log(data)
 
     ctx.lineWidth = 1;
     ctx.strokeStyle = 'rgba(220, 215, 186, 0.05)';

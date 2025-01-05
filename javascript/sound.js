@@ -1,25 +1,99 @@
-export function playMainTheme () {
-    const audio = new Audio('sound/tetris-default.mp3');
-    audio.loop = true;
+let mainThemeAudio = null;
+let sovietThemeAudio = null;
+
+function stopAllThemes() {
+    if (mainThemeAudio) {
+        mainThemeAudio.pause();
+        mainThemeAudio.currentTime = 0;
+    }
+    if (sovietThemeAudio) {
+        sovietThemeAudio.pause();
+        sovietThemeAudio.currentTime = 0;
+    }
+}
+
+export function playMainTheme() {
+    if (mainThemeAudio) {
+        if (!mainThemeAudio.paused) {
+            return; 
+        }
+        mainThemeAudio.pause();
+        mainThemeAudio.currentTime = 0;
+    }
+    mainThemeAudio = new Audio('sound/tetris-default.mp3');
+    mainThemeAudio.loop = true;
+    mainThemeAudio.play();
+}
+
+
+export function playSovietTheme() {
+    stopAllThemes();  
+    sovietThemeAudio = new Audio('sound/tetris-soviet.mp3');
+    sovietThemeAudio.loop = true;
+    sovietThemeAudio.play();
+}
+
+export function stopMainTheme() {
+    if (mainThemeAudio) {
+        mainThemeAudio.pause();
+        mainThemeAudio.currentTime = 0;
+    }
+}
+
+export function stopSovietTheme() {
+    if (sovietThemeAudio) {
+        sovietThemeAudio.pause();
+        sovietThemeAudio.currentTime = 0;
+    }
+}
+
+export function playBombTravel () { 
+    const audio = new Audio('sound/bomb-travel.mp3');
     audio.play();
 }
 
-export function playClear () {
+export function playClear() {
     const audio = new Audio('sound/tetris-clear.mp3');
     audio.play();
 }
 
-export function playCollide () {
+export function playCollide() {
     const audio = new Audio('sound/tetris-collide.mp3');
     audio.play();
 }
 
-export function playArtilleryBomb () {
+export function playArtilleryBomb() {
     const audio = new Audio('sound/artillery-bomb.mp3');
+    audio.volume = 0.5;
     audio.play();
 }
 
-export function playArtilleryGun () {
+export function playArtilleryGun() {
     const audio = new Audio('sound/artillery-gun.mp3');
+    audio.play();
+}
+
+export function playNinjaSlice() {
+    const audio = new Audio('sound/ninja-slice.mp3');
+    audio.play();
+}
+
+export function playGameOver() {
+    const audio = new Audio('sound/game-over.mp3');
+    audio.play();
+}
+
+export function playSpecial() {
+    const audio = new Audio('sound/tetris-special.mp3');
+    audio.play();
+}
+
+export function playDrop() {
+    const audio = new Audio('sound/drop.mp3');
+    audio.play();
+}
+
+export function playLevelUp() {
+    const audio = new Audio('sound/level-up.mp3');
     audio.play();
 }

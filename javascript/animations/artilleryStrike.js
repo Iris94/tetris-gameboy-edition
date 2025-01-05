@@ -1,6 +1,6 @@
 import { cctx, Cols, Dy, Randomize, Rows, sctx, special } from "../config.js";
 import { activeTetrominos, grid, particlesPool, score } from "../engine.js";
-import { playArtilleryBomb, playArtilleryGun } from "../sound.js";
+import { playArtilleryBomb, playArtilleryGun, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
 import { clearFilteredRows, deepCopy, shiftFilteredRows, updateGridWithFilteredRows, updateTetrominoInfoByRow } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
@@ -30,6 +30,9 @@ function getDataArtilleryStrike() {
 }
 
 export async function artilleryStrike(completed) {
+    stopSovietTheme();
+    playMainTheme();
+
     const artilleryTargets = [...getDataArtilleryStrike()];
     const delay = 1000;
     let targetsAcquired = true;
@@ -76,6 +79,7 @@ async function finalizeArtilleryStrike(artilleryTargets) {
     artilleryTargets.sort((a, b) => a - b)
     shiftFilteredRows(artilleryTargets);
     updateGridWithFilteredRows();
+    playClear();
     await drops(targetRow, localCopiedActiveTetromino);
 }
 
@@ -109,6 +113,7 @@ function initiateTargets(artilleryTargets) {
 
 function animateBombTravel(target, delay) {
     return new Promise((resolve) => {
+        playBombTravel();
         const startTime = performance.now();
         const bomb = supportBombParticle(target);
 

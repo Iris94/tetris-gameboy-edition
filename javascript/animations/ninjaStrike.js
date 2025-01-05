@@ -1,5 +1,6 @@
 import { Randomize, sctx, Rows, Cols, Dx, Dy, ctx, Ninja, octx, occtx, ocontent } from "../config.js";
 import { tetrominosArray, grid, activeTetrominos, score } from "../engine.js";
+import { playClear, playMainTheme, playNinjaSlice, stopSovietTheme } from "../sound.js";
 import { deepCopy, updateGridWithFilteredRows, updateTetrominoInfoByCol } from "../updates.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
@@ -26,6 +27,9 @@ function getDataNinjaStrike() {
 }
 
 export async function ninjaStrike(completed) {
+    stopSovietTheme();
+    playMainTheme();
+    
     const ninjaTargets = [...getDataNinjaStrike()];
     let targetsAcquired = true;
     let bonusScore = 0;
@@ -52,6 +56,7 @@ async function finalizeNinjaStrike() {
 
     localCopiedActiveTetromino = deepCopy(activeTetrominos);
     updateGridWithFilteredRows();
+    playClear();
     await drops(Rows - 1, localCopiedActiveTetromino)
 }
 
@@ -67,6 +72,7 @@ function ninjaStrikeAnimation(ninjaTargets, bonusScore, completed) {
 
     targetLocations.forEach((cell, index) => {
         setTimeout(() => {
+            playNinjaSlice();
             sctx.beginPath();
             sctx.moveTo(cell.x * Dx - 21, cell.y * Dy + 13);
             sctx.lineTo((cell.x * Dx) + (Dx + 21), cell.y * Dy + 4);

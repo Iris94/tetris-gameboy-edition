@@ -1,4 +1,5 @@
 import { occtx, ocontent, octx, overlay, Randomize } from "../config.js";
+import { playSpecial } from "../sound.js";
 
 export async function specialsIntro(data, missionStatus) {
     return new Promise(resolve => {
@@ -11,6 +12,7 @@ export async function specialsIntro(data, missionStatus) {
             : overlayColor = 'rgba(43, 1, 1, 0.75)'
 
         image.onload = () => {
+            playSpecial();
             octx.clearRect(0, 0, overlay.width, overlay.height);
 
             const startPositionMap = {

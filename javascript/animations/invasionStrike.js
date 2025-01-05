@@ -1,5 +1,6 @@
 import { Cols, ctx, Dx, Dy, Rows, sctx } from "../config.js";
 import { activeTetrominos, grid, particlesPool, reuseObjectIdArray, score } from "../engine.js";
+import { playArtilleryBomb, playSovietTheme, stopMainTheme } from "../sound.js";
 import { clearFilteredRows } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { specialsIntro } from "./overlay.js";
@@ -29,6 +30,9 @@ function getInvasionStrikeData() {
 }
 
 export async function invasionStrike(onComplete) {
+    stopMainTheme(); 
+    playSovietTheme();
+
     await specialsIntro('invasion', true);
     let targetCells = getInvasionStrikeData();
     let bonusScore = 0;
@@ -39,6 +43,7 @@ export async function invasionStrike(onComplete) {
         targetCells.forEach((target, index) => {
             setTimeout(() => {
 
+                playArtilleryBomb();
                 animateClears(target, 'invasion')
                 animationsCompleted++;
                 bonusScore += Math.round(score / 200);
@@ -76,7 +81,7 @@ function finalizeInvasionStrike(targetCells) {
     })
 
     sctx.clearRect(0, 0, special.width, special.height);
-    ctx.clearRect(0, 0, canvas.width, canvas.height )
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 function invasionStrikeAnimation(targetCells, completed) {
