@@ -77,9 +77,9 @@ function ninjaStrikeAnimation(ninjaTargets, bonusScore, completed) {
             sctx.moveTo(cell.x * Dx - 21, cell.y * Dy + 13);
             sctx.lineTo((cell.x * Dx) + (Dx + 21), cell.y * Dy + 4);
             sctx.strokeStyle = 'black';
-            sctx.lineWidth = 3;
-            sctx.shadowColor = 'crimson';
-            sctx.shadowBlur = 11;
+            sctx.lineWidth = 5;
+            sctx.shadowColor = 'hsl(0, 85%, 50%)';
+            sctx.shadowBlur = 7;
             sctx.stroke();
         }, index * 150);
     });

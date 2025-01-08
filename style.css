@@ -1,24 +1,23 @@
 :root {
     --screen-wrap: #616a79;
-    --test-screen: #292929;
-    --red: #79295b;
-    --blue: #1e2499;
-}
-
-* {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    color: var(--blue)
-}
-
-canvas {
-    will-change: transform, opacity;
+    --test-screen: #151515;
+    --mono: #808086;
 }
 
 @font-face {
     font-family: 'nintendo';
-    src: url('/fonts/nintendo.otf') format('otf');
+    src: url('/assets/retro-font.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+}
+
+* {
+    font-family: 'nintendo', sans-serif;
+    color: var(--mono)
+}
+
+canvas {
+    will-change: transform, opacity;
 }
 
 .nintendo {
@@ -29,7 +28,7 @@ canvas {
 .game-boy {
     font-weight: 600;
     font-style: italic;
-    font-size: 21px;
+    font-size: 1rem;
 }
 
 body {
@@ -49,17 +48,19 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: slategrey;
+    background-color: #1b1919;
 }
 
 .gameboy {
     position: relative;
-    width: 450px;
-    height: 90%;
+    width: 95%;
+    max-width: 450px;
+    height: 95%;
+    max-height: 750px;
     border-radius: 10px 2.5px 90px 10px;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(0deg, rgba(183, 186, 196, 1) 0%, rgba(193, 192, 199, 1) 100%);
+    background: linear-gradient(0deg, #171717 0%, #323232 100%);
     overflow: hidden;
     box-shadow: inset -2px -2px 8px 1px black;
 }
@@ -70,9 +71,9 @@ main {
     height: 100%;
     width: 1px;
     left: 5px;
-    background-color: #dee5e5;
+    background-color: #242525;
     z-index: 1;
-    box-shadow: 0 0 3px 1px #dee5e5;
+    box-shadow: 0 0 3px 1px #232424;
 }
 
 .gameboy-top {
@@ -98,6 +99,11 @@ main {
     padding-left: 15px;
     position: relative;
     bottom: 35px;
+    font-size: 0.5rem;
+
+    span {
+        font-size: 0.85rem;
+    }
 }
 
 .gameboy-buttons {
@@ -106,6 +112,7 @@ main {
     align-items: center;
     position: relative;
     bottom: 20px;
+    font-size: 0.75rem;
 }
 
 .x-line {
@@ -114,7 +121,7 @@ main {
     height: 5px;
     top: 20px;
     left: 0;
-    background-color: #3b3b3b;
+    background-color: #131212;
     z-index: 2;
 }
 
@@ -123,7 +130,7 @@ main {
     position: absolute;
     width: 5px;
     height: 20px;
-    background-color: #3b3b3b;
+    background-color: #131212;
     top: 0;
 }
 
@@ -150,13 +157,13 @@ main {
 .speaker {
     width: 7.5px;
     height: 75%;
-    background-color: #a3a5a7;
+    background-color: #131212;
     border-radius: 15px;
-    box-shadow: inset 1px 1px 2px 1px #5b5a5a;
+    box-shadow: inset 1px 1px 2px 1px #222222;
 }
 
 .gameboy-screen-wrap {
-    background-color: var(--screen-wrap);
+    background-color: rgb(32, 31, 31);
     width: 90%;
     height: 85%;
     display: flex;
@@ -166,41 +173,6 @@ main {
     border-radius: 10px 10px 50px 10px;
     box-shadow: inset 1px 1px 5px 1px black;
     position: relative;
-}
-
-.screen-text {
-    position: absolute;
-    width: 100%;
-    height: 20px;
-    top: 0;
-    display: grid;
-    grid-template-columns: 30% 50% 20%;
-}
-
-.screen-text-left,
-.screen-text-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2.5px;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-.screen-text-center {
-    color: #8b96a2;
-}
-
-.blue-line {
-    width: 100%;
-    height: 3px;
-    background-color: var(--blue);
-}
-
-.red-line {
-    width: 100%;
-    height: 3px;
-    background-color: var(--red);
 }
 
 .trackpad {
@@ -213,13 +185,13 @@ main {
     align-items: center;
     position: relative;
     overflow: hidden;
-    box-shadow: inset 0 0 30px 0 #a7a9af;
+    box-shadow: inset 0 0 30px 0 #1b1a1a;
 }
 
 .y-track {
     height: 100%;
     width: 35%;
-    background: linear-gradient(to right, #353535, #141414);
+    background: linear-gradient(to right, #1d1d1d, #141414);
     border-radius: 12px;
     position: absolute;
     z-index: 1;
@@ -232,16 +204,15 @@ main {
     height: 100%;
     width: 1px;
     left: 4px;
-    background-color: #545454;
+    background-color: #2d2c2c;
     z-index: 1;
-    box-shadow: 0 0 5px 0 #888c8c;
-    ;
+    box-shadow: 0 0 5px 0 #2d2e2e;
 }
 
 .x-track {
     height: 35%;
     width: 100%;
-    background: linear-gradient(to right, #353535, #141414);
+    background: linear-gradient(to bottom, #1e1e1e, #161616);
     border-radius: 12px;
     position: absolute;
     z-index: 2;
@@ -251,20 +222,19 @@ main {
 .x-track::after {
     content: "";
     position: absolute;
-    height: 100%;
-    width: 1px;
-    left: 4px;
-    background-color: #545454;
+    height: 1px;
+    width: 100%;
+    left: 0;
+    background-color: #1d1c1c;
     z-index: 1;
-    box-shadow: 0 0 5px 0 #888c8c;
-    ;
+    box-shadow: 0 0 5px 0 #2d2e2e;
 }
 
 .button {
     padding: 10px 20px;
     display: flex;
     transform: rotate(-25deg);
-    box-shadow: inset 0 0 30px 0 #a7a9af;
+    box-shadow: inset 0 0 30px 0 #171717;
     border-radius: 75px;
 }
 
@@ -277,7 +247,7 @@ main {
 
 .button-red {
     position: relative;
-    background: linear-gradient(to right, var(--red), #700f0f);
+    background: linear-gradient(to right, var(--red), #460505);
     border-radius: 100%;
     width: 40px;
     height: 40px;
@@ -308,14 +278,14 @@ main {
     position: relative;
     bottom: 20px;
     text-align: center;
-    background: linear-gradient(to top, #3f3f3f, #8e8e8e);
+    background: linear-gradient(to top, #1e1e1e, #110f0f);
     padding: 1px;
     box-shadow: inset 0 0 5px 0 rgb(33, 32, 32);
 }
 
 .options>p {
     font-weight: 900;
-    font-size: 13px;
+    font-size: 0.6rem;
 }
 
 .screen {
@@ -408,30 +378,74 @@ main {
     top: 0;
     left: 0;
     background-color: #141414;
+    box-shadow: inset 0 0 1.2rem 0.1rem #272b2a;
     z-index: 5;
     display: flex;
     flex-direction: column;
     gap: 10px;
     justify-content: center;
     align-items: center;
+
+    h1 {
+        font-size: 1.25em;
+
+        span:nth-child(1) {
+            color: #ff0000cf;
+        }
+
+        span:nth-child(2) {
+            color: #00ff00c3;
+        }
+
+        span:nth-child(3) {
+            color: #ffa600d4;
+        }
+
+        span:nth-child(4) {
+            color: #ffff00de;
+        }
+
+        span:nth-child(5) {
+            color: #ff00ffe6;
+        }
+
+        span:nth-child(6) {
+            color: #00ffffe4;
+        }
+
+        span:nth-child(7) {
+            color: #4141f1de;
+        }
+    }
+
+    .description {
+        font-size: 0.65rem;
+        color: #d3d2d2;
+        text-align: center;
+        width: 60%;
+        margin-bottom: 5px;
+        position: relative;
+        bottom: 7px;
+    }
 }
 
 .menu-item {
+    background-color: #033232;
+    font-family: 'nintendo';
+    font-size: 0.75rem;
+    color: #d3d2d2;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
     width: 50%;
-    height: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #292929;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 0 5px 1px black;
-    color: white;
-    font-weight: 900;
-    font-size: 1.5rem;
+    padding: 10px 20px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(1, 95, 95, 0.5);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .menu-item:hover {
-    background-color: #3f3f3f;
+    background-color: #025f5f;
+    box-shadow: 0 0 10px rgba(0, 153, 153, 0.5);
     cursor: pointer;
 }

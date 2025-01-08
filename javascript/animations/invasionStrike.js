@@ -95,7 +95,7 @@ function invasionStrikeAnimation(targetCells, completed) {
 
         targetCells.forEach(cell => {
             const opacity = progress;
-            sctx.fillStyle = `rgba(255, 0, 0, ${opacity / 5})`;
+            sctx.fillStyle = `rgba(255, 0, 0, ${opacity / 2})`;
             sctx.fillRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
         });
 

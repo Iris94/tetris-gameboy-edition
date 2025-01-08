@@ -2,7 +2,7 @@ import { Cols, Rows, ctx, hctx, mctx, Dx, Dy, Position, Invasion, Ninja, Artille
 import { tetromino, grid, nextTetromino, activeTetrominos } from "./engine.js";
 
 export function drawMainBoard() {
-     ctx.strokeStyle = 'rgba(220, 215, 186, 0.05)';
+     ctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
      ctx.lineWidth = 1
 
      for (let row = 0; row < Rows; row++) {

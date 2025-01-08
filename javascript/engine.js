@@ -9,7 +9,7 @@ import { drops } from "./animations/drops.js";
 import { animateClears } from "./animations/clears.js";
 import { artilleryStrike } from "./animations/artilleryStrike.js";
 import { invasionStrike } from "./animations/invasionStrike.js";
-import { playClear, playCollide, playDrop, playGameOver, playLevelUp, playMainTheme } from './sound.js';
+import { playClear, playCollide, playDrop, playGameOver, playLevelUp, playMainTheme, stopSovietTheme } from './sound.js';
 
 export let grid;
 export let copiedActiveTetromino;
@@ -142,6 +142,8 @@ function resetGameplayInterval() {
 }
 
 function gameOver() {
+     stopMainTheme();
+     stopSovietTheme();
      playGameOver();
      pauseGame();
 }

@@ -1,7 +1,7 @@
 export const tetrominoShapes = [
     {
         name: 'I',
-        color: '#00B5D8',
+        color: '#00FFFF', 
         cells: [
             { x: 0, y: 0 },
             { x: 1, y: 0 },
@@ -11,7 +11,7 @@ export const tetrominoShapes = [
     },
     {
         name: 'J',
-        color: '#3D7A8A',
+        color: '#00CED1', 
         cells: [
             { x: 0, y: 0 },
             { x: 0, y: 1 },
@@ -21,7 +21,7 @@ export const tetrominoShapes = [
     },
     {
         name: 'L',
-        color: '#D1841B',
+        color: '#FFA500', 
         cells: [
             { x: 2, y: 0 },
             { x: 0, y: 1 },
@@ -31,7 +31,7 @@ export const tetrominoShapes = [
     },
     {
         name: 'O',
-        color: '#F2D75B',
+        color: '#FFFF00', 
         cells: [
             { x: 0, y: 0 },
             { x: 1, y: 0 },
@@ -41,7 +41,7 @@ export const tetrominoShapes = [
     },
     {
         name: 'S',
-        color: '#76946A',
+        color: '#32CD32', 
         cells: [
             { x: 1, y: 0 },
             { x: 2, y: 0 },
@@ -51,7 +51,7 @@ export const tetrominoShapes = [
     },
     {
         name: 'T',
-        color: '#8A5D97',
+        color: '#DA70D6', 
         cells: [
             { x: 0, y: 1 },
             { x: 1, y: 0 },
@@ -61,7 +61,7 @@ export const tetrominoShapes = [
     },
     {
         name: 'Z',
-        color: '#C34043',
+        color: '#FF4500', 
         cells: [
             { x: 0, y: 0 },
             { x: 1, y: 0 },

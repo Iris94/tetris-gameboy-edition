@@ -8,7 +8,7 @@ export function animateClears(data, clearName) {
     ctx.shadowBlur = 0;
 
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(220, 215, 186, 0.05)';
+    ctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
 
     if (clearName === 'invasion') {
         const { x, y } = data;
@@ -103,30 +103,30 @@ function initiateParticles(x, y, id, clearName) {
     let particles = [];
 
     const colorPalettes = {
-        I: ['#00B5D8', '#00C5E6', '#33D9F1', '#66E3F7', '#99EDF9', '#CCF7FD', '#00A8C7', '#0088A6', '#005F7D', '#004059'],
-        J: ['#3D7A8A', '#4A8D9B', '#5DA1AB', '#6EB4BB', '#80C7CB', '#92DADD', '#2F6573', '#1F4F5B', '#123944', '#0A262F'],
-        L: ['#D1841B', '#DA912E', '#E39E42', '#EBAB56', '#F4B769', '#F9C285', '#B66F17', '#945B12', '#74460E', '#533109'],
-        O: ['#F2D75B', '#F4DC6A', '#F7E27A', '#F9E889', '#FBEF98', '#FDF5A8', '#D4BD4E', '#B5A342', '#968736', '#786A2B'],
-        S: ['#76946A', '#849F77', '#93AA84', '#A1B591', '#B0C19E', '#BFDDAA', '#67825C', '#57704E', '#465F40', '#364C32'],
-        T: ['#8A5D97', '#9669A2', '#A275AE', '#AD81B9', '#B98DC5', '#C599D1', '#764E81', '#5F3C69', '#482A50', '#321938'],
-        Z: ['#C34043', '#CF4C4E', '#DB595A', '#E66666', '#F17272', '#FC7F7F', '#A63437', '#87292C', '#671F22', '#481618'],
+        I: ['#00FFFF', '#33FFFF', '#66FFFF', '#99FFFF', '#CCFFFF', '#00EFFF', '#00CFFF', '#00AFFF', '#008FFF', '#007FFF'],
+        J: ['#00CED1', '#33D6DB', '#66DEE4', '#99E6EE', '#CCEEF7', '#00BFC3', '#009EA3', '#007E83', '#005E63', '#003E43'],
+        L: ['#FFA500', '#FFB533', '#FFC566', '#FFD599', '#FFE5CC', '#E68A00', '#CC7A00', '#B36B00', '#995C00', '#804D00'],
+        O: ['#FFFF00', '#FFFF33', '#FFFF66', '#FFFF99', '#FFFFCC', '#E6E600', '#CCCC00', '#B3B300', '#999900', '#808000'],
+        S: ['#32CD32', '#5DE65D', '#88FF88', '#B3FFB3', '#DFFFDF', '#28A428', '#208020', '#186018', '#104010', '#082008'],
+        T: ['#DA70D6', '#E57BE3', '#F086F0', '#FB91FB', '#FFA8FF', '#C060C1', '#A050A0', '#804080', '#603060', '#402040'],
+        Z: ['#FF4500', '#FF5733', '#FF6A66', '#FF7D99', '#FF90CC', '#E63E00', '#CC3500', '#B32D00', '#992500', '#801D00'],
     };
 
     const fireColors = [
-        'hsl(12, 90%, 50%)', 
-        'hsl(25, 90%, 60%)',
-        'hsl(45, 90%, 55%)', 
-        'hsl(60, 90%, 90%)'  
+        'hsl(12, 100%, 60%)',
+        'hsl(25, 100%, 70%)',
+        'hsl(45, 100%, 65%)',
+        'hsl(60, 100%, 90%)'
     ];
 
     const ninjaColors = [
-        'hsl(0, 0%, 10%)',
-        'hsl(0, 0%, 12%)',
-        'hsl(0, 0%, 15%)',
-        'hsl(0, 0%, 8%)'
+        'hsl(0, 0%, 20%)',
+        'hsl(0, 0%, 25%)',
+        'hsl(0, 0%, 30%)',
+        'hsl(0, 0%, 15%)'
     ];
 
-    const sovietRed = 'hsl(0, 85%, 40%)';
+    const sovietRed = 'hsl(0, 85%, 50%)';
 
     for (let i = 0; i < maxParticles; i++) {
         let lendedParticleObject = particlesPool.pop();
@@ -144,19 +144,15 @@ function initiateParticles(x, y, id, clearName) {
             case 'default':
                 color = colorPalettes[idColorStorage.get(id)][Math.floor(Math.random() * colorPalettes[idColorStorage.get(id)].length)];
                 break;
-
             case 'artillery':
                 color = fireColors[Math.floor(Math.random() * fireColors.length)];
                 break;
-
             case 'ninja':
                 color = ninjaColors[Math.floor(Math.random() * ninjaColors.length)];
                 break;
-
             case 'invasion':
                 color = sovietRed;
                 break;
-
             default:
                 color = 'white';
                 break;

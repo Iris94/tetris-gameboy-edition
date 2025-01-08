@@ -4,7 +4,7 @@ import { clearMainBoard, pasteImageData } from "../updates.js";
 import { redrawTetrominos } from "../draws.js";
 
 export async function drops(target, originalActiveTetromino) {
-    const duration = 100;
+    const duration = 50;
     const promises = [];
     let shapes = new Set();
 
