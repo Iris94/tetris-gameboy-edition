@@ -53,10 +53,8 @@ main {
 
 .gameboy {
     position: relative;
-    width: 95%;
-    max-width: 450px;
+    width: calc(95vh / 1.8);
     height: 95%;
-    max-height: 750px;
     border-radius: 10px 2.5px 90px 10px;
     display: flex;
     flex-direction: column;
