@@ -1,7 +1,7 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana, drawSpecialTetra, drawSpecialNinja, drawSpecialArtillery } from "./draws.js";
 import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, updateGridWithFilteredRows, initiateId, updateTetrominoInfoByRow, initiateTetrominoInfo, shiftFilteredRows, recheckRowState, delay, deepCopy, gameoverCheck } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
-import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, mainMenu } from "./config.js";
+import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton } from "./config.js";
 import { rotation } from "./rotation.js";
 import { calculateClearingScore, calculateCollisionScore, calculateLevel, randomTetromino } from "./metrics.js";
 import { ninjaStrike } from "./animations/ninjaStrike.js";
@@ -10,6 +10,7 @@ import { animateClears } from "./animations/clears.js";
 import { artilleryStrike } from "./animations/artilleryStrike.js";
 import { invasionStrike } from "./animations/invasionStrike.js";
 import { playClear, playCollide, playDrop, playGameOver, playLevelUp, playMainTheme, stopSovietTheme } from './sound.js';
+import { mainMenu } from "./menu.js";
 
 export let grid;
 export let copiedActiveTetromino;
@@ -41,6 +42,8 @@ export let previousTouchX = 0;
 export let previousTouchY = 0;
 export let gameplayStatus;
 export let gameplayAcceleration = 1000;
+export let menuOpened = true;
+export let gameStarted = false;
 
 export class Tetromino {
      constructor(name, color, cells, positionZero) {
@@ -92,6 +95,8 @@ drawTetromino();
 drawNextTetromino();
 
 playGameButton.onclick = () => { 
+     menuOpened = false;
+     gameStarted = true;
      pause = false;
      playMainTheme();
      mainMenu.style.display = 'none';

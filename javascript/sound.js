@@ -1,5 +1,7 @@
 let mainThemeAudio = null;
 let sovietThemeAudio = null;
+export let volume = 1;
+export const setVolume = (newVolume) => volume = Math.max(0, Math.min(newVolume, 1));
 
 function stopAllThemes() {
     if (mainThemeAudio) {
@@ -22,6 +24,7 @@ export function playMainTheme() {
     }
     mainThemeAudio = new Audio('sound/tetris-default.mp3');
     mainThemeAudio.loop = true;
+    mainThemeAudio.volume = volume;
     mainThemeAudio.play();
 }
 
@@ -30,6 +33,7 @@ export function playSovietTheme() {
     stopAllThemes();  
     sovietThemeAudio = new Audio('sound/tetris-soviet.mp3');
     sovietThemeAudio.loop = true;
+    sovietThemeAudio.volume = volume;
     sovietThemeAudio.play();
 }
 
@@ -49,51 +53,60 @@ export function stopSovietTheme() {
 
 export function playBombTravel () { 
     const audio = new Audio('sound/bomb-travel.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playClear() {
     const audio = new Audio('sound/tetris-clear.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playCollide() {
     const audio = new Audio('sound/tetris-collide.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playArtilleryBomb() {
     const audio = new Audio('sound/artillery-bomb.mp3');
-    audio.volume = 0.5;
+    audio.volume = volume;
     audio.play();
 }
 
 export function playArtilleryGun() {
     const audio = new Audio('sound/artillery-gun.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playNinjaSlice() {
     const audio = new Audio('sound/ninja-slice.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playGameOver() {
     const audio = new Audio('sound/game-over.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playSpecial() {
     const audio = new Audio('sound/tetris-special.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playDrop() {
     const audio = new Audio('sound/drop.mp3');
+    audio.volume = volume;
     audio.play();
 }
 
 export function playLevelUp() {
     const audio = new Audio('sound/level-up.mp3');
+    audio.volume = volume;
     audio.play();
 }

@@ -55,10 +55,8 @@ export const Cols = 10;
 export const Dx = canvas.width / Cols;
 export const Dy = canvas.height / Rows;
 export const Position = 4;
+
 export const playGameButton = document.getElementById('start');
-export const mainMenu = document.getElementById('mainMenu');
-
-
 
 export const createGrid = () => Array.from({ length: Rows }, () => Array(Cols).fill(0));
 export const particlesObjectPool = () => Array.from({ length: 20000 }, () => ({}));

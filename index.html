@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="assets/tetrisgame_tetri_6955.ico" type="image/x-icon">
+    <link type="image/x-icon" href="assets/tetrisgame_tetri_6955.ico" rel="icon">
     <link href="style.css" rel="stylesheet">
     <script src="script.js" type="module" defer></script>
     <title>Super Tetris</title>
@@ -31,10 +31,20 @@
                                 <span>!</span>
                             </h1>
                             <span class="description">with ninjas, artillery and soviet red army</span>
-                            <button type="button" class="menu-item" id="start">Start</button>
-                            <button type="button" class="menu-item" id="score">Score</button>
-                            <button type="button" class="menu-item" id="volume">Volume</button>
-                            <button type="button" class="menu-item" id="exit">Exit</button>
+
+                            <div class="menu-items show" id="mainNavigation">
+                                <button class="menu-item" id="start" type="button">Start</button>
+                                <button class="menu-item" id="score" type="button">Score</button>
+                                <button class="menu-item" id="volume" type="button">Volume</button>
+                                <button class="menu-item" id="exit" type="button">Exit</button>
+                            </div>
+
+                            <div class="menu-items hide" id="volumeNavigation">
+                                <div class="volume-control-wrap"></div>
+                                <button type="button" class="menu-item" id="volumeUp">Increase +</button>
+                                <button type="button" class="menu-item" id="volumeDown">Decrease -</button>
+                                <button class="menu-item back" type="button">Back</button>
+                            </div>
                         </div>
 
                         <canvas id="overlay"></canvas>

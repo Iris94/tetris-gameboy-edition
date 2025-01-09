@@ -16,6 +16,14 @@
     color: var(--mono)
 }
 
+.show {
+    display: flex !important;
+}
+
+.hide {
+    display: none !important;
+}
+
 canvas {
     will-change: transform, opacity;
 }
@@ -446,4 +454,18 @@ main {
     background-color: #025f5f;
     box-shadow: 0 0 10px rgba(0, 153, 153, 0.5);
     cursor: pointer;
+}
+
+.menu-items {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.volume-control-wrap {
+    display: flex;
+    align-items: end;
+    height: 2rem;
 }
