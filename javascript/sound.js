@@ -1,5 +1,6 @@
 let mainThemeAudio = null;
 let sovietThemeAudio = null;
+let currentTheme = null; 
 export let volume = 1;
 export const setVolume = (newVolume) => volume = Math.max(0, Math.min(newVolume, 1));
 
@@ -17,7 +18,7 @@ function stopAllThemes() {
 export function playMainTheme() {
     if (mainThemeAudio) {
         if (!mainThemeAudio.paused) {
-            return; 
+            return;
         }
         mainThemeAudio.pause();
         mainThemeAudio.currentTime = 0;
@@ -26,15 +27,17 @@ export function playMainTheme() {
     mainThemeAudio.loop = true;
     mainThemeAudio.volume = volume;
     mainThemeAudio.play();
+    currentTheme = 'main';
 }
 
 
 export function playSovietTheme() {
-    stopAllThemes();  
+    stopAllThemes();
     sovietThemeAudio = new Audio('sound/tetris-soviet.mp3');
     sovietThemeAudio.loop = true;
     sovietThemeAudio.volume = volume;
     sovietThemeAudio.play();
+    currentTheme = 'soviet';
 }
 
 export function stopMainTheme() {
@@ -51,7 +54,23 @@ export function stopSovietTheme() {
     }
 }
 
-export function playBombTravel () { 
+export function pauseCurrentTheme() {
+    if (currentTheme === 'main' && mainThemeAudio && !mainThemeAudio.paused) {
+        mainThemeAudio.pause();
+    } else if (currentTheme === 'soviet' && sovietThemeAudio && !sovietThemeAudio.paused) {
+        sovietThemeAudio.pause();
+    }
+}
+
+export function resumeCurrentTheme() {
+    if (currentTheme === 'main' && mainThemeAudio && mainThemeAudio.paused) {
+        mainThemeAudio.play();
+    } else if (currentTheme === 'soviet' && sovietThemeAudio && sovietThemeAudio.paused) {
+        sovietThemeAudio.play();
+    }
+}
+
+export function playBombTravel() {
     const audio = new Audio('sound/bomb-travel.mp3');
     audio.volume = volume;
     audio.play();

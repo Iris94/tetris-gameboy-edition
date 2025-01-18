@@ -33,18 +33,27 @@
                             <span class="description">with ninjas, artillery and soviet red army</span>
 
                             <div class="menu-items show" id="mainNavigation">
+                                <button class="menu-item hide" id="resume" type="button">Resume</button>
+                                <button class="menu-item hide" id="restart" type="button">Restart</button>
                                 <button class="menu-item" id="start" type="button">Start</button>
                                 <button class="menu-item" id="score" type="button">Score</button>
                                 <button class="menu-item" id="volume" type="button">Volume</button>
-                                <button class="menu-item" id="exit" type="button">Exit</button>
+                                <button class="menu-item hide" id="home" type="button">Home</button>
                             </div>
 
                             <div class="menu-items hide" id="volumeNavigation">
                                 <div class="volume-control-wrap"></div>
-                                <button type="button" class="menu-item" id="volumeUp">Increase +</button>
-                                <button type="button" class="menu-item" id="volumeDown">Decrease -</button>
+                                <button class="menu-item" id="volumeUp" type="button">Increase +</button>
+                                <button class="menu-item" id="volumeDown" type="button">Decrease -</button>
                                 <button class="menu-item back" type="button">Back</button>
                             </div>
+
+                            <div class="menu-items hide" id="scoreNavigation">
+                                <input class="menu-item" id="playerName" type="text" placeholder="Enter your name">
+                                <button class="menu-item" id="enterScore" type="button">Enter</button>
+                                <button class="menu-item back" id="scoreBack" type="button">Back</button>
+                            </div>
+
                         </div>
 
                         <canvas id="overlay"></canvas>

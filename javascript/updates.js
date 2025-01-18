@@ -1,4 +1,4 @@
-import { Cols, ctx, hctx, Rows, sctx } from "./config.js";
+import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx } from "./config.js";
 import { grid, tetromino, filterRowsData, tetrominoId, objectPoolArray, reuseObjectIdArray, activeTetrominos } from "./engine.js";
 
 export const copyImageData = () => ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -6,6 +6,7 @@ export const pasteImageData = (data) => ctx.putImageData(data, 0, 0);
 export const clearMainBoard = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
 export const clearHud = () => hctx.clearRect(0, 0, hudCanvas.width, hudCanvas.height);
 export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.height);
+export const clearMana = () => mctx.clearRect(0, 0, manaCanvas.width, manaCanvas.height);
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const deepCopy = (data) => JSON.parse(JSON.stringify(data));
 export const clearFilteredRows = (data) => data.forEach(row => grid[row] = Array(Cols).fill(0));

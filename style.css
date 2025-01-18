@@ -61,14 +61,19 @@ main {
 
 .gameboy {
     position: relative;
-    width: calc(95vh / 1.8);
-    height: 95%;
+    width: calc(90dvh / 1.85);
+    height: 90dvh;
     border-radius: 10px 2.5px 90px 10px;
     display: flex;
     flex-direction: column;
     background: linear-gradient(0deg, #171717 0%, #323232 100%);
     overflow: hidden;
     box-shadow: inset -2px -2px 8px 1px black;
+
+    @media screen and (max-width: 500px) {
+        width: 95%;
+        height: 85%;
+    }
 }
 
 .gameboy::after {
@@ -448,6 +453,8 @@ main {
     cursor: pointer;
     box-shadow: 0 0 10px rgba(1, 95, 95, 0.5);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    justify-content: center;
+    align-items: center;
 }
 
 .menu-item:hover {
