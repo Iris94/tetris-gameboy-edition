@@ -40,6 +40,9 @@ export let previousMouseX = 0;
 export let previousMouseY = 0;
 export let previousTouchX = 0;
 export let previousTouchY = 0;
+export let touchStartX = 0;
+export let touchStartY = 0;
+export let isDragging = false;
 export let gameplayStatus;
 export let gameplayAcceleration = 1000;
 export let menuOpened = true;
@@ -433,9 +436,14 @@ window.addEventListener('click', (e) => {
      resetGameplayInterval();
 })
 
-let touchStartX = 0;
-let touchStartY = 0;
-let isDragging = false;
+window.history.pushState({ page: "game" }, "", "");
+
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.page === "game") {
+        pauseEntireGame();
+        window.history.pushState({ page: "game" }, "", "");
+    }
+});
 
 function handleInteraction() {
     if (pause) return;
@@ -447,7 +455,7 @@ window.addEventListener('touchstart', (e) => {
     if (pause) return;
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
-    isDragging = false; // Reset the dragging flag on touch start
+    isDragging = false; 
 });
 
 window.addEventListener('touchmove', (e) => {
@@ -463,13 +471,13 @@ window.addEventListener('touchmove', (e) => {
             ? tetromino.moveRight()
             : tetromino.moveLeft();
 
-        touchStartX = currentTouchX; // Update the start position to avoid multiple triggers
-        isDragging = true; // Set dragging flag
+        touchStartX = currentTouchX; 
+        isDragging = true; 
         gameEngine();
     } else if (Math.abs(deltaY) > 30) {
         tetromino.moveDown();
-        touchStartY = currentTouchY; // Update the start position
-        isDragging = true; // Set dragging flag
+        touchStartY = currentTouchY; 
+        isDragging = true; 
         resetGameplayInterval();
         gameEngine();
     }
@@ -478,7 +486,6 @@ window.addEventListener('touchmove', (e) => {
 window.addEventListener('touchend', (e) => {
     if (pause) return;
 
-    // If no significant dragging occurred, treat it as a tap for rotation
     if (!isDragging) {
         handleInteraction();
     }
