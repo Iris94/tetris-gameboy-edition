@@ -426,39 +426,41 @@ window.addEventListener('mousemove', (e) => {
 });
 
 function handleInteraction(e) {
-     if (pause) return;
-     e.preventDefault();
-     rotation();
-     gameEngine();
+    if (pause) return;
+    e.preventDefault();
+    rotation();
+    gameEngine();
 }
 
+window.addEventListener('touchstart', (e) => {
+    if (pause) return;
+    previousTouchX = e.touches[0].clientX;
+    previousTouchY = e.touches[0].clientY;
+});
+
 window.addEventListener('touchmove', (e) => {
-     if (pause) return;
+    if (pause) return;
 
-     const currentTouchX = e.touches[0].clientX;
-     const currentTouchY = e.touches[0].clientY;
-     const deltaX = currentTouchX - previousTouchX;
-     const deltaY = currentTouchY - previousTouchY;
+    const currentTouchX = e.touches[0].clientX;
+    const currentTouchY = e.touches[0].clientY;
+    const deltaX = currentTouchX - previousTouchX;
+    const deltaY = currentTouchY - previousTouchY;
 
-     if (Math.abs(deltaX) > 30) {
-          deltaX > 0
-               ? tetromino.moveRight()
-               : tetromino.moveLeft();
+    if (Math.abs(deltaX) > 30) {
+        deltaX > 0
+            ? tetromino.moveRight()
+            : tetromino.moveLeft();
 
-          previousTouchX = currentTouchX;
-          gameEngine();
-     }
-
-     if (Math.abs(deltaY) > 30) {
-          tetromino.moveDown();
-          previousTouchY = currentTouchY;
-          resetGameplayInterval();
-          gameEngine();
-     }
-
-     if (Math.abs(deltaX) < 30) {
-          handleInteraction();
-     }
+        previousTouchX = currentTouchX;
+        gameEngine();
+    } else if (Math.abs(deltaY) > 30) {
+        tetromino.moveDown();
+        previousTouchY = currentTouchY;
+        resetGameplayInterval();
+        gameEngine();
+    } else if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30) {
+        handleInteraction(e);
+    }
 });
 
 function homeAndRestart() {
