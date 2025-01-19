@@ -425,17 +425,29 @@ window.addEventListener('mousemove', (e) => {
      }
 });
 
-function handleInteraction(e) {
+window.addEventListener('click', (e) => {
+     e.preventDefault();
+     if (window.innerWidth < 720) return;
+     rotation();
+     gameEngine();
+     resetGameplayInterval();
+})
+
+let touchStartX = 0;
+let touchStartY = 0;
+let isDragging = false;
+
+function handleInteraction() {
     if (pause) return;
-    e.preventDefault();
     rotation();
     gameEngine();
 }
 
 window.addEventListener('touchstart', (e) => {
     if (pause) return;
-    previousTouchX = e.touches[0].clientX;
-    previousTouchY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    isDragging = false; // Reset the dragging flag on touch start
 });
 
 window.addEventListener('touchmove', (e) => {
@@ -443,23 +455,32 @@ window.addEventListener('touchmove', (e) => {
 
     const currentTouchX = e.touches[0].clientX;
     const currentTouchY = e.touches[0].clientY;
-    const deltaX = currentTouchX - previousTouchX;
-    const deltaY = currentTouchY - previousTouchY;
+    const deltaX = currentTouchX - touchStartX;
+    const deltaY = currentTouchY - touchStartY;
 
     if (Math.abs(deltaX) > 30) {
         deltaX > 0
             ? tetromino.moveRight()
             : tetromino.moveLeft();
 
-        previousTouchX = currentTouchX;
+        touchStartX = currentTouchX; // Update the start position to avoid multiple triggers
+        isDragging = true; // Set dragging flag
         gameEngine();
     } else if (Math.abs(deltaY) > 30) {
         tetromino.moveDown();
-        previousTouchY = currentTouchY;
+        touchStartY = currentTouchY; // Update the start position
+        isDragging = true; // Set dragging flag
         resetGameplayInterval();
         gameEngine();
-    } else if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30) {
-        handleInteraction(e);
+    }
+});
+
+window.addEventListener('touchend', (e) => {
+    if (pause) return;
+
+    // If no significant dragging occurred, treat it as a tap for rotation
+    if (!isDragging) {
+        handleInteraction();
     }
 });
 

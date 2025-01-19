@@ -1,4 +1,4 @@
-import { Cols} from "./config.js";
+import { Cols, Rows} from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
 function rotate() {
@@ -29,6 +29,7 @@ function wallkicks (data) {
 
 export function rotation() {
      if (tetromino.name === 'O') return;
+     if (tetromino.name === 'I' && tetromino.cells.some(cell => cell.y < 2)) return;
 
      let wallkickData = [-1, +2, -1]
      
