@@ -401,63 +401,64 @@ window.onkeydown = (key) => {
 }
 
 window.addEventListener('mousemove', (e) => {
-    if (pause) return;
+     if (pause) return;
 
-    const currentMouseX = e.offsetX;
-    const currentMouseY = e.offsetY;
-    const deltaX = currentMouseX - previousMouseX;
-    const deltaY = currentMouseY - previousMouseY;
+     const currentMouseX = e.offsetX;
+     const currentMouseY = e.offsetY;
+     const deltaX = currentMouseX - previousMouseX;
+     const deltaY = currentMouseY - previousMouseY;
 
-    if (Math.abs(deltaX) > 20) {
-        deltaX > 0
-            ? tetromino.moveRight()
-            : tetromino.moveLeft();
+     if (Math.abs(deltaX) > 20) {
+          deltaX > 0
+               ? tetromino.moveRight()
+               : tetromino.moveLeft();
 
-        previousMouseX = currentMouseX;
-        gameEngine();
-    }
+          previousMouseX = currentMouseX;
+          gameEngine();
+     }
 
-    if (deltaY > 20) {
-        tetromino.moveDown();
-        previousMouseY = currentMouseY;
-        resetGameplayInterval();
-        gameEngine();
-    }
+     if (deltaY > 20) {
+          tetromino.moveDown();
+          previousMouseY = currentMouseY;
+          resetGameplayInterval();
+          gameEngine();
+     }
 });
 
 function handleInteraction(e) {
-    if (pause) return;
-    e.preventDefault();
-    rotation();
-    gameEngine();
+     if (pause) return;
+     e.preventDefault();
+     rotation();
+     gameEngine();
 }
 
-window.addEventListener('click', handleInteraction);
-window.addEventListener('touchstart', handleInteraction);
-
 window.addEventListener('touchmove', (e) => {
-    if (pause) return;
+     if (pause) return;
 
-    const currentTouchX = e.touches[0].clientX;
-    const currentTouchY = e.touches[0].clientY;
-    const deltaX = currentTouchX - previousTouchX;
-    const deltaY = currentTouchY - previousTouchY;
+     const currentTouchX = e.touches[0].clientX;
+     const currentTouchY = e.touches[0].clientY;
+     const deltaX = currentTouchX - previousTouchX;
+     const deltaY = currentTouchY - previousTouchY;
 
-    if (Math.abs(deltaX) > 30) {
-        deltaX > 0
-            ? tetromino.moveRight()
-            : tetromino.moveLeft();
+     if (Math.abs(deltaX) > 30) {
+          deltaX > 0
+               ? tetromino.moveRight()
+               : tetromino.moveLeft();
 
-        previousTouchX = currentTouchX;
-        gameEngine();
-    }
+          previousTouchX = currentTouchX;
+          gameEngine();
+     }
 
-    if (Math.abs(deltaY) > 30) {
-        tetromino.moveDown();
-        previousTouchY = currentTouchY;
-        resetGameplayInterval();
-        gameEngine();
-    }
+     if (Math.abs(deltaY) > 30) {
+          tetromino.moveDown();
+          previousTouchY = currentTouchY;
+          resetGameplayInterval();
+          gameEngine();
+     }
+
+     if (Math.abs(deltaX) < 30) {
+          handleInteraction();
+     }
 });
 
 function homeAndRestart() {
