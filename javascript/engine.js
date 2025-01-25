@@ -34,7 +34,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 92;
+export let manaLevel = 95;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
@@ -260,10 +260,17 @@ function gameEngine() {
 
 async function clearPhase() {
      pauseGame();
+     clearRowsMultiplier = filterRowsData.length;
+     variableGoalSystem += calculateLevel(clearRowsMultiplier);
+     score += calculateClearingScore(clearRowsMultiplier);
+     manaLevel += clearRowsMultiplier;
+     scoreBonus++;
+     console.log(variableGoalSystem)
+
      while (filterRowsData.length > 0) {
           targetRow = filterRowsData[filterRowsData.length - 1];
           idColorStorage = updateTetrominoInfoByRow(filterRowsData);
-          copiedActiveTetromino = deepCopy(activeTetrominos)
+          copiedActiveTetromino = deepCopy(activeTetrominos);
 
           animateClears(filterRowsData, 'default');
           await delay(50);
@@ -279,17 +286,12 @@ async function clearPhase() {
      }
 
      clearMainBoard();
-     pasteImageData(emptyBoardData)
+     pasteImageData(emptyBoardData);
      redrawTetrominos();
-
-     clearRowsMultiplier = filterRowsData.length;
-     variableGoalSystem += calculateLevel(clearRowsMultiplier);
-     score += calculateClearingScore(clearRowsMultiplier);
-     manaLevel += clearRowsMultiplier;
-     scoreBonus++;
      mainBoardData = copyImageData();
      resumeGame();
 }
+
 
 function collisionPhase() {
      mainBoardData = copyImageData();
@@ -323,8 +325,9 @@ function specialsPhase() {
           : null
 
      manaLevel === 100
-          ? (pauseGame(), Randomize(allSpecials)())
+          ? (pauseGame(), startInvasion())
           : null
+          //(pauseGame(), Randomize(allSpecials)())
 
      function startInvasion() {
           invasionStrike((bonusScore) => {

@@ -1,11 +1,11 @@
 import { tetrominoObjectPool, Randomize } from "./config.js";
-import { clearRowsMultiplier, level, nextTetromino, scoreBonus, tetrominosArray } from "./engine.js";
+import { level, nextTetromino, scoreBonus, tetrominosArray } from "./engine.js";
 
 export const calculateCollisionScore = () => level * scoreBonus;
 export const calculateClearingScore = (data) => ((level + level) * scoreBonus) * (data** 2);
 
 export function calculateLevel (data) {
-     let linesClearedBonus;
+     let linesClearedBonus = 0;
 
      switch (data) {
           case 1:
@@ -20,6 +20,7 @@ export function calculateLevel (data) {
           case 4:
                linesClearedBonus = 8;
           default:
+               linesClearedBonus = 0;
                break;
      }
 

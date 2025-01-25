@@ -1,4 +1,4 @@
-import { Cols, Rows} from "./config.js";
+import { Cols, Rows } from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
 function rotate() {
@@ -10,7 +10,7 @@ function rotate() {
      });
 }
 
-function wallkicks (data) {
+function wallkicks(data) {
      for (let kick of data) {
           const collisionDetected = tetromino.cells.some(cell =>
                cell.x < 0 ||
@@ -29,12 +29,23 @@ function wallkicks (data) {
 
 export function rotation() {
      if (tetromino.name === 'O') return;
-     if (tetromino.name === 'I' && tetromino.cells.some(cell => cell.y < 2)) return;
 
-     let wallkickData = [-1, +2, -1]
-     
+     let wallkickData = [-1, +2, -1];
+
      rotate();
-     
+
+     const outOfBounds = tetromino.cells.some(cell => cell.y >= Rows);
+     if (outOfBounds) {
+          rotate();
+          return;
+     }
+
+     const outOfBoundsTop = tetromino.cells.some(cell => cell.y < 0);
+     if (outOfBoundsTop) {
+          rotate();
+          return; 
+     }
+
      if (wallkicks(wallkickData)) return;
 
      rotate();

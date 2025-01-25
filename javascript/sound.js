@@ -90,7 +90,7 @@ export function playCollide() {
 
 export function playArtilleryBomb() {
     const audio = new Audio('sound/artillery-bomb.mp3');
-    audio.volume = volume;
+    audio.volume = volume / 2;
     audio.play();
 }
 
