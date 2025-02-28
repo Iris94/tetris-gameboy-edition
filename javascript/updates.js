@@ -1,4 +1,4 @@
-import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx } from "./config.js";
+import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx, tctx } from "./config.js";
 import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, activeTetrominos } from "./engine.js";
 
 export const copyImageData = () => ctx.getImageData(0, 0, canvas.width, canvas.height);

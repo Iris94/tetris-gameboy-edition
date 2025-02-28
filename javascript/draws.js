@@ -1,4 +1,4 @@
-import { Cols, Rows, ctx, hctx, mctx, Dx, Dy, Position, Invasion, Ninja, Artillery } from "./config.js";
+import { Cols, Rows, hctx, mctx, Dx, Dy, Position, ctx } from "./config.js";
 import { tetromino, grid, nextTetromino, activeTetrominos } from "./engine.js";
 
 export function drawMainBoard() {
@@ -158,22 +158,4 @@ export function drawMana(data) {
      mctx.strokeStyle = 'rgba(220, 215, 186, 0.1)';
      mctx.lineWidth = 1;
      mctx.strokeRect(20, manaCanvas.height - maxHeight, 15, maxHeight);
-}
-
-export function drawSpecialNinja() {
-     Ninja.onload = () => {
-          mctx.drawImage(Ninja, 15, 120, 25, 25);
-     }
-}
-
-export function drawSpecialArtillery() {
-     Artillery.onload = () => {
-          mctx.drawImage(Artillery, 15, 80, 25, 25);
-     }
-}
-
-export function drawSpecialTetra() {
-     Invasion.onload = () => {
-          mctx.drawImage(Invasion, 15, 40, 25, 25);
-     }
 }

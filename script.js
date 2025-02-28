@@ -6,7 +6,6 @@ import './javascript/draws.js';
 import './javascript/rotation.js';
 import './javascript/metrics.js';
 import './javascript/sound.js';
-import './javascript/menu.js';
 
 import './javascript/animations/drops.js';
 import './javascript/animations/clears.js';
