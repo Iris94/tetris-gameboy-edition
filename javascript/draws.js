@@ -1,5 +1,5 @@
 import { Cols, Rows, hctx, mctx, Dx, Dy, Position, ctx } from "./config.js";
-import { tetromino, grid, nextTetromino, activeTetrominos } from "./engine.js";
+import { tetromino, grid, nextTetromino, activeTetrominos} from "./engine.js";
 
 export function drawMainBoard() {
      ctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
@@ -43,7 +43,7 @@ export function drawTetromino() {
      ctx.shadowBlur = 0;
 }
 
-export function redrawTetrominos(target = 0) {
+export function redrawTetrominos(target = 0, board = grid) {
      const shadowOffset = -0.75;
      const padding = 1;
 
@@ -56,8 +56,8 @@ export function redrawTetrominos(target = 0) {
 
      for (let row = Rows - 1; row > target; row--) {
           for (let col = 0; col < Cols; col++) {
-               if (grid[row][col] !== 0) {
-                    let active = grid[row][col];
+               if (board[row][col] !== 0) {
+                    let active = board[row][col];
                     const tetromino = activeTetrominos[active - 1];
                     const x = col * Dx;
                     const y = row * Dy;

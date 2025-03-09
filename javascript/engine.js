@@ -1,7 +1,7 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana } from "./draws.js";
-import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, updateGridWithFilteredRows, initiateId, updateTetrominoInfoByRow, initiateTetrominoInfo, shiftFilteredRows, recheckRowState, delay, deepCopy, gameoverCheck, clearSpecial } from "./updates.js";
+import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, delay, deepCopy, gameoverCheck, clearSpecial, checkForRedraws, prepareDropCells, clearSet } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
-import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, tctx, ctx, Dy, tetrominoData, startBtn, restartBtn, resumeBtn } from "./config.js";
+import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt } from "./config.js";
 import { rotation } from "./rotation.js";
 import { calculateClearingScore, calculateCollisionScore, calculateLevel, randomTetromino } from "./metrics.js";
 import { ninjaStrike } from "./animations/ninjaStrike.js";
@@ -13,7 +13,7 @@ import { pauseCurrentTheme, playClear, playCollide, playGameOver, playLevelUp, p
 
 export let grid;
 export let copiedActiveTetromino;
-export let idColorStorage;
+export let copiedActiveGrid;
 export let activeTetrominos;
 export let objectPoolArray;
 export let particlesPool;
@@ -22,11 +22,11 @@ export let tetrominoId = 0;
 export let mainBoardData;
 export let emptyBoardData;
 export let clearBoardData;
-export let firstTetrominoData;
-export let blockTetraData = false;
 export let tetrominosArray = [];
-export let isCollision = false;
 export let filterRowsData = [];
+export let collectDropCells = new Set();
+export let dropCellsData;
+export let isCollision = false;
 export let targetRow = 0;
 export let clearRowsMultiplier = 1;
 export let scoreBonus = 10;
@@ -35,7 +35,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 1;
+export let manaLevel = 0;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
@@ -95,33 +95,7 @@ export class Tetromino {
 }
 
 initializeGame();
-drawTetromino();
 drawNextTetromino();
-
-playGameButton.onclick = () => {
-     menuOpened = false;
-     gameStarted = true;
-     pause = false;
-     playMainTheme();
-     mainMenu.style.display = 'none';
-     startGame();
-}
-
-resumeBtn.onclick = () => {
-     menuOpened = false;
-     mainMenu.style.display = 'none'
-     resumeGame();
-     resumeCurrentTheme();
-}
-
-restartBtn.onclick = () => {
-     pause = false;
-     menuOpened = false;
-     mainMenu.style.display = 'none'
-     homeAndRestart();
-     playMainTheme();
-     startGame();
-}
 
 function assembleTetrominos() {
      for (let shape of tetrominoShapes) {
@@ -140,60 +114,14 @@ function assembleTetrominos() {
      }
 }
 
-function startGame() {
-     if (pause) return;
-
-     clearInterval(gameplayStatus);
-
-     gameplayStatus = setInterval(() => {
-          tetromino.moveDown();
-          gameEngine();
-     }, gameplayAcceleration);
-}
-
-function pauseGame() {
-     pause = true;
-     clearInterval(gameplayStatus)
-}
-
-function pauseEntireGame() {
-     if (gameStarted && !menuOpened) {
-          pauseCurrentTheme();
-          pauseGame();
-          menuOpened = true;
-          mainMenu.style.display = 'flex'
-          resumeBtn.classList.replace('hide', 'show');
-          restartBtn.classList.replace('hide', 'show');
-          startBtn.classList.add('hide');
-     }
-}
-
-function resumeGame() {
-     pause = false;
-     startGame();
-}
-
 function resetGameplayInterval() {
      if (gameplayStatus) clearInterval(gameplayStatus);
      startGame();
 }
 
-function gameOver() {
-     stopMainTheme();
-     stopSovietTheme();
-     playGameOver();
-     pauseGame();
-}
-
 function incrementAcceleration() {
      if (gameplayAcceleration <= 30) return;
      gameplayAcceleration /= 1.14;
-}
-
-function blockAnimationAfterSpecial() {
-     firstTetrominoData = ctx.getImageData(0, 0, canvas.width, Dy);
-     tctx.putImageData(firstTetrominoData, 0, 0);
-     blockTetraData = true;
 }
 
 function initializeGame() {
@@ -213,7 +141,7 @@ function initializeGame() {
      tetromino = Randomize(tetrominosArray);
 }
 
-function gameEngine() {
+async function gameEngine() {
      if (!isCollision) return movePhase();
      tetrominoId = initiateId();
      updateGrid();
@@ -228,9 +156,9 @@ function gameEngine() {
 
      !filterRowsData
           ? (playCollide(), collisionPhase())
-          : (playClear(), clearPhase())
+          : (playClear(), await clearPhase())
 
-     specialsPhase()
+     await specialsPhase()
 
      variableGoalSystem > (level * 5)
           ? (playLevelUp(), level++, incrementAcceleration())
@@ -259,21 +187,22 @@ async function clearPhase() {
      scoreBonus++;
 
      while (filterRowsData.length > 0) {
-          targetRow = filterRowsData[filterRowsData.length - 1];
-          idColorStorage = updateTetrominoInfoByRow(filterRowsData);
           copiedActiveTetromino = deepCopy(activeTetrominos);
+          copiedActiveGrid = deepCopy(grid);
 
-          animateClears(filterRowsData, 'default');
-          await delay(50);
-
+          await animateClears(filterRowsData, 'default');
           clearFilteredRows(filterRowsData);
 
           shiftFilteredRows(filterRowsData);
-          updateGridWithFilteredRows();
+          shiftFilteredCols();
+          checkForRedraws(filterRowsData[0], copiedActiveGrid)
 
-          await drops(targetRow, copiedActiveTetromino);
+          dropCellsData = prepareDropCells()
+          clearSet(collectDropCells);
 
-          filterRowsData = recheckRowState();
+          await drops(dropCellsData);
+
+          filterRowsData = checkForClears();
      }
 
      clearMainBoard();
@@ -295,88 +224,93 @@ function collisionPhase() {
 }
 
 function movePhase() {
-     blockTetraData
-          ? (tctx.clearRect(0, 0, tetrominoData.width, tetrominoData.height), blockTetraData = false)
-          : null;
-
      clearMainBoard();
      pasteImageData(mainBoardData);
      drawTetromino();
 }
 
-function specialsPhase() {
+async function specialsPhase() {
      const allSpecials = [startInvasion, startArtillery, startNinja];
 
      (manaLevel === 25 || manaLevel === 75)
           ? Math.random() < 0.20
-               ? (pauseGame(), startNinja())
+               ? (pauseGame(), await startNinja())
                : null
           : null
 
      manaLevel === 50
           ? Math.random() < 0.20
-               ? (pauseGame(), startArtillery())
+               ? (pauseGame(), await startArtillery())
                : null
           : null
 
      manaLevel === 100
-          ? (pauseGame(), Randomize(allSpecials)())
+          ? (pauseGame(), await startArtillery())
           : null
+     //Randomize(allSpecials)()
 
      function startInvasion() {
-          blockAnimationAfterSpecial();
-          invasionStrike((bonusScore) => {
-               clearMainBoard();
-               pasteImageData(emptyBoardData);
-               mainBoardData = copyImageData();
-               score += bonusScore;
-               drawScore(score);
-               resumeGame();
+          return new Promise(resolve => {
+               invasionStrike((bonusScore) => {
+                    clearMainBoard();
+                    pasteImageData(emptyBoardData);
+                    mainBoardData = copyImageData();
+                    score += bonusScore;
+                    drawScore(score);
+                    resumeGame();
+                    resolve();
+               })
           })
      }
 
      function startArtillery() {
-          blockAnimationAfterSpecial();
-          artilleryStrike((targetsAcquired, bonusScore) => {
-               if (targetsAcquired) {
-                    clearMainBoard();
-                    pasteImageData(emptyBoardData);
-                    redrawTetrominos();
-                    mainBoardData = copyImageData();
-                    filterRowsData = filterRows();
+          return new Promise(resolve => {
+               artilleryStrike((targetsAcquired, bonusScore) => {
+                    if (targetsAcquired) {
+                         clearMainBoard();
+                         pasteImageData(emptyBoardData);
+                         redrawTetrominos();
+                         mainBoardData = copyImageData();
+                         filterRowsData = filterRows();
 
-                    filterRowsData
-                         ? clearPhase()
-                         : null
+                         filterRowsData
+                              ? clearPhase()
+                              : null
 
-                    score += bonusScore;
-                    drawScore(score);
-               }
-               resumeGame()
-          });
+                         score += bonusScore;
+                         drawScore(score);
+                    }
+                    resumeGame()
+                    resolve();
+               });
+          })
      }
 
      function startNinja() {
-          blockAnimationAfterSpecial();
-          ninjaStrike((targetsAcquired, bonusScore) => {
-               if (targetsAcquired) {
-                    clearMainBoard();
-                    pasteImageData(emptyBoardData);
-                    redrawTetrominos();
-                    mainBoardData = copyImageData();
-                    filterRowsData = filterRows();
+          return new Promise(resolve => {
+               ninjaStrike((targetsAcquired, bonusScore) => {
+                    if (targetsAcquired) {
+                         clearMainBoard();
+                         pasteImageData(emptyBoardData);
+                         redrawTetrominos();
+                         mainBoardData = copyImageData();
+                         filterRowsData = filterRows();
 
-                    filterRowsData
-                         ? clearPhase()
-                         : null
+                         filterRowsData
+                              ? clearPhase()
+                              : null
 
-                    score += bonusScore;
-                    drawScore(score);
-               }
-               resumeGame();
+                         score += bonusScore;
+                         drawScore(score);
+                    }
+                    resumeGame();
+                    resolve();
+               })
           })
      }
 }
+
+
 
 window.onkeydown = (key) => {
      if (pause) return;
@@ -490,6 +424,83 @@ window.addEventListener('touchend', (e) => {
           handleInteraction();
      }
 });
+
+
+
+playGameButton.onclick = () => {
+     menuOpened = false;
+     gameStarted = true;
+     pause = false;
+     playMainTheme();
+     mainMenu.style.display = 'none';
+     startGame();
+}
+
+resumeBtn.onclick = () => {
+     menuOpened = false;
+     mainMenu.style.display = 'none'
+     resumeGame();
+     resumeCurrentTheme();
+}
+
+restartBtn.onclick = () => {
+     pause = false;
+     menuOpened = false;
+     mainMenu.style.display = 'none'
+     descriptionTxt.classList.replace('hide', 'show');
+     gameoverTxt.classList.replace('show', 'hide');
+     homeAndRestart();
+     playMainTheme();
+     startGame();
+}
+
+function startGame() {
+     if (pause) return;
+
+     clearInterval(gameplayStatus);
+
+     gameplayStatus = setInterval(() => {
+          tetromino.moveDown();
+          gameEngine();
+     }, gameplayAcceleration);
+}
+
+function pauseGame() {
+     pause = true;
+     clearInterval(gameplayStatus)
+}
+
+function resumeGame() {
+     pause = false;
+     startGame();
+}
+
+function pauseEntireGame() {
+     if (gameStarted && !menuOpened) {
+          pauseCurrentTheme();
+          pauseGame();
+          menuOpened = true;
+          mainMenu.style.display = 'flex'
+          resumeBtn.classList.replace('hide', 'show');
+          restartBtn.classList.replace('hide', 'show');
+          startBtn.classList.replace('show', 'hide');
+     }
+}
+
+function gameOver() {
+     stopMainTheme();
+     stopSovietTheme();
+     playGameOver();
+     pauseGame();
+     pauseCurrentTheme();
+     menuOpened = true;
+     mainMenu.style.display = 'flex'
+     resumeBtn.classList.replace('show', 'hide');
+     restartBtn.classList.replace('hide', 'show');
+     startBtn.classList.replace('show', 'hide');
+     descriptionTxt.classList.replace('show', 'hide');
+     gameoverTxt.classList.replace('hide', 'show');
+}
 
 function homeAndRestart() {
      clearMainBoard();

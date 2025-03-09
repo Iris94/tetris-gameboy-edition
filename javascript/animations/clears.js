@@ -1,105 +1,132 @@
-import { grid, particlesPool, idColorStorage } from "../engine.js";
+import { activeTetrominos, grid, particlesPool } from "../engine.js";
 import { cctx, ctx, Dx, Dy, Cols, sctx } from "../config.js";
 
 export function animateClears(data, clearName) {
-    ctx.shadowColor = 'transparent';
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur = 0;
+    return new Promise(async (resolve) => { 
 
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
+        if (clearName === 'invasion') {
+            await invasionCall();
+        } else if (clearName === 'artillery') {
+            await artilleryCall();
+        } else {
+            await defaultCall();
+        }
 
-    if (clearName === 'invasion') {
+        resolve(); 
+    });
+
+    async function invasionCall() {
         const { x, y } = data;
-        clearCell(x, y, clearName);
+        await clearCell(x, y, clearName); 
     }
 
-    else if (clearName === 'artillery') {
+    async function artilleryCall() {
         let delay = 0;
+        let promises = [];
 
         for (let y of data) {
             for (let x = 0; x < Cols; x++) {
-                setTimeout(() => {
-                    clearCell(x, y, clearName);
-                }, delay);
+                promises.push(new Promise((res) => {
+                    setTimeout(async () => {
+                        await clearCell(x, y, clearName);
+                        res();
+                    }, delay);
+                }));
                 delay += 100;
             }
         }
+
+        await Promise.all(promises);
     }
 
-    else {
+    async function defaultCall() {
+        let cellsToClear = [];
+
         for (let y of data) {
             for (let x = 0; x < Cols; x++) {
                 if (grid[y][x] === 0) continue;
-                clearCell(x, y, clearName);
+                let active = activeTetrominos[grid[y][x] - 1];
+                let _cellName = active.name;
+                cellsToClear.push({ x: x * Dy, y: y * Dy, clearName, _cellName });
             }
         }
+
+        await clearCell(cellsToClear); 
     }
 }
 
-function clearCell(x, y, clearName) {
-    const padding = 1;
+async function clearCell(data) {
+    return new Promise(resolve => {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
 
-    ctx.clearRect(
-        x * Dx - padding,
-        y * Dy - padding,
-        Dx + padding * 2,
-        Dy + padding * 2
-    );
+        let clearFlag = true;
+        let particlesData = [];
+        data.forEach(cell => {
 
-    const cellId = grid[y][x];
-    cellAnimation(clearName, cellId, y, x, 1000);
+            ctx.clearRect(cell.x * Dx - 1, cell.y * Dy - 1, Dx + 1 * 2, Dy + 1 * 2);
+            ctx.strokeRect(cell.x * Dx + 0.5, cell.y * Dy + 0.5, Dx - 1, Dy - 1);
+            sctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
 
-    ctx.strokeRect(x * Dx + 0.5, y * Dy + 0.5, Dx - 1, Dy - 1);
-    sctx.clearRect(x * Dx, y * Dy, Dx, Dy);
-}
+            particlesData.push(initiateParticles(cell))
+        });
 
-function cellAnimation(clearName, id, y, x, duration) {
-    const particles = initiateParticles(x * Dx, y * Dy, id, clearName);
-    const startTime = performance.now();
+        const startTime = performance.now();
 
-    const animation = (currentTime) => {
-        const elapsedTime = currentTime - startTime;
-        const progress = Math.min(elapsedTime / duration, 1);
+        const animation = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / 1000, 1);
 
-        cctx.globalAlpha = 1 - progress;
+            cctx.globalAlpha = 1 - progress;
+            cctx.beginPath();
 
-        cctx.beginPath();
-        for (let i = 0; i < particles.length; i++) {
-            cctx.clearRect(particles[i].x, particles[i].y, particles[i].size, particles[i].size);
+            for (let i = 0; i < particlesData.length; i++) {
+                for (let j = 0; j < particlesData[i].length; j++) {
+                    let particle = particlesData[i][j];
+                    cctx.clearRect(particle.x, particle.y, particle.size, particle.size);
 
-            particles[i].x += particles[i].directionX;
-            particles[i].y += particles[i].directionY;
+                    particle.x += particle.directionX;
+                    particle.y += particle.directionY;
 
-            cctx.fillStyle = particles[i].color;
-            cctx.rect(particles[i].x, particles[i].y, particles[i].size, particles[i].size);
-        }
-        cctx.fill();
+                    cctx.fillStyle = particle.color;
+                    cctx.fillRect(particle.x, particle.y, particle.size, particle.size);
 
-        if (progress < 1) {
-            requestAnimationFrame(animation);
-        } else {
-            cctx.clearRect(0, 0, cctx.canvas.width, cctx.canvas.height);
-            cctx.globalAlpha = 1;
-
-            particles.forEach(particle => {
-                for (let key in particle) {
-                    delete particle[key];
                 }
-                particlesPool.push(particle);
-            });
+            }
 
-            particles.length = 0;
-        }
-    };
+            cctx.fill();
 
-    requestAnimationFrame(animation);
+            progress > 0.1 && clearFlag
+                ? (clearFlag = false, resolve())
+                : null;
+
+            if (progress < 1) {
+                requestAnimationFrame(animation);
+            } else {
+                cctx.clearRect(0, 0, cctx.canvas.width, cctx.canvas.height);
+                cctx.globalAlpha = 1;
+                particlesData.forEach(cell => {
+                    cell.forEach(particle => {
+                        Object.assign(particle, { x: 0, y: 0, directionX: 0, directionY: 0, size: 0, color: '' });
+                        particlesPool.push(particle);
+                    });
+                });
+
+                particlesData.length = 0;
+            }
+        };
+
+        requestAnimationFrame(animation);
+    })
 }
 
-function initiateParticles(x, y, id, clearName) {
+function initiateParticles(data) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const maxParticles = isMobile ? 250 : 450;
+    const maxParticles = isMobile ? 200 : 400;
     let particles = [];
 
     const colorPalettes = {
@@ -130,19 +157,19 @@ function initiateParticles(x, y, id, clearName) {
 
     for (let i = 0; i < maxParticles; i++) {
         let lendedParticleObject = particlesPool.pop();
-        let startX = x;
-        let endX = x + Dx;
-        let startY = y;
-        let endY = y + Dy;
+        let startX = data.x;
+        let endX = data.x + Dx;
+        let startY = data.y;
+        let endY = data.y + Dy;
         let directionX = (Math.random() * 2 - 1);
         let directionY = (Math.random() * 2 - 1);
         let size = Math.random() * 5;
         let speed = Math.random() * 1.25 + 0.25;
-
         let color;
-        switch (clearName) {
+
+        switch (data.clearName) {
             case 'default':
-                color = colorPalettes[idColorStorage.get(id)][Math.floor(Math.random() * colorPalettes[idColorStorage.get(id)].length)];
+                color = colorPalettes[data._cellName][Math.floor(Math.random() * colorPalettes[data._cellName].length)];
                 break;
             case 'artillery':
                 color = fireColors[Math.floor(Math.random() * fireColors.length)];

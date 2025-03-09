@@ -1,9 +1,6 @@
 export const canvas = document.querySelector('#canvas');
 export const ctx = canvas.getContext("2d", { willReadFrequently: true});
 
-export const tetrominoData = document.querySelector('#tetromino');
-export const tctx = tetrominoData.getContext("2d");
-
 export const hudCanvas = document.querySelector('#hudCanvas');
 export const hctx = hudCanvas.getContext('2d');
 
@@ -29,9 +26,6 @@ export const occtx = ocontent.getContext("2d");
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight
-
-tetrominoData.width = tetrominoData.offsetWidth;
-tetrominoData.height = tetrominoData.offsetHeight;
 
 hudCanvas.width = hudCanvas.offsetWidth;
 hudCanvas.height = hudCanvas.offsetHeight;
@@ -62,7 +56,6 @@ export const Dx = canvas.width / Cols;
 export const Dy = canvas.height / Rows;
 export const Position = 4;
 
-export const playGameButton = document.getElementById('start');
 
 export const createGrid = () => Array.from({ length: Rows }, () => Array(Cols).fill(0));
 export const particlesObjectPool = () => Array.from({ length: 20000 }, () => ({}));
@@ -71,9 +64,13 @@ export const activeTetrominoPool = () => Array.from({ length: 250 }, () => null)
 export const Randomize = (data) => data[Math.floor(Math.random() * data.length)];
 
 
+export const playGameButton = document.getElementById('start');
 export const resumeBtn = document.getElementById('resume');
 export const restartBtn = document.getElementById('restart');
 export const startBtn = document.getElementById('start');
+export const descriptionTxt = document.getElementById('description');
+export const gameoverTxt = document.getElementById('gameOver');
+
 
 
 export const Ninja = new Image();

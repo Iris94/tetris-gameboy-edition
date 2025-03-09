@@ -1,7 +1,7 @@
 import { cctx, Cols, Dy, Randomize, Rows, sctx, special } from "../config.js";
 import { activeTetrominos, grid, particlesPool, score } from "../engine.js";
 import { playArtilleryBomb, playArtilleryGun, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
-import { clearFilteredRows, deepCopy, shiftFilteredRows, updateGridWithFilteredRows, updateTetrominoInfoByRow } from "../updates.js";
+import { clearFilteredRows, deepCopy, shiftFilteredRows, shiftFilteredCols } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
@@ -62,25 +62,19 @@ export async function artilleryStrike(completed) {
 
     await Promise.all(animationsOrder);
 
-    finalizeArtilleryStrike(artilleryTargets);
+    await finalizeArtilleryStrike(artilleryTargets);
     completed(true, bonusScore);
 }
 
-
 async function finalizeArtilleryStrike(artilleryTargets) {
-    let localIdColorStorage;
     let localCopiedActiveTetromino;
-
-    let targetRow = artilleryTargets[artilleryTargets.length - 1];
-    localIdColorStorage = updateTetrominoInfoByRow(artilleryTargets);
     localCopiedActiveTetromino = deepCopy(activeTetrominos);
 
     clearFilteredRows(artilleryTargets);
-    artilleryTargets.sort((a, b) => a - b)
     shiftFilteredRows(artilleryTargets);
-    updateGridWithFilteredRows();
+    shiftFilteredCols(artilleryTargets);
     playClear();
-    await drops(targetRow, localCopiedActiveTetromino);
+    await drops(artilleryTargets[0], localCopiedActiveTetromino);
 }
 
 function initiateTargets(artilleryTargets) {
@@ -122,31 +116,29 @@ function animateBombTravel(target, delay) {
         offscreenCanvas.height = special.height;
         const offscreenCtx = offscreenCanvas.getContext('2d');
 
+        offscreenCtx.globalCompositeOperation = "destination-out";
+        offscreenCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        offscreenCtx.fillRect(0, 0, special.width, special.height);
+        offscreenCtx.globalCompositeOperation = "source-over";
+        offscreenCtx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
+        offscreenCtx.lineWidth = 2;
+
         const animationBombTravel = (currentTime) => {
             const elapsedTime = currentTime - startTime;
             const progress = Math.min(elapsedTime / delay, 1);
             const bombArrival = Math.hypot(bomb.deltaX - bomb.x, bomb.deltaY - bomb.y);
-
-            offscreenCtx.globalCompositeOperation = "destination-out";
-            offscreenCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
-            offscreenCtx.fillRect(0, 0, special.width, special.height);
-
-            offscreenCtx.globalCompositeOperation = "source-over";
 
             const prevX = bomb.x;
             const prevY = bomb.y;
             bomb.x = lerp(bomb.x, bomb.deltaX, progress);
             bomb.y = lerp(bomb.y, bomb.deltaY, progress);
 
-            offscreenCtx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
-            offscreenCtx.lineWidth = 2;
             offscreenCtx.beginPath();
             offscreenCtx.moveTo(prevX, prevY);
             offscreenCtx.lineTo(bomb.x, bomb.y);
             offscreenCtx.stroke();
 
             sctx.clearRect(0, 0, special.width, special.height);
-
             sctx.drawImage(offscreenCanvas, 0, 0);
 
             const fire = sctx.createRadialGradient(bomb.x, bomb.y, 0, bomb.x, bomb.y, 10);
@@ -197,6 +189,7 @@ function animateShellExplosion(targetX, targetY) {
             offscreenCtx.fillRect(0, 0, special.width, special.height);
 
             offscreenCtx.globalCompositeOperation = "source-over";
+            sctx.clearRect(0, 0, special.width, special.height);
 
             shells.forEach((shell) => {
                 const progress = Math.min(elapsedTime / (shell.duration / 5), 1);
@@ -211,7 +204,6 @@ function animateShellExplosion(targetX, targetY) {
                 offscreenCtx.fill();
             });
 
-            sctx.clearRect(0, 0, special.width, special.height);
             sctx.drawImage(offscreenCanvas, 0, 0);
 
             elapsedTime < Math.max(...shells.map((shell) => shell.duration))
@@ -221,7 +213,7 @@ function animateShellExplosion(targetX, targetY) {
                         for (let key in shell) {
                             delete shell[key];
                         }
-                        particlesPool.push(shell); 
+                        particlesPool.push(shell);
                     }),
                     sctx.clearRect(0, 0, special.width, special.height),
                     resolve()

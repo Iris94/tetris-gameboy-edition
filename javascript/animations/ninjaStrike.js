@@ -1,7 +1,7 @@
 import { Randomize, sctx, Rows, Cols, Dx, Dy, ctx, Ninja, octx, occtx, ocontent } from "../config.js";
 import { tetrominosArray, grid, activeTetrominos, score } from "../engine.js";
 import { playClear, playMainTheme, playNinjaSlice, stopSovietTheme } from "../sound.js";
-import { deepCopy, updateGridWithFilteredRows, updateTetrominoInfoByCol } from "../updates.js";
+import { deepCopy, shiftFilteredCols, updateTetrominoInfoByCol } from "../updates.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
 
@@ -55,7 +55,7 @@ async function finalizeNinjaStrike() {
     let localCopiedActiveTetromino;
 
     localCopiedActiveTetromino = deepCopy(activeTetrominos);
-    updateGridWithFilteredRows();
+    shiftFilteredCols();
     playClear();
     await drops(Rows - 1, localCopiedActiveTetromino)
 }
