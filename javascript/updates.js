@@ -32,21 +32,6 @@ export function initiateTetrominoInfo() {
      });
 }
 
-export function updateTetrominoInfoByCol(data) {
-     let active = activeTetrominos[data - 1];
-     if (!active) return;
-
-     active.cells.forEach(cell => {
-          grid[cell.y][cell.x] = 0;
-     });
-
-     reuseObjectIdArray.push(active.id);
-
-     for (let key in active) {
-          delete active[key];
-     }
-}
-
 export function deleteTetrominoId(data) {
      reuseObjectIdArray.push(data.id);
 
@@ -64,6 +49,16 @@ export function filterRows() {
      )];
 
      return filter.length !== 0 ? filter : false;
+}
+
+export function clearSingularCells(data) {
+     data.forEach(shape => {
+
+          let active = activeTetrominos[shape - 1];
+          active.cells.forEach(cell => grid[cell.y][cell.x] = 0)
+          deleteTetrominoId(active)
+          activeTetrominos[shape - 1] = {};
+     })
 }
 
 export function clearFilteredRows(data) {
@@ -106,28 +101,36 @@ export function shiftFilteredRows(data) {
 }
 
 export function shiftFilteredCols() {
-     let recursion = true;
+    let recursion = true;
 
-     while (recursion) {
-          recursion = false;
+    while (recursion) {
+        recursion = false;
 
-          collectDropCells.forEach(shape => {
-               let active = activeTetrominos[shape - 1];
+        collectDropCells.forEach(shape => {
+            let active = activeTetrominos[shape - 1];
 
-               if (active.cells.every(cell => cell.y + 1 < Rows &&
-                    (grid[cell.y + 1][cell.x] === 0 || grid[cell.y + 1][cell.x] === active.id)
-               )) {
-                    active.cells.forEach(cell => {
-                         grid[cell.y][cell.x] = 0;
-                         cell.y += 1;
-                         grid[cell.y][cell.x] = active.id;
-                    });
+            let activeCells = active.cells.filter(cell => cell.y < Rows); 
+            let sortedCells = activeCells.sort((a, b) => b.y - a.y);
 
-                    recursion = true;
-               }
-          });
-     }
+            let canMoveDown = sortedCells.every(cell => {
+                return (cell.y + 1 < Rows && 
+                        (grid[cell.y + 1][cell.x] === 0 || grid[cell.y + 1][cell.x] === active.id));
+            });
+
+            if (canMoveDown) {
+
+                activeCells.forEach(cell => {
+                    grid[cell.y][cell.x] = 0;
+                    cell.y += 1;
+                    grid[cell.y][cell.x] = active.id;
+                });
+
+                recursion = true;
+            }
+        });
+    }
 }
+
 
 export function checkForClears() {
      let targetRows = [];

@@ -1,8 +1,8 @@
 import { activeTetrominos, grid, particlesPool } from "../engine.js";
-import { cctx, ctx, Dx, Dy, Cols, sctx } from "../config.js";
+import { cctx, ctx, Dx, Dy, Cols, sctx, clear } from "../config.js";
 
 export function animateClears(data, clearName) {
-    return new Promise(async (resolve) => { 
+    return new Promise(async (resolve) => {
 
         if (clearName === 'invasion') {
             await invasionCall();
@@ -12,12 +12,12 @@ export function animateClears(data, clearName) {
             await defaultCall();
         }
 
-        resolve(); 
+        resolve();
     });
 
     async function invasionCall() {
         const { x, y } = data;
-        await clearCell(x, y, clearName); 
+        await clearCell(x, y, clearName);
     }
 
     async function artilleryCall() {
@@ -28,7 +28,9 @@ export function animateClears(data, clearName) {
             for (let x = 0; x < Cols; x++) {
                 promises.push(new Promise((res) => {
                     setTimeout(async () => {
-                        await clearCell(x, y, clearName);
+                        await clearCell([{ x: x * Dy, y: y * Dy, clearName }]);
+                        ctx.clearRect(x * Dx, y * Dy, Dx, Dy);
+                        ctx.strokeRect(x * Dx, y * Dy, Dx, Dy);
                         res();
                     }, delay);
                 }));
@@ -51,7 +53,7 @@ export function animateClears(data, clearName) {
             }
         }
 
-        await clearCell(cellsToClear); 
+        await clearCell(cellsToClear);
     }
 }
 
@@ -79,26 +81,24 @@ async function clearCell(data) {
 
         const animation = (currentTime) => {
             const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / 1000, 1);
-
-            cctx.globalAlpha = 1 - progress;
-            cctx.beginPath();
+            const progress = Math.min(elapsedTime / 750, 1);
 
             for (let i = 0; i < particlesData.length; i++) {
                 for (let j = 0; j < particlesData[i].length; j++) {
                     let particle = particlesData[i][j];
-                    cctx.clearRect(particle.x, particle.y, particle.size, particle.size);
 
                     particle.x += particle.directionX;
                     particle.y += particle.directionY;
 
                     cctx.fillStyle = particle.color;
                     cctx.fillRect(particle.x, particle.y, particle.size, particle.size);
-
                 }
             }
 
-            cctx.fill();
+            cctx.globalCompositeOperation = "destination-in";
+            cctx.fillStyle = `rgba(250, 250, 250, ${1 - progress})`;
+            cctx.fillRect(0, 0, clear.width, clear.height);
+            cctx.globalCompositeOperation = "source-over"
 
             progress > 0.1 && clearFlag
                 ? (clearFlag = false, resolve())
@@ -108,7 +108,6 @@ async function clearCell(data) {
                 requestAnimationFrame(animation);
             } else {
                 cctx.clearRect(0, 0, cctx.canvas.width, cctx.canvas.height);
-                cctx.globalAlpha = 1;
                 particlesData.forEach(cell => {
                     cell.forEach(particle => {
                         Object.assign(particle, { x: 0, y: 0, directionX: 0, directionY: 0, size: 0, color: '' });
@@ -126,7 +125,7 @@ async function clearCell(data) {
 
 function initiateParticles(data) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const maxParticles = isMobile ? 200 : 400;
+    const maxParticles = isMobile ? 100 : 300;
     let particles = [];
 
     const colorPalettes = {

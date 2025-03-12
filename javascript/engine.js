@@ -11,10 +11,10 @@ import { artilleryStrike } from "./animations/artilleryStrike.js";
 import { invasionStrike } from "./animations/invasionStrike.js";
 import { pauseCurrentTheme, playClear, playCollide, playGameOver, playLevelUp, playMainTheme, resumeCurrentTheme, stopMainTheme, stopSovietTheme } from './sound.js';
 
-export let grid;
-export let copiedActiveTetromino;
-export let copiedActiveGrid;
-export let activeTetrominos;
+export let grid = [];
+export let copiedActiveTetromino = [];
+export let copiedActiveGrid = [];
+export let activeTetrominos = [];
 export let objectPoolArray;
 export let particlesPool;
 export let reuseObjectIdArray = [];
@@ -25,7 +25,7 @@ export let clearBoardData;
 export let tetrominosArray = [];
 export let filterRowsData = [];
 export let collectDropCells = new Set();
-export let dropCellsData;
+export let dropCellsData = [];
 export let isCollision = false;
 export let targetRow = 0;
 export let clearRowsMultiplier = 1;
@@ -178,7 +178,7 @@ async function gameEngine() {
      if (gameoverCheck()) return gameOver();
 }
 
-async function clearPhase() {
+export async function clearPhase() {
      pauseGame();
      clearRowsMultiplier = filterRowsData.length;
      variableGoalSystem += calculateLevel(clearRowsMultiplier);
@@ -245,7 +245,7 @@ async function specialsPhase() {
           : null
 
      manaLevel === 100
-          ? (pauseGame(), await startArtillery())
+          ? (pauseGame(), await startInvasion())
           : null
      //Randomize(allSpecials)()
 
