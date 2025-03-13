@@ -1,7 +1,7 @@
 import { cctx, Cols, Dy, Randomize, Rows, sctx, special } from "../config.js";
-import { activeTetrominos, clearPhase, collectDropCells, copiedActiveGrid, copiedActiveTetromino, dropCellsData, grid, particlesPool, score } from "../engine.js";
+import { activeTetrominos, clearPhase, collectDropCells, dropCellsData, grid, particlesPool, score } from "../engine.js";
 import { playArtilleryBomb, playArtilleryGun, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
-import { clearFilteredRows, deepCopy, shiftFilteredRows, shiftFilteredCols, checkForRedraws, prepareDropCells, clearSet, checkForClears } from "../updates.js";
+import { clearFilteredRows, shiftFilteredRows, shiftFilteredCols, checkForRedraws, prepareDropCells, clearSet, checkForClears } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
@@ -38,7 +38,7 @@ export async function artilleryStrike(completed) {
     let targetsAcquired = true;
     let bonusScore = 0;
 
-    artilleryTargets.length === 0 ? (targetsAcquired = false) : null;
+    artilleryTargets.length === 0 ? targetsAcquired = false : null;
 
     await specialsIntro('artillery', targetsAcquired);
 
@@ -68,15 +68,15 @@ export async function artilleryStrike(completed) {
 
 async function finalizeArtilleryStrike(artilleryTargets) {
     let filterRowsData = [];
-    copiedActiveTetromino.push(...deepCopy(activeTetrominos))
-    copiedActiveGrid.push(...deepCopy(grid))
+    const copiedActiveTetromino = structuredClone(activeTetrominos);
+    const copiedActiveGrid = structuredClone(grid);
 
     clearFilteredRows(artilleryTargets);
     shiftFilteredRows(artilleryTargets);
     shiftFilteredCols();
     checkForRedraws(artilleryTargets[0], copiedActiveGrid);
 
-    dropCellsData.push(...prepareDropCells());
+    dropCellsData.push(...prepareDropCells(copiedActiveTetromino));
     clearSet(collectDropCells);
 
     playClear();

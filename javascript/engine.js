@@ -1,5 +1,5 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana } from "./draws.js";
-import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, delay, deepCopy, gameoverCheck, clearSpecial, checkForRedraws, prepareDropCells, clearSet } from "./updates.js";
+import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, checkForRedraws, prepareDropCells, clearSet } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
 import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt } from "./config.js";
 import { rotation } from "./rotation.js";
@@ -10,10 +10,9 @@ import { animateClears } from "./animations/clears.js";
 import { artilleryStrike } from "./animations/artilleryStrike.js";
 import { invasionStrike } from "./animations/invasionStrike.js";
 import { pauseCurrentTheme, playClear, playCollide, playGameOver, playLevelUp, playMainTheme, resumeCurrentTheme, stopMainTheme, stopSovietTheme } from './sound.js';
+import { riotStrike } from "./animations/riotStrike.js";
 
 export let grid = [];
-export let copiedActiveTetromino = [];
-export let copiedActiveGrid = [];
 export let activeTetrominos = [];
 export let objectPoolArray;
 export let particlesPool;
@@ -35,7 +34,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 0;
+export let manaLevel = 92;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
@@ -187,8 +186,8 @@ export async function clearPhase() {
      scoreBonus++;
 
      while (filterRowsData.length > 0) {
-          copiedActiveTetromino = deepCopy(activeTetrominos);
-          copiedActiveGrid = deepCopy(grid);
+          const copiedActiveTetromino = structuredClone(activeTetrominos);
+          const copiedActiveGrid = structuredClone(grid);
 
           await animateClears(filterRowsData, 'default');
           clearFilteredRows(filterRowsData);
@@ -197,7 +196,7 @@ export async function clearPhase() {
           shiftFilteredCols();
           checkForRedraws(filterRowsData[0], copiedActiveGrid)
 
-          dropCellsData = prepareDropCells()
+          dropCellsData = prepareDropCells(copiedActiveTetromino)
           clearSet(collectDropCells);
 
           await drops(dropCellsData);
@@ -230,7 +229,7 @@ function movePhase() {
 }
 
 async function specialsPhase() {
-     const allSpecials = [startInvasion, startArtillery, startNinja];
+     const allSpecials = [startInvasion, startArtillery, startNinja, startRiots];
 
      (manaLevel === 25 || manaLevel === 75)
           ? Math.random() < 0.20
@@ -238,14 +237,20 @@ async function specialsPhase() {
                : null
           : null
 
+     // (manaLevel === 15 || manaLevel === 35 || manaLevel === 60 || manaLevel === 85)
+     //      ? Math.random() < 0.15
+     //           ? (pauseGame(), await startRiots())
+     //           : null
+     //      : null
+
      manaLevel === 50
-          ? Math.random() < 0.20
+          ? Math.random() < 0.99
                ? (pauseGame(), await startArtillery())
                : null
           : null
 
      manaLevel === 100
-          ? (pauseGame(), await startInvasion())
+          ? (pauseGame(), await startRiots())
           : null
      //Randomize(allSpecials)()
 
@@ -257,6 +262,15 @@ async function specialsPhase() {
                     mainBoardData = copyImageData();
                     score += bonusScore;
                     drawScore(score);
+                    resumeGame();
+                    resolve();
+               })
+          })
+     }
+
+     function startRiots() {
+          return new Promise(resolve => {
+               riotStrike(() => {
                     resumeGame();
                     resolve();
                })

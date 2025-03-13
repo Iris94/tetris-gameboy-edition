@@ -1,18 +1,4 @@
-- Pomjeriti specials na početak prije spawnovanja
-    Prvo provjeriti jel može specials prije kreiranja nove instance
-    U slučaju prelazimo na specials fazu
-    U slučaju da ne može kreiramo novi spawn
-    Riješit će problem zakašnjele animacije
-
-- Specialse testirati da li je čista mapa nakon animacija.
-    Nakon toga provjeriti stanje mape nakon drop faze
-    Ako smo prošli obije faze idemo na sljedeći special
-
-- Promjeniti clear logiku.
-    Od zadnjeg reda prema prvog slobodnom pomjeramo sve prema dole
-    Provjera za čiščenje.
-    Ponavljamo dok god se uslov ne ispuni.
-
+- očistiti specials
 - Dodati police move specijal
 - Nadograditi animacije
 - Telefon

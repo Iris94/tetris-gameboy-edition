@@ -1,6 +1,6 @@
 import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx } from "./config.js";
 import { redrawTetrominos } from "./draws.js";
-import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, activeTetrominos, emptyBoardData, collectDropCells, copiedActiveTetromino } from "./engine.js";
+import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, activeTetrominos, emptyBoardData, collectDropCells} from "./engine.js";
 
 export const copyImageData = () => ctx.getImageData(0, 0, canvas.width, canvas.height);
 export const pasteImageData = (data) => ctx.putImageData(data, 0, 0);
@@ -9,7 +9,6 @@ export const clearHud = () => hctx.clearRect(0, 0, hudCanvas.width, hudCanvas.he
 export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.height);
 export const clearMana = () => mctx.clearRect(0, 0, manaCanvas.width, manaCanvas.height);
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-export const deepCopy = (data) => JSON.parse(JSON.stringify(data));
 export const gameoverCheck = () => grid[0].some(cell => cell !== 0);
 export const clearSet = (data) => data.clear();
 
@@ -24,10 +23,10 @@ export function initiateTetrominoInfo() {
           color: tetromino.color,
           id: tetrominoId,
           name: tetromino.name,
-          cells: tetromino.cells.map(cell => ({
+          cells: tetromino.cells.map((cell, index) => ({
                y: cell.y,
                x: cell.x,
-               id: tetrominoId
+               id: index
           }))
      });
 }
@@ -62,6 +61,8 @@ export function clearSingularCells(data) {
 }
 
 export function clearFilteredRows(data) {
+     let singularCellsToClear = new Set();
+
      data.forEach(row => {
           for (let x = 0; x < Cols; x++) {
                if (grid[row][x] === 0) continue
@@ -71,11 +72,13 @@ export function clearFilteredRows(data) {
                active.cells.splice(index, 1);
 
                active.cells.length === 0
-                    ? deleteTetrominoId(active)
+                    ? singularCellsToClear.add(grid[row][x])
                     : null
           }
           grid[row] = Array(Cols).fill(0);
      })
+
+     singularCellsToClear.length !== 0 ? clearSingularCells(singularCellsToClear) : null;
 }
 
 export function shiftFilteredRows(data) {
@@ -101,36 +104,35 @@ export function shiftFilteredRows(data) {
 }
 
 export function shiftFilteredCols() {
-    let recursion = true;
+     let recursion = true;
 
-    while (recursion) {
-        recursion = false;
+     while (recursion) {
+          recursion = false;
 
-        collectDropCells.forEach(shape => {
-            let active = activeTetrominos[shape - 1];
+          collectDropCells.forEach(shape => {
+               let active = activeTetrominos[shape - 1];
 
-            let activeCells = active.cells.filter(cell => cell.y < Rows); 
-            let sortedCells = activeCells.sort((a, b) => b.y - a.y);
+               let activeCells = active.cells.filter(cell => cell.y < Rows);
+               let sortedCells = activeCells.sort((a, b) => b.y - a.y);
 
-            let canMoveDown = sortedCells.every(cell => {
-                return (cell.y + 1 < Rows && 
-                        (grid[cell.y + 1][cell.x] === 0 || grid[cell.y + 1][cell.x] === active.id));
-            });
+               let canMoveDown = sortedCells.every(cell => {
+                    return (cell.y + 1 < Rows &&
+                         (grid[cell.y + 1][cell.x] === 0 || grid[cell.y + 1][cell.x] === active.id));
+               });
 
-            if (canMoveDown) {
+               if (canMoveDown) {
 
-                activeCells.forEach(cell => {
-                    grid[cell.y][cell.x] = 0;
-                    cell.y += 1;
-                    grid[cell.y][cell.x] = active.id;
-                });
+                    activeCells.forEach(cell => {
+                         grid[cell.y][cell.x] = 0;
+                         cell.y += 1;
+                         grid[cell.y][cell.x] = active.id;
+                    });
 
-                recursion = true;
-            }
-        });
-    }
+                    recursion = true;
+               }
+          });
+     }
 }
-
 
 export function checkForClears() {
      let targetRows = [];
@@ -152,17 +154,21 @@ export function checkForRedraws(data, gridCopy) {
      data !== Rows - 1 ? redrawTetrominos(data, gridCopy) : null;
 }
 
-export function prepareDropCells() {
+export function prepareDropCells(data = copiedActiveTetromino) {
      return [...collectDropCells].flatMap(shape => {
           let current = activeTetrominos[shape - 1];
-          let past = copiedActiveTetromino[shape - 1];
+          let past = data[shape - 1];
 
-          return current.cells.map((cell, index) => ({
-               x: past.cells[index].x,
-               oldY: past.cells[index].y,
-               newY: cell.y,
-               color: current.color
-          }));
+          return current.cells.map(cell => {
+               let previousLocation = past.cells.find(target => target.id === cell.id);
+
+               return {
+                    newY: cell.y,
+                    oldY: previousLocation.y,
+                    x: previousLocation.x,
+                    color: current.color
+               }
+          });
      });
 }
 

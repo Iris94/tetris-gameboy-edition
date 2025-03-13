@@ -18,6 +18,7 @@ export async function specialsIntro(data, missionStatus) {
             const startPositionMap = {
                 ninja: overlay.width * 2,
                 artillery: overlay.height * 2,
+                riot: overlay.height * 2,
                 invasion: overlay.height
             };
 
@@ -26,6 +27,7 @@ export async function specialsIntro(data, missionStatus) {
             const drawParams = {
                 ninja: () => [image, startPosition, 0, special.width + (special.width * 0.75), special.height],
                 artillery: () => [image, 0, startPosition, special.width + (special.width * 0.25), special.height],
+                riot: () => [image, 0, startPosition, special.width + (special.width * 0.75), special.height],
                 invasion: () => [image, 0, startPosition, special.width + (special.width * 0.75), special.height / 1.1]
             };
 
@@ -103,6 +105,13 @@ function getOverlayText(data, missionStatus) {
             "Steel walls, unstoppable force.",
             "The red tide rises.",
             "Unity through power and strength."
+        ],
+        riot: [
+            "The riot never sleeps",
+            "SHIELDS UP!",
+            "Force meets resistance",
+            "Order through chaos",
+            "I...said...MOVE!!!"
         ]
     };
 
@@ -116,11 +125,6 @@ function getOverlayText(data, missionStatus) {
             "No target acquired",
             "Target lost, mission incomplete.",
             "Missed the mark"
-        ],
-        invasion: [
-            "The Motherland has been pushed back.",
-            "The red tide recedes in defeat.",
-            "The invasion has faltered."
         ]
     }
 

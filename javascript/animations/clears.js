@@ -1,5 +1,6 @@
 import { activeTetrominos, grid, particlesPool } from "../engine.js";
 import { cctx, ctx, Dx, Dy, Cols, sctx, clear } from "../config.js";
+import { playArtilleryBomb } from "../sound.js";
 
 export function animateClears(data, clearName) {
     return new Promise(async (resolve) => {
@@ -16,8 +17,23 @@ export function animateClears(data, clearName) {
     });
 
     async function invasionCall() {
-        const { x, y } = data;
-        await clearCell(x, y, clearName);
+        let delay = 0;
+        let promises = [];
+
+        data.forEach(cell => {
+            promises.push(new Promise(res => {
+                setTimeout(async () => {
+                    await clearCell([{ x: cell.x * Dy, y: cell.y * Dy, clearName }]);
+                    playArtilleryBomb();
+                    ctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
+                    ctx.strokeRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
+                    res();
+                }, delay);
+            }));
+            delay += 200;
+        })
+
+        await Promise.all(promises);
     }
 
     async function artilleryCall() {
@@ -26,7 +42,7 @@ export function animateClears(data, clearName) {
 
         for (let y of data) {
             for (let x = 0; x < Cols; x++) {
-                promises.push(new Promise((res) => {
+                promises.push(new Promise(res => {
                     setTimeout(async () => {
                         await clearCell([{ x: x * Dy, y: y * Dy, clearName }]);
                         ctx.clearRect(x * Dx, y * Dy, Dx, Dy);
@@ -116,6 +132,7 @@ async function clearCell(data) {
                 });
 
                 particlesData.length = 0;
+                console.log(particlesPool.length)
             }
         };
 
@@ -125,7 +142,7 @@ async function clearCell(data) {
 
 function initiateParticles(data) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const maxParticles = isMobile ? 100 : 300;
+    const maxParticles = isMobile ? 250 : 500;
     let particles = [];
 
     const colorPalettes = {

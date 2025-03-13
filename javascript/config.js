@@ -81,3 +81,6 @@ Invasion.src = './assets/invasion.png';
 
 export const Artillery = new Image();
 Artillery.src = './assets/artillery.png';
+
+export const Riot = new Image();
+Riot.src = './assets/riot.png';
