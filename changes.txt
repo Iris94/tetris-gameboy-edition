@@ -1,5 +1,0 @@
-- očistiti specials
-- Dodati police move specijal
-- Nadograditi animacije
-- Telefon
-- Release

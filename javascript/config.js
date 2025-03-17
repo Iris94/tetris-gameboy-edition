@@ -1,6 +1,9 @@
 export const canvas = document.querySelector('#canvas');
 export const ctx = canvas.getContext("2d", { willReadFrequently: true});
 
+export const boardCanvas = document.querySelector('#board');
+export const bctx = boardCanvas.getContext('2d');
+
 export const hudCanvas = document.querySelector('#hudCanvas');
 export const hctx = hudCanvas.getContext('2d');
 
@@ -26,6 +29,9 @@ export const occtx = ocontent.getContext("2d");
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight
+
+boardCanvas.width = boardCanvas.offsetWidth;
+boardCanvas.height = boardCanvas.offsetHeight;
 
 hudCanvas.width = hudCanvas.offsetWidth;
 hudCanvas.height = hudCanvas.offsetHeight;

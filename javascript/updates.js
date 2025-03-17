@@ -1,6 +1,6 @@
 import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx } from "./config.js";
 import { redrawTetrominos } from "./draws.js";
-import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, activeTetrominos, emptyBoardData, collectDropCells} from "./engine.js";
+import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, tetrominoObjects } from "./engine.js";
 
 export const copyImageData = () => ctx.getImageData(0, 0, canvas.width, canvas.height);
 export const pasteImageData = (data) => ctx.putImageData(data, 0, 0);
@@ -10,7 +10,7 @@ export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.he
 export const clearMana = () => mctx.clearRect(0, 0, manaCanvas.width, manaCanvas.height);
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const gameoverCheck = () => grid[0].some(cell => cell !== 0);
-export const clearSet = (data) => data.clear();
+export const unitType = (data) => data.forEach(shape => tetrominoObjects[shape - 1].unit = false);
 
 export function updateGrid() {
      tetromino.cells.forEach(cell => {
@@ -19,10 +19,11 @@ export function updateGrid() {
 }
 
 export function initiateTetrominoInfo() {
-     Object.assign(activeTetrominos[tetrominoId - 1], {
+     Object.assign(tetrominoObjects[tetrominoId - 1], {
           color: tetromino.color,
           id: tetrominoId,
           name: tetromino.name,
+          unit: true,
           cells: tetromino.cells.map((cell, index) => ({
                y: cell.y,
                x: cell.x,
@@ -34,9 +35,18 @@ export function initiateTetrominoInfo() {
 export function deleteTetrominoId(data) {
      reuseObjectIdArray.push(data.id);
 
-     for (let key in data.id) {
-          delete data.id[key]
+     for (let key in data) {
+          delete data[key];
      }
+}
+
+export function clearSingularCells(data) {
+     data.forEach(shape => {
+          let block = tetrominoObjects[shape - 1];
+          block.cells.forEach(cell => grid[cell.y][cell.x] = 0)
+          deleteTetrominoId(block)
+          tetrominoObjects[shape - 1] = {};
+     })
 }
 
 export function filterRows() {
@@ -50,50 +60,54 @@ export function filterRows() {
      return filter.length !== 0 ? filter : false;
 }
 
-export function clearSingularCells(data) {
-     data.forEach(shape => {
+export function collectBlocks(data) {
+     let collectables = new Set();
 
-          let active = activeTetrominos[shape - 1];
-          active.cells.forEach(cell => grid[cell.y][cell.x] = 0)
-          deleteTetrominoId(active)
-          activeTetrominos[shape - 1] = {};
-     })
+     for (let y = data; y > 0; y--) {
+          for (let x = 0; x < Cols; x++) {
+               grid[y][x] > 0 && collectables.add(grid[y][x])
+          }
+     }
+
+     return collectables;
 }
 
 export function clearFilteredRows(data) {
      let singularCellsToClear = new Set();
 
      data.forEach(row => {
-          for (let x = 0; x < Cols; x++) {
-               if (grid[row][x] === 0) continue
+          grid[row].forEach((cell, x) => {
+               if (cell === 0) return;
 
-               let active = activeTetrominos[grid[row][x] - 1];
-               let index = active.cells.findIndex(cell => cell.x === x && cell.y === row);
-               active.cells.splice(index, 1);
+               let block = tetrominoObjects[cell - 1];
+               let index = block.cells.findIndex(cell => cell.x === x && cell.y === row);
+               block.cells.splice(index, 1);
 
-               active.cells.length === 0
-                    ? singularCellsToClear.add(grid[row][x])
-                    : null
-          }
+               block.cells.length === 0
+                    && singularCellsToClear.add(cell);
+
+          });
+
           grid[row] = Array(Cols).fill(0);
-     })
+     });
 
-     singularCellsToClear.length !== 0 ? clearSingularCells(singularCellsToClear) : null;
+
+     singularCellsToClear.length !== 0
+          && clearSingularCells(singularCellsToClear);
 }
 
 export function shiftFilteredRows(data) {
-     let target = data[0];
+     let target = data;
 
      for (let y = target; y >= 0; y--) {
-          if (grid[y].some(cell => cell !== 0)) {
+          if (grid[y].some(cell => cell > 0)) {
 
                for (let x = 0; x < Cols; x++) {
                     if (grid[y][x] === 0) continue;
 
-                    collectDropCells.add(grid[y][x])
-                    let active = activeTetrominos[grid[y][x] - 1];
-                    let index = active.cells.findIndex(cell => cell.x === x && cell.y === y);
-                    active.cells[index].y = target;
+                    let block = tetrominoObjects[grid[y][x] - 1];
+                    let index = block.cells.findIndex(cell => cell.x === x && cell.y === y);
+                    block.cells[index].y = target;
                }
 
                grid[target] = [...grid[y]];
@@ -103,32 +117,43 @@ export function shiftFilteredRows(data) {
      }
 }
 
-export function shiftFilteredCols() {
+export function shiftFilteredCols(data) {
+
      let recursion = true;
 
      while (recursion) {
           recursion = false;
 
-          collectDropCells.forEach(shape => {
-               let active = activeTetrominos[shape - 1];
+          data.forEach(shape => {
+               let block = tetrominoObjects[shape - 1];
+               let sortedCells = block.cells.sort((a, b) => b.y - a.y);
 
-               let activeCells = active.cells.filter(cell => cell.y < Rows);
-               let sortedCells = activeCells.sort((a, b) => b.y - a.y);
-
-               let canMoveDown = sortedCells.every(cell => {
-                    return (cell.y + 1 < Rows &&
-                         (grid[cell.y + 1][cell.x] === 0 || grid[cell.y + 1][cell.x] === active.id));
-               });
-
-               if (canMoveDown) {
-
-                    activeCells.forEach(cell => {
+               const moveBlockDown = (block, sortedCells) => {
+                    sortedCells.forEach(cell => {
                          grid[cell.y][cell.x] = 0;
                          cell.y += 1;
-                         grid[cell.y][cell.x] = active.id;
+                         grid[cell.y][cell.x] = block.id;
+                    });
+               }
+
+               if (block.unit) {
+                    let canMoveDown = sortedCells.every(cell => {
+                         return (cell.y + 1 < Rows &&
+                              (grid[cell.y + 1][cell.x] === 0 || grid[cell.y + 1][cell.x] === block.id));
                     });
 
-                    recursion = true;
+                    if (canMoveDown) {
+                         moveBlockDown(block, sortedCells);
+                         recursion = true;
+                    }
+               }
+               else {
+                    sortedCells.forEach(cell => {
+                         if (cell.y + 1 < Rows && grid[cell.y + 1][cell.x] === 0) {
+                              moveBlockDown(block, sortedCells);
+                              recursion = true;
+                         }
+                    });
                }
           });
      }
@@ -138,7 +163,7 @@ export function checkForClears() {
      let targetRows = [];
 
      for (let y = Rows - 1; y > 0; y--) {
-          if (grid[y].every(cell => cell === 0)) continue;
+          if (grid[y].every(cell => cell === 0)) break;
           if (grid[y].every(cell => cell !== 0)) {
                targetRows.push(y);
           }
@@ -149,14 +174,12 @@ export function checkForClears() {
 
 export function checkForRedraws(data, gridCopy) {
      clearMainBoard();
-     pasteImageData(emptyBoardData);
-
-     data !== Rows - 1 ? redrawTetrominos(data, gridCopy) : null;
+     data < Rows - 1 && redrawTetrominos(data, gridCopy);
 }
 
-export function prepareDropCells(data = copiedActiveTetromino) {
-     return [...collectDropCells].flatMap(shape => {
-          let current = activeTetrominos[shape - 1];
+export function prepareDropCells(data, collectables) {
+     return [...collectables].flatMap(shape => {
+          let current = tetrominoObjects[shape - 1];
           let past = data[shape - 1];
 
           return current.cells.map(cell => {
@@ -183,8 +206,8 @@ export function initiateId() {
 
      function lendObject() {
           const emptyObject = objectPoolArray.pop();
-          id = activeTetrominos.length - objectPoolArray.length;
-          activeTetrominos.splice((id - 1), 1, emptyObject)
+          id = tetrominoObjects.length - objectPoolArray.length;
+          tetrominoObjects.splice((id - 1), 1, emptyObject)
      }
 
      return id

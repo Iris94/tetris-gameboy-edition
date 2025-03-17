@@ -1,15 +1,11 @@
 import { occtx, ocontent, octx, overlay, Randomize } from "../config.js";
 import { playSpecial } from "../sound.js";
 
-export async function specialsIntro(data, missionStatus) {
+export async function specialsIntro(data) {
     return new Promise(resolve => {
         const image = getOverlayImage(data);
-        const text = getOverlayText(data, missionStatus);
-        let overlayColor;
-
-        missionStatus
-            ? overlayColor = 'rgba(0, 0, 0, 0.75)'
-            : overlayColor = 'rgba(43, 1, 1, 0.75)'
+        const text = getOverlayText(data);
+        let overlayColor = 'rgba(0, 0, 0, 0.75)';
 
         image.onload = () => {
             playSpecial();
@@ -81,7 +77,7 @@ export async function specialsIntro(data, missionStatus) {
 }
 
 
-function getOverlayText(data, missionStatus) {
+function getOverlayText(data) {
     let returnText;
 
     const phrases = {
@@ -115,24 +111,7 @@ function getOverlayText(data, missionStatus) {
         ]
     };
 
-    const failedPhrases = {
-        ninja: [
-            "The target has escaped.",
-            "Mission compromised",
-            "Failure is a silent teacher."
-        ],
-        artillery: [
-            "No target acquired",
-            "Target lost, mission incomplete.",
-            "Missed the mark"
-        ]
-    }
-
-    missionStatus
-        ? returnText = Randomize(phrases[data])
-        : returnText = Randomize(failedPhrases[data])
-
-    return returnText
+    return returnText = Randomize(phrases[data])
 }
 
 function getOverlayImage(data) {

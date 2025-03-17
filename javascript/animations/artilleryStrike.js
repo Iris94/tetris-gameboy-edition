@@ -1,131 +1,54 @@
-import { cctx, Cols, Dy, Randomize, Rows, sctx, special } from "../config.js";
-import { activeTetrominos, clearPhase, collectDropCells, dropCellsData, grid, particlesPool, score } from "../engine.js";
+import { cctx,  Dy, sctx, special } from "../config.js";
+import { redrawTetrominos } from "../draws.js";
+import { tetrominoObjects, grid, particlesPool } from "../engine.js";
 import { playArtilleryBomb, playArtilleryGun, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
-import { clearFilteredRows, shiftFilteredRows, shiftFilteredCols, checkForRedraws, prepareDropCells, clearSet, checkForClears } from "../updates.js";
+import { clearFilteredRows, shiftFilteredRows, shiftFilteredCols, checkForRedraws, prepareDropCells, collectBlocks } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
 
 const lerp = (start, end, t) => start + (end - start) * t;
 
-function getDataArtilleryStrike() {
-    const tetrominoShapes = ['O', 'I', 'T', 'S', 'Z', 'L', 'J'];
+export async function artilleryStrike() {
+    const artilleryTargets = [19, 18, 17, 16];
 
-    let artilleryTarget = Randomize(tetrominoShapes);
-    let rowsToStrike = new Set();
-
-    for (let y = Rows - 1; y >= 0; y--) {
-        if (grid[y].every(cell => cell === 0)) break;
-
-        for (let x = 0; x < Cols; x++) {
-            if (grid[y][x] === 0) continue;
-
-            if (activeTetrominos[grid[y][x] - 1].name === artilleryTarget) {
-                rowsToStrike.add(y);
-                break;
-            }
-        }
-    }
-    return rowsToStrike;
-}
-
-export async function artilleryStrike(completed) {
     stopSovietTheme();
-    playMainTheme();
+    playMainTheme();    
+    await specialsIntro('artillery');
 
-    const artilleryTargets = [...getDataArtilleryStrike()];
-    const delay = 1000;
-    let targetsAcquired = true;
-    let bonusScore = 0;
-
-    artilleryTargets.length === 0 ? targetsAcquired = false : null;
-
-    await specialsIntro('artillery', targetsAcquired);
-
-    if (!targetsAcquired) {
-        completed(false);
-        return;
+    for (const y of artilleryTargets) {
+        await operationArtillery(y);
     }
-
-    const animationsOrder = artilleryTargets.map((target, index) => {
-        return new Promise((resolve) => {
-            initiateTargets(artilleryTargets).then(() => {
-                setTimeout(() => {
-                    animateBombTravel(target, delay).then(() => {
-                        bonusScore += Math.round(score / 30);
-                        resolve();
-                    });
-                }, index * delay);
-            });
-        });
-    });
-
-    await Promise.all(animationsOrder);
-
-    await finalizeArtilleryStrike(artilleryTargets);
-    completed(true, bonusScore);
 }
 
-async function finalizeArtilleryStrike(artilleryTargets) {
-    let filterRowsData = [];
-    const copiedActiveTetromino = structuredClone(activeTetrominos);
-    const copiedActiveGrid = structuredClone(grid);
+async function operationArtillery(y) {
+    const copyTetrominoObjects = structuredClone(tetrominoObjects);
+    const copyGrid = structuredClone(grid);
 
-    clearFilteredRows(artilleryTargets);
-    shiftFilteredRows(artilleryTargets);
-    shiftFilteredCols();
-    checkForRedraws(artilleryTargets[0], copiedActiveGrid);
+    const { deltaX, deltaY } = await animateBombTravel(y);
+    playArtilleryBomb()
+    animateShellExplosion(deltaX, deltaY)
+    playArtilleryGun();
+    await animateClears(y, 'artillery');
 
-    dropCellsData.push(...prepareDropCells(copiedActiveTetromino));
-    clearSet(collectDropCells);
+    clearFilteredRows([y])
+    const collectBlocksData = collectBlocks(y - 1);
+    shiftFilteredRows(y);
+    shiftFilteredCols(collectBlocksData);
 
+    checkForRedraws(y, copyGrid);
+    const dropCellsData = prepareDropCells(copyTetrominoObjects, collectBlocksData);
     playClear();
     await drops(dropCellsData);
-    filterRowsData.push(...checkForClears());
-    filterRowsData.length > 0
-        ? await clearPhase()
-        : null
 }
 
-function initiateTargets(artilleryTargets) {
-    return new Promise((resolve) => {
-        const startTime = performance.now();
-
-        const animationTargetsMark = (currentTime) => {
-            const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / 2000, 1);
-
-            cctx.clearRect(0, 0, clear.width, clear.height)
-            cctx.beginPath();
-            cctx.fillStyle = `rgba(255, 0, 0, ${progress / 5})`;
-
-            artilleryTargets.forEach(target => {
-                cctx.fillRect(0, target * Dy, clear.width, Dy)
-            })
-
-            cctx.fill();
-            cctx.restore();
-
-            progress < 1
-                ? requestAnimationFrame(animationTargetsMark)
-                : resolve();
-        }
-
-        requestAnimationFrame(animationTargetsMark)
-    })
-}
-
-function animateBombTravel(target, delay) {
+async function animateBombTravel(target) {
     return new Promise((resolve) => {
         playBombTravel();
-        const startTime = performance.now();
-        const bomb = supportBombParticle(target);
-
         const offscreenCanvas = document.createElement('canvas');
         offscreenCanvas.width = special.width;
         offscreenCanvas.height = special.height;
         const offscreenCtx = offscreenCanvas.getContext('2d');
-
         offscreenCtx.globalCompositeOperation = "destination-out";
         offscreenCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
         offscreenCtx.fillRect(0, 0, special.width, special.height);
@@ -133,9 +56,12 @@ function animateBombTravel(target, delay) {
         offscreenCtx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
         offscreenCtx.lineWidth = 2;
 
+        const startTime = performance.now();
+        const bomb = supportBombParticle(target);
+
         const animationBombTravel = (currentTime) => {
             const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / delay, 1);
+            const progress = Math.min(elapsedTime / 1000, 1);
             const bombArrival = Math.hypot(bomb.deltaX - bomb.x, bomb.deltaY - bomb.y);
 
             const prevX = bomb.x;
@@ -164,16 +90,15 @@ function animateBombTravel(target, delay) {
             sctx.arc(bomb.x, bomb.y, 7, 0, Math.PI * 2);
             sctx.fill();
 
-            (progress < 1 && bombArrival > 2)
-                ? requestAnimationFrame(animationBombTravel)
-                : (
-                    cctx.clearRect(0, target * Dy, clear.width, Dy),
-                    sctx.clearRect(0, 0, special.width, special.height),
-                    playArtilleryBomb(),
-                    animateShellExplosion(bomb.deltaX, bomb.deltaY).then(resolve),
-                    playArtilleryGun(),
-                    animateClears([target], 'artillery')
-                )
+            if (progress < 1 && bombArrival > 2) {
+                requestAnimationFrame(animationBombTravel);
+            }
+            else {
+                cctx.clearRect(0, target * Dy, clear.width, Dy);
+                sctx.clearRect(0, 0, special.width, special.height);
+
+                resolve({ deltaX: bomb.deltaX, deltaY: bomb.deltaY });
+            }
         };
 
         requestAnimationFrame(animationBombTravel);
@@ -258,7 +183,7 @@ function supportBombShells(x, y) {
 }
 
 function supportBombParticle(target) {
-    let bomb;
+    let bomb = {};
     let lendedParticleObject = particlesPool.pop();
 
     const x = canvas.width * Math.random();

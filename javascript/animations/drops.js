@@ -1,4 +1,6 @@
 import { Dy, Dx, dctx, drop } from "../config.js";
+import { redrawTetrominos } from "../draws.js";
+import { clearMainBoard } from "../updates.js";
 
 export async function drops(data) {
     return new Promise(resolve => {
@@ -26,9 +28,15 @@ export async function drops(data) {
                 dctx.strokeRect(cell.x * Dx, path, Dx, Dy);
             });
 
-            progress < 1
-                ? requestAnimationFrame(animation)
-                : (dctx.clearRect(0, 0, drop.width, drop.height), resolve())
+            if (progress < 1) {
+                requestAnimationFrame(animation)
+            }
+            else {
+                clearMainBoard();
+                redrawTetrominos();
+                dctx.clearRect(0, 0, drop.width, drop.height);
+                resolve();
+            }
         };
 
         requestAnimationFrame(animation);

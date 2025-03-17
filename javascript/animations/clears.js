@@ -1,4 +1,4 @@
-import { activeTetrominos, grid, particlesPool } from "../engine.js";
+import { tetrominoObjects, grid, particlesPool } from "../engine.js";
 import { cctx, ctx, Dx, Dy, Cols, sctx, clear } from "../config.js";
 import { playArtilleryBomb } from "../sound.js";
 
@@ -37,39 +37,34 @@ export function animateClears(data, clearName) {
     }
 
     async function artilleryCall() {
-        let delay = 0;
-        let promises = [];
+        for (let x = 0; x < Cols; x++) {
 
-        for (let y of data) {
-            for (let x = 0; x < Cols; x++) {
-                promises.push(new Promise(res => {
-                    setTimeout(async () => {
-                        await clearCell([{ x: x * Dy, y: y * Dy, clearName }]);
-                        ctx.clearRect(x * Dx, y * Dy, Dx, Dy);
-                        ctx.strokeRect(x * Dx, y * Dy, Dx, Dy);
-                        res();
-                    }, delay);
-                }));
-                delay += 100;
-            }
+            await Promise.race([
+                clearCell([{ x: x * Dx, y: data * Dy, clearName }]),
+                new Promise(resolve => setTimeout(resolve, 100))
+            ]);
+
+            ctx.clearRect(x * Dx, data * Dy, Dx, Dy);
+            ctx.strokeRect(x * Dx, data * Dy, Dx, Dy);
         }
-
-        await Promise.all(promises);
     }
 
     async function defaultCall() {
-        let cellsToClear = [];
+        let promises = [];
 
-        for (let y of data) {
-            for (let x = 0; x < Cols; x++) {
-                if (grid[y][x] === 0) continue;
-                let active = activeTetrominos[grid[y][x] - 1];
-                let _cellName = active.name;
-                cellsToClear.push({ x: x * Dy, y: y * Dy, clearName, _cellName });
-            }
-        }
+        data.forEach(y =>
+            grid[y].forEach((cell, x) => {
+                promises.push(new Promise(async resolve => {
 
-        await clearCell(cellsToClear);
+                    let block = tetrominoObjects[cell - 1];
+                    let _cellName = block.name;
+                    await clearCell([{ x: x * Dx, y: y * Dy, clearName, _cellName }])
+                    resolve();
+                }))
+            })
+        )
+
+        await Promise.all(promises);
     }
 }
 
@@ -82,12 +77,11 @@ async function clearCell(data) {
         ctx.lineWidth = 1;
         ctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
 
-        let clearFlag = true;
         let particlesData = [];
         data.forEach(cell => {
 
-            ctx.clearRect(cell.x * Dx - 1, cell.y * Dy - 1, Dx + 1 * 2, Dy + 1 * 2);
-            ctx.strokeRect(cell.x * Dx + 0.5, cell.y * Dy + 0.5, Dx - 1, Dy - 1);
+            ctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
+            ctx.strokeRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
             sctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
 
             particlesData.push(initiateParticles(cell))
@@ -116,13 +110,11 @@ async function clearCell(data) {
             cctx.fillRect(0, 0, clear.width, clear.height);
             cctx.globalCompositeOperation = "source-over"
 
-            progress > 0.1 && clearFlag
-                ? (clearFlag = false, resolve())
-                : null;
-
             if (progress < 1) {
                 requestAnimationFrame(animation);
-            } else {
+            }
+            else {
+                resolve()
                 cctx.clearRect(0, 0, cctx.canvas.width, cctx.canvas.height);
                 particlesData.forEach(cell => {
                     cell.forEach(particle => {
@@ -132,7 +124,6 @@ async function clearCell(data) {
                 });
 
                 particlesData.length = 0;
-                console.log(particlesPool.length)
             }
         };
 
