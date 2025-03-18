@@ -43,7 +43,7 @@ export function drawTetromino() {
      ctx.shadowBlur = 0;
 }
 
-export function redrawTetrominos(target = 0, board = grid) {
+export function redrawTetrominos(board = grid) {
      const shadowOffset = -0.75;
      const padding = 1;
 
@@ -54,7 +54,7 @@ export function redrawTetrominos(target = 0, board = grid) {
 
      ctx.lineWidth = 1;
 
-     for (let row = Rows - 1; row > target; row--) {
+     for (let row = Rows - 1; row >= 0; row--) {
           for (let col = 0; col < Cols; col++) {
                if (board[row][col] !== 0) {
                     let block = board[row][col];

@@ -2,7 +2,7 @@ import { cctx,  Dy, sctx, special } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
 import { tetrominoObjects, grid, particlesPool } from "../engine.js";
 import { playArtilleryBomb, playArtilleryGun, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
-import { clearFilteredRows, shiftFilteredRows, shiftFilteredCols, checkForRedraws, prepareDropCells, collectBlocks } from "../updates.js";
+import { clearFilteredRows, shiftFilteredRows, shiftFilteredCols, reconstructGrid, prepareDropCells, collectBlocks } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
@@ -23,7 +23,6 @@ export async function artilleryStrike() {
 
 async function operationArtillery(y) {
     const copyTetrominoObjects = structuredClone(tetrominoObjects);
-    const copyGrid = structuredClone(grid);
 
     const { deltaX, deltaY } = await animateBombTravel(y);
     playArtilleryBomb()
@@ -36,8 +35,11 @@ async function operationArtillery(y) {
     shiftFilteredRows(y);
     shiftFilteredCols(collectBlocksData);
 
-    checkForRedraws(y, copyGrid);
     const dropCellsData = prepareDropCells(copyTetrominoObjects, collectBlocksData);
+    let copyGrid = structuredClone(grid);
+    reconstructGrid(copyGrid, dropCellsData);
+    redrawTetrominos(copyGrid);
+    
     playClear();
     await drops(dropCellsData);
 }

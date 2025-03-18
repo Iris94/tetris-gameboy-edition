@@ -1,5 +1,5 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana } from "./draws.js";
-import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, checkForRedraws, prepareDropCells, collectBlocks } from "./updates.js";
+import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
 import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt } from "./config.js";
 import { rotation } from "./rotation.js";
@@ -29,12 +29,13 @@ export let isCollision = false;
 export let targetRow = 0;
 export let clearRowsMultiplier = 1;
 export let scoreBonus = 10;
+export let bonusScore = 0;
 export let variableGoalSystem = 0;
 export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 92;
+export let manaLevel = 0;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
@@ -141,6 +142,7 @@ function initializeGame() {
 
 async function gameEngine() {
      if (!isCollision) return movePhase();
+     pauseGame();
      tetrominoId = initiateId();
      updateGrid();
      initiateTetrominoInfo();
@@ -152,41 +154,39 @@ async function gameEngine() {
      drawHud();
      drawNextTetromino();
 
-     !filterRowsData
-          ? (playCollide(), collisionPhase())
-          : (playClear(), await clearPhase())
-
+     !filterRowsData ? collisionPhase() : await clearPhase();
      await specialsPhase()
 
-     variableGoalSystem > (level * 5)
-          ? (playLevelUp(), level++, incrementAcceleration())
-          : null;
+     if (variableGoalSystem > (level * 5)) {
+          playLevelUp();
+          level++;
+          incrementAcceleration();
+     }
+
+     if (manaLevel >= 100) manaLevel = 0;
 
      drawLevel(level);
      drawScore(score);
      drawMana(manaLevel);
 
-     manaLevel >= 100
-          ? manaLevel = 0
-          : null;
-
      isCollision = false;
      clearRowsMultiplier = 1;
+     mainBoardData = copyImageData();
+     drawTetromino();
 
      if (gameoverCheck()) return gameOver();
+     resumeGame();
 }
 
 export async function clearPhase() {
-     pauseGame();
+     playClear();
      clearRowsMultiplier = filterRowsData.length;
      variableGoalSystem += calculateLevel(clearRowsMultiplier);
-     score += calculateClearingScore(clearRowsMultiplier);
      manaLevel += clearRowsMultiplier;
      scoreBonus++;
 
      while (filterRowsData.length > 0) {
           const copyTetrominoObjects = structuredClone(tetrominoObjects);
-          const copyGrid = structuredClone(grid);
           const collectId = filterRowsData[0] - 1;
 
           animateClears(filterRowsData, 'default');
@@ -196,22 +196,21 @@ export async function clearPhase() {
           shiftFilteredRows(filterRowsData[0]);
           shiftFilteredCols(collectBlocksData);
 
-          checkForRedraws(filterRowsData[0], copyGrid)
           const dropCellsData = prepareDropCells(copyTetrominoObjects, collectBlocksData)
+          let copyGrid = structuredClone(grid);
+          reconstructGrid(copyGrid, dropCellsData);
+          redrawTetrominos(copyGrid);
+
           await drops(dropCellsData);
 
+          score += calculateClearingScore(filterRowsData.length);
+          drawScore(score);
           filterRowsData = checkForClears();
      }
-
-     mainBoardData = copyImageData();
-     resumeGame();
 }
 
 function collisionPhase() {
-     mainBoardData = copyImageData();
-     clearMainBoard();
-     pasteImageData(mainBoardData);
-     drawTetromino();
+     playCollide();
      score += calculateCollisionScore();
      manaLevel += 1;
      scoreBonus = 10;
@@ -226,69 +225,42 @@ function movePhase() {
 async function specialsPhase() {
      const allSpecials = [startInvasion, startArtillery, startNinja, startRiots];
 
-     (manaLevel === 25 || manaLevel === 75)
-          && Math.random() < 0.25
-          && (pauseGame(), Math.random() < 0.50 ? await riotStrike() : await ninjaStrike())
+     if ((manaLevel === 25 || manaLevel === 75) && Math.random() < 0.25)
+          Math.random() < 0.50 ? await startRiots() : await startNinja();
 
      manaLevel === 50
           && Math.random() < 0.25
-          && (pauseGame(), await startArtillery())
+          && await startArtillery();
 
-     manaLevel === 100
-          && (pauseGame(), await startNinja())
-     //Randomize(allSpecials)()
+     manaLevel >= 100
+          && await Randomize(allSpecials)();
 
-     function startInvasion() {
-          return new Promise(resolve => {
-               invasionStrike((bonusScore) => {
-                    clearMainBoard();
-                    pasteImageData(emptyBoardData);
-                    mainBoardData = copyImageData();
-                    score += bonusScore;
-                    drawScore(score);
-                    resumeGame();
-                    resolve();
-               })
-          })
+     async function startInvasion() {
+          bonusScore = await invasionStrike();
+          score += bonusScore;
+          drawScore(score);
      }
 
-     function startRiots() {
-          return new Promise(resolve => {
-               riotStrike(() => {
-                    resumeGame();
-                    resolve();
-               })
-          })
+     async function startRiots() {
+          await riotStrike();
+          filterRowsData = filterRows();
+          filterRowsData.length > 0 && clearPhase();
      }
 
      async function startArtillery() {
           await artilleryStrike();
-          clearMainBoard();
-          pasteImageData(emptyBoardData);
-          redrawTetrominos();
-          mainBoardData = copyImageData();
+          score += calculateClearingScore(4);
+          drawScore(score);
           filterRowsData = filterRows();
           filterRowsData.length > 0 && clearPhase();
-          score += 500;
-          drawScore(score);
-          resumeGame();
      }
 
      async function startNinja() {
-          await ninjaStrike()
-          clearMainBoard();
-          pasteImageData(emptyBoardData);
-          redrawTetrominos();
-          mainBoardData = copyImageData();
-          filterRowsData = filterRows();
-
-          filterRowsData
-               ? clearPhase()
-               : null
-
+          bonusScore = await ninjaStrike()
           score += bonusScore;
           drawScore(score);
-          resumeGame();
+          filterRowsData = filterRows();
+          filterRowsData.length > 0 && clearPhase();
      }
 }
 

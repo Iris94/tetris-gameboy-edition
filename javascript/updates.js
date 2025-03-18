@@ -128,11 +128,11 @@ export function shiftFilteredCols(data) {
                let block = tetrominoObjects[shape - 1];
                let sortedCells = block.cells.sort((a, b) => b.y - a.y);
 
-               const moveBlockDown = (block, sortedCells) => {
+               const moveBlockDown = (id, sortedCells) => {
                     sortedCells.forEach(cell => {
                          grid[cell.y][cell.x] = 0;
                          cell.y += 1;
-                         grid[cell.y][cell.x] = block.id;
+                         grid[cell.y][cell.x] = id;
                     });
                }
 
@@ -143,17 +143,19 @@ export function shiftFilteredCols(data) {
                     });
 
                     if (canMoveDown) {
-                         moveBlockDown(block, sortedCells);
+                         moveBlockDown(block.id, sortedCells);
                          recursion = true;
                     }
                }
                else {
-                    sortedCells.forEach(cell => {
-                         if (cell.y + 1 < Rows && grid[cell.y + 1][cell.x] === 0) {
-                              moveBlockDown(block, sortedCells);
-                              recursion = true;
-                         }
-                    });
+                    let movableCells = sortedCells.filter(cell =>
+                         cell.y + 1 < Rows && grid[cell.y + 1][cell.x] === 0
+                    );
+
+                    if (movableCells.length > 0) {
+                         moveBlockDown(block.id, movableCells);
+                         recursion = true;
+                    }
                }
           });
      }
@@ -172,9 +174,10 @@ export function checkForClears() {
      return targetRows;
 }
 
-export function checkForRedraws(data, gridCopy) {
+export function reconstructGrid(dataGrid, dataCells) {
      clearMainBoard();
-     data < Rows - 1 && redrawTetrominos(data, gridCopy);
+     if (dataCells.length === 0) return
+     dataCells.forEach(cell => dataGrid[cell.newY][cell.x] = 0);
 }
 
 export function prepareDropCells(data, collectables) {

@@ -24,19 +24,18 @@ function getInvasionStrikeData() {
     return occupiedCells
 }
 
-export async function invasionStrike(completed) {
+export async function invasionStrike() {
     stopMainTheme(); 
     playSovietTheme();
 
-    await specialsIntro('invasion', true);
+    await specialsIntro('invasion');
     let targetCells = getInvasionStrikeData();
-    let bonusScore = 0;
 
     await animateClears(targetCells, 'invasion');
     bonusScore += Math.round(score / (200 * targetCells.length));
 
     await finalizeInvasionStrike(targetCells);
-    completed(bonusScore);
+    return targetCells.length;
 }
 
 async function finalizeInvasionStrike() {

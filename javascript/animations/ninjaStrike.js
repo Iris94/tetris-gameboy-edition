@@ -1,7 +1,8 @@
-import { Randomize, sctx, Rows, Cols, Dx, Dy, ctx } from "../config.js";
-import { grid, tetrominoObjects, score, collectDropCells, dropCellsData, clearPhase } from "../engine.js";
-import { playClear, playMainTheme, playNinjaSlice, stopSovietTheme } from "../sound.js";
-import { checkForClears, checkForRedraws, clearSingularCells, prepareDropCells, shiftFilteredCols, unitType } from "../updates.js";
+import { sctx, Rows, Cols, Dx, Dy } from "../config.js";
+import { redrawTetrominos } from "../draws.js";
+import { grid, tetrominoObjects } from "../engine.js";
+import { playMainTheme, playNinjaSlice, stopSovietTheme } from "../sound.js";
+import { reconstructGrid, clearSingularCells, collectBlocks, prepareDropCells, shiftFilteredCols, unitType } from "../updates.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
 
@@ -28,7 +29,7 @@ function getDataNinjaStrike() {
             block.cells.splice(index, 1);
 
             block.cells.length === 0
-                && singularCellsToClear.add(cell);
+                && singularCellsToClear.add(blockId);
         }
     }
 
@@ -43,53 +44,69 @@ export async function ninjaStrike() {
 
     await specialsIntro('ninja');
     const ninjaScore = await operationNinja();
-
     return ninjaScore;
 }
 
 async function operationNinja() {
     const copyTetrominoObjects = structuredClone(tetrominoObjects);
-    const copyGrid = structuredClone(grid);
     const { ninjaCells, ninjaIds, singularCellsToClear } = getDataNinjaStrike();
 
     singularCellsToClear.length > 0
         && clearSingularCells(singularCellsToClear);
 
     unitType(ninjaIds);
-    await animateStrike(ninjaCells)
+    await animateStrike(ninjaCells);
+    const collectBlocksData = collectBlocks(18);
+    shiftFilteredCols(collectBlocksData);
 
+    const dropCellsData = prepareDropCells(copyTetrominoObjects, collectBlocksData);
+    let copyGrid = structuredClone(grid);
+    reconstructGrid(copyGrid, dropCellsData)
+    redrawTetrominos(copyGrid)
+
+    await drops(dropCellsData);
+    return ninjaCells.length;
 }
 
 async function animateStrike(ninjaCells) {
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = special.width;
+    offscreenCanvas.height = special.height;
+    const offctx = offscreenCanvas.getContext('2d');
+
     for (let slice of ninjaCells) {
         playNinjaSlice();
-        await sliceAnimation(slice);
+        await sliceAnimation(slice, offctx, offscreenCanvas);
     }
 
-    await sliceFadeOut(ninjaCells);
+    await sliceFadeOut(ninjaCells, offscreenCanvas);
 }
 
-async function sliceFadeOut(ninjaCells) {
+async function sliceFadeOut(ninjaCells, offscreenCanvas) {
     return new Promise(resolve => {
         const startTime = performance.now();
 
         const animation = (currentTime) => {
             const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / 3000, 1);
+            const progress = Math.min(elapsedTime / 1000, 1);
+
+            sctx.clearRect(0, 0, special.width, special.height);
+            sctx.globalAlpha = 1 - progress;
+            sctx.drawImage(offscreenCanvas, 0, 0);
+
+            sctx.globalAlpha = 1;
+            sctx.fillStyle = `rgba(21, 21, 21, ${progress})`;
 
             ninjaCells.forEach(cell => {
-                ctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
-                ctx.strokeRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
-            })
-
-            sctx.globalAlpha = 1 - progress;
+                sctx.fillRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
+            });
 
             if (progress < 1) {
                 requestAnimationFrame(animation);
             }
             else {
-               sctx.clearRect(0, 0, special.width, special.height);
-               resolve();
+                sctx.clearRect(0, 0, special.width, special.height);
+                resolve();
             }
         }
 
@@ -98,22 +115,24 @@ async function sliceFadeOut(ninjaCells) {
 
 }
 
-async function sliceAnimation(slice) {
+async function sliceAnimation(slice, offctx, offscreenCanvas) {
     return new Promise(resolve => {
         const startTime = performance.now();
 
         const animation = (currentTime) => {
             const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / 200, 1);
+            const progress = Math.min(elapsedTime / 150, 1);
 
-            // sctx.beginPath();
-            // sctx.moveTo(slice.x * Dx - 21, slice.y * Dy + 13);
-            // sctx.lineTo((slice.x * Dx) + (Dx + 21), slice.y * Dy + 4);
-            // sctx.strokeStyle = 'black';
-            // sctx.lineWidth = 2;
-            // sctx.shadowColor = 'hsl(0, 85%, 50%)';
-            // sctx.shadowBlur = 3;
-            // sctx.stroke();
+            offctx.beginPath();
+            offctx.moveTo(slice.x * Dx - 10, slice.y * Dy + 20);
+            offctx.lineTo((slice.x * Dx) + (Dx + 10), slice.y * Dy + 1);
+            offctx.strokeStyle = 'cyan';
+            offctx.lineWidth = 1;
+            offctx.shadowColor = 'magenta';
+            offctx.shadowBlur = 2;
+            offctx.stroke();
+
+            sctx.drawImage(offscreenCanvas, 0, 0);
 
             if (progress < 1) {
                 requestAnimationFrame(animation)
@@ -126,83 +145,3 @@ async function sliceAnimation(slice) {
         requestAnimationFrame(animation)
     })
 }
-
-// async function ninjaStrikeAnimation(ninjaTargets, bonusScore) {
-//     const targetLocations = [];
-
-//     ninjaTargets.forEach(target => {
-//         tetrominoObjects[target - 1].cells.forEach(cell => {
-//             targetLocations.push({ x: cell.x, y: cell.y });
-//         });
-//     });
-
-//     ctx.shadowColor = 'transparent';
-//     ctx.shadowOffsetX = 0;
-//     ctx.shadowOffsetY = 0;
-//     ctx.shadowBlur = 0;
-//     ctx.lineWidth = 1;
-//     ctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
-
-//     targetLocations.forEach((cell, index) => {
-//         setTimeout(() => {
-//             playNinjaSlice();
-//             sctx.beginPath();
-//             sctx.moveTo(cell.x * Dx - 21, cell.y * Dy + 13);
-//             sctx.lineTo((cell.x * Dx) + (Dx + 21), cell.y * Dy + 4);
-//             sctx.strokeStyle = 'black';
-//             sctx.lineWidth = 5;
-//             sctx.shadowColor = 'hsl(0, 85%, 50%)';
-//             sctx.shadowBlur = 7;
-//             sctx.stroke();
-//             ctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
-//             ctx.strokeRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
-//         }, index * 150);
-//     });
-
-//     return new Promise(resolve => {
-//         setTimeout(() => {
-//             animation(targetLocations, 1000, resolve);
-//             bonusScore(Math.round(score / 50));
-//         }, targetLocations.length * 100);
-//     });
-// }
-
-// function animation(coordinates, duration, completed) {
-//     const startTime = performance.now();
-
-//     function animationProcess(currentTime) {
-//         const elapsedTime = currentTime - startTime;
-//         const progress = Math.min(elapsedTime / duration, 1);
-
-//         sctx.clearRect(0, 0, special.width, special.height);
-
-//         const dx = Dx;
-//         const dy = Dy;
-//         const shadowBlur = 10;
-//         const strokeStyle = `rgba(0, 0, 0, ${1 - progress})`;
-
-//         coordinates.forEach(({ x, y }) => {
-//             const startX = x * dx;
-//             const startY = y * dy;
-
-//             sctx.beginPath();
-//             sctx.moveTo(startX - 12, startY + 13);
-//             sctx.lineTo(startX + dx + 12, startY + 4);
-//             sctx.strokeStyle = strokeStyle;
-//             sctx.lineWidth = 5;
-//             sctx.shadowColor = 'red';
-//             sctx.shadowBlur = shadowBlur;
-//             sctx.stroke();
-//         });
-
-
-//         progress < 1
-//             ? requestAnimationFrame(animationProcess)
-//             : (
-//                 sctx.clearRect(0, 0, special.width, special.height),
-//                 completed()
-//             );
-//     }
-
-//     requestAnimationFrame(animationProcess);
-// }

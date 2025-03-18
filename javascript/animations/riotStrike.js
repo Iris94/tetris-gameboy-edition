@@ -1,18 +1,18 @@
-import { canvas, Cols, ctx, dctx, Dx, Dy, Rows } from "../config.js";
+import { Cols, ctx, dctx, Dx, Dy, Rows } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
 import { tetrominoObjects, grid } from "../engine.js";
 import { playMainTheme, stopSovietTheme } from "../sound.js";
 import { clearMainBoard, delay, unitType } from "../updates.js";
 import { specialsIntro } from "./overlay.js";
 
-export async function riotStrike(completed) {
+export async function riotStrike() {
     stopSovietTheme();
     playMainTheme();
 
     let pushAnimation = [];
     let pullAnimation = [];
 
-    await specialsIntro('riot', true);
+    await specialsIntro('riot');
 
     const {collectPushCells, collectCells} = calculateRiotPush();
 
@@ -23,9 +23,7 @@ export async function riotStrike(completed) {
 
     pullAnimation = calculateRiotPull();
     await riotPullAnimation(pullAnimation);
-
     unitType(collectCells);
-    completed();
 }
 
 async function riotPushAnimation(data) {
