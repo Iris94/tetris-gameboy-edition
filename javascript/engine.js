@@ -2,7 +2,7 @@ import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetrom
 import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
 import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt } from "./config.js";
-import { rotation } from "./rotation.js";
+import { rotation, shadowRotation } from "./rotation.js";
 import { calculateClearingScore, calculateCollisionScore, calculateLevel, randomTetromino } from "./metrics.js";
 import { ninjaStrike } from "./animations/ninjaStrike.js";
 import { drops } from "./animations/drops.js";
@@ -50,11 +50,19 @@ export let menuOpened = true;
 export let gameStarted = false;
 
 export class Tetromino {
-     constructor(name, color, cells, positionZero) {
+     constructor(name, color, ghostColor, cells) {
           this.name = name;
           this.color = color;
+          this.ghostColor = ghostColor;
           this.cells = cells;
-          this.positionZero = positionZero || JSON.parse(JSON.stringify(cells));
+          this.positionZero = structuredClone(cells);
+          this.shadow = { cells: structuredClone(cells), color: ghostColor };
+     }
+
+     calculateShadow() {
+          this.shadow.cells = structuredClone(this.cells);
+          this.shadow.cells.sort((a, b) => b.y - a.y);
+          shadowRotation(this.shadow.cells);
      }
 
      moveDown() {
@@ -66,6 +74,7 @@ export class Tetromino {
 
           else {
                this.cells.forEach(cell => cell.y += 1);
+               tetromino.calculateShadow();
           }
      }
 
@@ -76,7 +85,9 @@ export class Tetromino {
                grid[cell.y][cell.x - 1] !== 0)) {
                return;
           }
+
           this.cells.forEach(cell => cell.x -= 1);
+          tetromino.calculateShadow();
      }
 
      moveRight() {
@@ -86,11 +97,13 @@ export class Tetromino {
                grid[cell.y][cell.x + 1] !== 0)) {
                return;
           }
+
           this.cells.forEach(cell => cell.x += 1);
+          tetromino.calculateShadow();
      }
 
      defaultCoordinates() {
-          this.cells = JSON.parse(JSON.stringify(this.positionZero));
+          this.cells = structuredClone(this.positionZero);
      }
 }
 
@@ -108,6 +121,7 @@ function assembleTetrominos() {
                new Tetromino(
                     shape.name,
                     shape.color,
+                    shape.ghostColor,
                     shape.cells
                )
           )

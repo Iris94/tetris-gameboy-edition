@@ -1,6 +1,13 @@
 import { Cols, Rows } from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
+export function shadowRotation(data) {
+     while (data.every(cell => cell.y + 1 < Rows && grid[cell.y + 1][cell.x] === 0)) {
+          data.forEach(cell => cell.y += 1);
+     }
+
+}
+
 function rotate() {
      tetromino.cells.forEach(cell => {
           let dx = cell.x - tetromino.cells[2].x;
@@ -10,44 +17,28 @@ function rotate() {
      });
 }
 
-function wallkicks(data) {
-     for (let kick of data) {
-          const collisionDetected = tetromino.cells.some(cell =>
-               cell.x < 0 ||
-               cell.x >= Cols ||
-               grid[cell.y][cell.x] !== 0
-          );
-
-          if (!collisionDetected) {
-               return true;
-          }
-
-          tetromino.cells.forEach(cell => cell.x += kick);
-     }
-     return false;
-}
-
 export function rotation() {
      if (tetromino.name === 'O') return;
-
-     let wallkickData = [-1, +2, -1];
-
-     rotate();
-
-     const outOfBounds = tetromino.cells.some(cell => cell.y >= Rows);
-     if (outOfBounds) {
-          rotate();
-          return;
-     }
-
-     const outOfBoundsTop = tetromino.cells.some(cell => cell.y < 0);
-     if (outOfBoundsTop) {
-          rotate();
-          return; 
-     }
-
-     if (wallkicks(wallkickData)) return;
+     const originals = structuredClone(tetromino.cells);
 
      rotate();
-     wallkicks(wallkickData);
+
+     let collisionDetected = tetromino.cells.some(cell => grid[cell.y]?.[cell.x] !== 0);
+     const wallkickData = [-1, +1];
+
+     for (let i = 0; i < 4; i++) {
+          if (!collisionDetected) break;
+
+          for (let kick of wallkickData) {
+               tetromino.cells.forEach(cell => cell.x += kick);
+               collisionDetected = tetromino.cells.some(cell => grid[cell.y]?.[cell.x] !== 0);
+
+               if (!collisionDetected) break;
+               tetromino.cells.forEach(cell => cell.x -= kick);
+          }
+
+          if (collisionDetected) rotate();
+     }
+
+     if (collisionDetected) tetromino.cells = originals;
 }

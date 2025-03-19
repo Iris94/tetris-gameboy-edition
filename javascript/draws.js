@@ -1,5 +1,5 @@
 import { Cols, Rows, hctx, mctx, Dx, Dy, Position, ctx, bctx } from "./config.js";
-import { tetromino, grid, nextTetromino, tetrominoObjects} from "./engine.js";
+import { tetromino, grid, nextTetromino, tetrominoObjects } from "./engine.js";
 
 export function drawMainBoard() {
      bctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
@@ -36,6 +36,17 @@ export function drawTetromino() {
           ctx.strokeStyle = "#DCD7BA";
           ctx.strokeRect(x + 0.5 + padding, y + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
      });
+
+     tetromino.shadow.cells.forEach(cell => {
+          const x = cell.x * Dx;
+          const y = cell.y * Dy;
+
+          ctx.fillStyle = tetromino.shadow.color;
+          ctx.fillRect(x + padding, y + padding, Dx - padding * 2, Dy - padding * 2);
+
+          ctx.strokeStyle = "#DCD7BA";
+          ctx.strokeRect(x + 0.5 + padding, y + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
+     })
 
      ctx.shadowColor = "transparent";
      ctx.shadowOffsetX = 0;
@@ -148,8 +159,8 @@ export function drawMana(data) {
      mctx.clearRect(20, manaCanvas.height - maxHeight, 15, maxHeight + 5);
 
      const manaFill = mctx.createLinearGradient(0, manaCanvas.height - maxHeight, 0, manaCanvas.height);
-     manaFill.addColorStop(1, 'transparent');  
-     manaFill.addColorStop(0.75, '#064f1f');         
+     manaFill.addColorStop(1, 'transparent');
+     manaFill.addColorStop(0.75, '#064f1f');
      manaFill.addColorStop(0, '#8bc276');
 
      mctx.fillStyle = manaFill;
