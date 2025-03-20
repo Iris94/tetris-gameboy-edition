@@ -1,5 +1,5 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana } from "./draws.js";
-import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks } from "./updates.js";
+import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks, clearShadows } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
 import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt } from "./config.js";
 import { rotation, shadowRotation } from "./rotation.js";
@@ -56,13 +56,13 @@ export class Tetromino {
           this.ghostColor = ghostColor;
           this.cells = cells;
           this.positionZero = structuredClone(cells);
-          this.shadow = { cells: structuredClone(cells), color: ghostColor };
+          this.shadow = { cells: structuredClone(cells), color: ghostColor, name };
      }
 
      calculateShadow() {
           this.shadow.cells = structuredClone(this.cells);
           this.shadow.cells.sort((a, b) => b.y - a.y);
-          shadowRotation(this.shadow.cells);
+          shadowRotation(this.shadow);
      }
 
      moveDown() {
@@ -74,7 +74,6 @@ export class Tetromino {
 
           else {
                this.cells.forEach(cell => cell.y += 1);
-               tetromino.calculateShadow();
           }
      }
 
@@ -152,10 +151,13 @@ function initializeGame() {
      grid = createGrid();
      nextTetromino = Randomize(tetrominosArray);
      tetromino = Randomize(tetrominosArray);
+     drawTetromino();
+     tetromino.calculateShadow();
 }
 
 async function gameEngine() {
      if (!isCollision) return movePhase();
+     clearShadows();
      pauseGame();
      tetrominoId = initiateId();
      updateGrid();
@@ -232,8 +234,10 @@ function collisionPhase() {
 
 function movePhase() {
      clearMainBoard();
+     clearShadows();
      pasteImageData(mainBoardData);
      drawTetromino();
+     tetromino.calculateShadow();
 }
 
 async function specialsPhase() {
@@ -296,6 +300,7 @@ window.onkeydown = (key) => {
                break;
           case 'ArrowUp':
                rotation();
+               tetromino.calculateShadow();
                break;
           case 'Escape':
                pauseEntireGame();

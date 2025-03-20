@@ -1,10 +1,10 @@
-import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx } from "./config.js";
-import { redrawTetrominos } from "./draws.js";
+import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx, shadowCanvas, shctx } from "./config.js";
 import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, tetrominoObjects } from "./engine.js";
 
 export const copyImageData = () => ctx.getImageData(0, 0, canvas.width, canvas.height);
 export const pasteImageData = (data) => ctx.putImageData(data, 0, 0);
 export const clearMainBoard = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+export const clearShadows = () => shctx.clearRect(0, 0, shadowCanvas.width, shadowCanvas.height);
 export const clearHud = () => hctx.clearRect(0, 0, hudCanvas.width, hudCanvas.height);
 export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.height);
 export const clearMana = () => mctx.clearRect(0, 0, manaCanvas.width, manaCanvas.height);

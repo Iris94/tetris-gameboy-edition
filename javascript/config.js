@@ -1,6 +1,9 @@
 export const canvas = document.querySelector('#canvas');
 export const ctx = canvas.getContext("2d", { willReadFrequently: true});
 
+export const shadowCanvas = document.querySelector('#shadow');
+export const shctx = shadowCanvas.getContext('2d');
+
 export const boardCanvas = document.querySelector('#board');
 export const bctx = boardCanvas.getContext('2d');
 
@@ -29,6 +32,9 @@ export const occtx = ocontent.getContext("2d");
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight
+
+shadowCanvas.width = shadowCanvas.offsetWidth;
+shadowCanvas.height = shadowCanvas.offsetHeight
 
 boardCanvas.width = boardCanvas.offsetWidth;
 boardCanvas.height = boardCanvas.offsetHeight;

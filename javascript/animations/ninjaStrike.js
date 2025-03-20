@@ -95,7 +95,7 @@ async function sliceFadeOut(ninjaCells, offscreenCanvas) {
             sctx.drawImage(offscreenCanvas, 0, 0);
 
             sctx.globalAlpha = 1;
-            sctx.fillStyle = `rgba(21, 21, 21, ${progress})`;
+            sctx.fillStyle = `rgba(0, 0, 0, ${progress})`;
 
             ninjaCells.forEach(cell => {
                 sctx.fillRect(cell.x * Dx, cell.y * Dy, Dx, Dy);

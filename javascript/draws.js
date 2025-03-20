@@ -1,4 +1,4 @@
-import { Cols, Rows, hctx, mctx, Dx, Dy, Position, ctx, bctx } from "./config.js";
+import { Cols, Rows, hctx, mctx, Dx, Dy, Position, ctx, bctx, shctx } from "./config.js";
 import { tetromino, grid, nextTetromino, tetrominoObjects } from "./engine.js";
 
 export function drawMainBoard() {
@@ -41,11 +41,8 @@ export function drawTetromino() {
           const x = cell.x * Dx;
           const y = cell.y * Dy;
 
-          ctx.fillStyle = tetromino.shadow.color;
-          ctx.fillRect(x + padding, y + padding, Dx - padding * 2, Dy - padding * 2);
-
-          ctx.strokeStyle = "#DCD7BA";
-          ctx.strokeRect(x + 0.5 + padding, y + 0.5 + padding, Dx - 1 - padding * 2, Dy - 1 - padding * 2);
+          shctx.fillStyle = tetromino.shadow.color;
+          shctx.fillRect(x + padding, y + padding, Dx - padding * 2, Dy - padding * 2);
      })
 
      ctx.shadowColor = "transparent";
