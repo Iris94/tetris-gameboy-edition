@@ -1,4 +1,4 @@
-import { Cols, ctx, dctx, Dx, Dy, Rows } from "../config.js";
+import { Cols, ctx, dctx, Dx, Dy, End, Rows, Start } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
 import { tetrominoObjects, grid } from "../engine.js";
 import { playMainTheme, stopSovietTheme } from "../sound.js";
@@ -119,7 +119,7 @@ function calculateRiotPush() {
     let collectCells = new Set();
 
     const pushToRight = () => {
-        for (let y = Rows - 1; y >= 0; y--) {
+        for (let y = End; y > Start; y--) {
             if (grid[y].every(cell => cell === 0)) break;
 
             for (let x = Cols - 1; x >= 0; x--) {
@@ -148,7 +148,7 @@ function calculateRiotPush() {
     }
 
     const pushToLeft = () => {
-        for (let y = Rows - 1; y >= 0; y--) {
+        for (let y = End; y > Start; y--) {
             if (grid[y].every(cell => cell === 0)) break;
 
             for (let x = 0; x < Cols; x++) {
@@ -183,7 +183,7 @@ function calculateRiotPush() {
 function calculateRiotPull() {
     let collectPullCells = [];
 
-    for (let y = Rows - 2; y >= 0; y--) {
+    for (let y = End - 1; y >= Start; y--) {
         if (grid[y].every(cell => cell === 0)) break;
 
         for (let x = Cols - 1; x >= 0; x--) {
@@ -195,7 +195,7 @@ function calculateRiotPull() {
             let shapeId = grid[y][x]
             let block = tetrominoObjects[shapeId - 1];
 
-            while (y + 1 < Rows && grid[y + 1][x] === 0) {
+            while (y + 1 <= End && grid[y + 1][x] === 0) {
                 let index = block.cells.findIndex(index => index.x === x && index.y === y);
                 block.cells[index].y += 1;
                 grid[y + 1][x] = block.id;

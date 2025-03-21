@@ -1,11 +1,11 @@
-import { Cols, Rows, hctx, mctx, Dx, Dy, Position, ctx, bctx, shctx } from "./config.js";
+import { Cols, hctx, mctx, Dx, Dy, Position, ctx, bctx, shctx, FullRows, End, Start } from "./config.js";
 import { tetromino, grid, nextTetromino, tetrominoObjects } from "./engine.js";
 
 export function drawMainBoard() {
      bctx.strokeStyle = 'rgba(185, 184, 176, 0.05)';
      bctx.lineWidth = 1
 
-     for (let row = 0; row < Rows; row++) {
+     for (let row = 0; row < FullRows; row++) {
           for (let col = 0; col < Cols; col++) {
 
                const x = col * Dx;
@@ -62,7 +62,7 @@ export function redrawTetrominos(board = grid) {
 
      ctx.lineWidth = 1;
 
-     for (let row = Rows - 1; row >= 0; row--) {
+     for (let row = End; row > Start; row--) {
           for (let col = 0; col < Cols; col++) {
                if (board[row][col] !== 0) {
                     let block = board[row][col];

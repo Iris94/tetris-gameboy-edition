@@ -1,4 +1,4 @@
-import { Cols, ctx, hctx, manaCanvas, mctx, Rows, sctx, shadowCanvas, shctx } from "./config.js";
+import { Cols, ctx, End, hctx, manaCanvas, mctx, Rows, sctx, shadowCanvas, shctx, Start } from "./config.js";
 import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, tetrominoObjects } from "./engine.js";
 
 export const copyImageData = () => ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -9,7 +9,7 @@ export const clearHud = () => hctx.clearRect(0, 0, hudCanvas.width, hudCanvas.he
 export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.height);
 export const clearMana = () => mctx.clearRect(0, 0, manaCanvas.width, manaCanvas.height);
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-export const gameoverCheck = () => grid[0].some(cell => cell !== 0);
+export const gameoverCheck = () => grid[2].some(cell => cell !== 0);
 export const unitType = (data) => data.forEach(shape => tetrominoObjects[shape - 1].unit = false);
 
 export function updateGrid() {
@@ -138,7 +138,7 @@ export function shiftFilteredCols(data) {
 
                if (block.unit) {
                     let canMoveDown = sortedCells.every(cell => {
-                         return (cell.y + 1 < Rows &&
+                         return (cell.y + 1 <= End &&
                               (grid[cell.y + 1][cell.x] === 0 || grid[cell.y + 1][cell.x] === block.id));
                     });
 
@@ -149,7 +149,7 @@ export function shiftFilteredCols(data) {
                }
                else {
                     let movableCells = sortedCells.filter(cell =>
-                         cell.y + 1 < Rows && grid[cell.y + 1][cell.x] === 0
+                         cell.y + 1 <= End && grid[cell.y + 1][cell.x] === 0
                     );
 
                     if (movableCells.length > 0) {
@@ -164,7 +164,7 @@ export function shiftFilteredCols(data) {
 export function checkForClears() {
      let targetRows = [];
 
-     for (let y = Rows - 1; y > 0; y--) {
+     for (let y = End; y > Start; y--) {
           if (grid[y].every(cell => cell === 0)) break;
           if (grid[y].every(cell => cell !== 0)) {
                targetRows.push(y);

@@ -1,5 +1,5 @@
 export const canvas = document.querySelector('#canvas');
-export const ctx = canvas.getContext("2d", { willReadFrequently: true});
+export const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
 export const shadowCanvas = document.querySelector('#shadow');
 export const shctx = shadowCanvas.getContext('2d');
@@ -63,14 +63,17 @@ ocontent.height = ocontent.offsetHeight;
 
 
 export const Rows = 20;
+export const FullRows = 26;
+export const Start = 2;
+export const End = 22;
 export const Cols = 10;
-export const Dx = canvas.width / Cols;
-export const Dy = canvas.height / Rows;
+export const Dx = boardCanvas.width / Cols;
+export const Dy = boardCanvas.height / Rows;
 export const Position = 4;
 
 
-export const createGrid = () => Array.from({ length: Rows }, () => Array(Cols).fill(0));
-export const particlesObjectPool = () => Array.from({ length: 20000 }, () => ({}));
+export const createGrid = () => Array.from({ length: FullRows }, () => Array(Cols).fill(0));
+export const particlesObjectPool = () => Array.from({ length: 50000 }, () => ({}));
 export const tetrominoObjectPool = () => Array.from({ length: 250 }, () => ({}));
 export const activeTetrominoPool = () => Array.from({ length: 250 }, () => null);
 export const Randomize = (data) => data[Math.floor(Math.random() * data.length)];
@@ -82,7 +85,12 @@ export const restartBtn = document.getElementById('restart');
 export const startBtn = document.getElementById('start');
 export const descriptionTxt = document.getElementById('description');
 export const gameoverTxt = document.getElementById('gameOver');
+export const gameBoard = document.querySelectorAll('.game-board');
 
+gameBoard.forEach(node => {
+    node.setAttribute(`height`, `${FullRows * Dy}`);
+    node.style.top = `calc(-${3 * Dy}px)`;
+});
 
 
 export const Ninja = new Image();

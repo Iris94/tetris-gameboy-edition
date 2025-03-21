@@ -1,7 +1,7 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana } from "./draws.js";
 import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks, clearShadows } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
-import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt } from "./config.js";
+import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt, End } from "./config.js";
 import { rotation, shadowRotation } from "./rotation.js";
 import { calculateClearingScore, calculateCollisionScore, calculateLevel, randomTetromino } from "./metrics.js";
 import { ninjaStrike } from "./animations/ninjaStrike.js";
@@ -67,7 +67,7 @@ export class Tetromino {
 
      moveDown() {
           if (this.cells.some(cell =>
-               cell.y === Rows - 1 ||
+               cell.y === End ||
                grid[cell.y + 1][cell.x] !== 0)) {
                isCollision = true;
           }

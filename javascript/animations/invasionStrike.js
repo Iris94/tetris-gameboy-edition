@@ -1,4 +1,4 @@
-import { Cols, ctx, Rows, sctx } from "../config.js";
+import { Cols, ctx, End, Rows, sctx, Start } from "../config.js";
 import { grid, score } from "../engine.js";
 import { playSovietTheme, stopMainTheme } from "../sound.js";
 import { clearFilteredRows } from "../updates.js";
@@ -8,7 +8,7 @@ import { specialsIntro } from "./overlay.js";
 function getInvasionStrikeData() {
     const occupiedCells = [];
 
-    for (let y = 0; y < Rows; y++) {
+    for (let y = Start; y <= End; y++) {
         for (let x = 0; x < Cols; x++) {
 
             if (grid[y][x] === 0) continue;

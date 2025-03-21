@@ -1,4 +1,4 @@
-import { sctx, Rows, Cols, Dx, Dy } from "../config.js";
+import { sctx, Rows, Cols, Dx, Dy, End, Start } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
 import { grid, tetrominoObjects } from "../engine.js";
 import { playMainTheme, playNinjaSlice, stopSovietTheme } from "../sound.js";
@@ -11,7 +11,7 @@ function getDataNinjaStrike() {
     let ninjaIds = new Set();
     let singularCellsToClear = new Set();
 
-    for (let y = Rows - 1; y >= 0; y--) {
+    for (let y = End; y > Start; y--) {
         if (grid[y].every(cell => cell === 0)) break;
 
         for (let x = 0; x < Cols; x++) {

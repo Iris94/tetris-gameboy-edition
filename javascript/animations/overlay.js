@@ -12,7 +12,7 @@ export async function specialsIntro(data) {
             octx.clearRect(0, 0, overlay.width, overlay.height);
 
             const startPositionMap = {
-                ninja: overlay.width * 2,
+                ninja: overlay.width * 4,
                 artillery: overlay.height * 2,
                 riot: overlay.height * 2,
                 invasion: overlay.height
@@ -21,7 +21,7 @@ export async function specialsIntro(data) {
             let startPosition = startPositionMap[data];
 
             const drawParams = {
-                ninja: () => [image, startPosition, 0, special.width + (special.width * 0.75), special.height],
+                ninja: () => [image, startPosition, 75, special.width + (special.width * 0.75), special.height],
                 artillery: () => [image, 0, startPosition, special.width + (special.width * 0.25), special.height],
                 riot: () => [image, 0, startPosition, special.width + (special.width * 0.75), special.height],
                 invasion: () => [image, 0, startPosition, special.width + (special.width * 0.75), special.height / 1.1]
