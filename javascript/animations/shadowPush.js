@@ -53,8 +53,7 @@ function animateShadowTravel(shadowData, color) {
                 offctx.arc(currentX + Dx / 2, currentY + Dy / 2, 5, 0, 2 * Math.PI);
                 offctx.fillStyle = color;
                 offctx.shadowColor = '#fff';
-                offctx.shadowOffsetY = -10;
-                offctx.shadowBlur = 5;
+                offctx.shadowBlur = 2;
                 offctx.fill();
             });
 
