@@ -56,7 +56,7 @@ async function operationNinja() {
 
     unitType(ninjaIds);
     await animateStrike(ninjaCells);
-    const collectBlocksData = collectBlocks(18);
+    const collectBlocksData = collectBlocks(End - 1);
     shiftFilteredCols(collectBlocksData);
 
     const dropCellsData = prepareDropCells(copyTetrominoObjects, collectBlocksData);
@@ -95,7 +95,7 @@ async function sliceFadeOut(ninjaCells, offscreenCanvas) {
             sctx.drawImage(offscreenCanvas, 0, 0);
 
             sctx.globalAlpha = 1;
-            sctx.fillStyle = `rgba(0, 0, 0, ${progress})`;
+            sctx.fillStyle = `rgba(21, 21, 21, ${progress})`;
 
             ninjaCells.forEach(cell => {
                 sctx.fillRect(cell.x * Dx, cell.y * Dy, Dx, Dy);

@@ -10,7 +10,6 @@ export function drawMainBoard() {
 
                const x = col * Dx;
                const y = row * Dy;
-
                bctx.strokeRect(x + 0.5, y + 0.5, Dx - 1, Dy - 1)
           }
      }

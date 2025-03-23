@@ -1,7 +1,7 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana } from "./draws.js";
-import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, gameoverCheck, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks, clearShadows } from "./updates.js";
+import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks, clearShadows } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
-import { Rows, Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt, End } from "./config.js";
+import { Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt, End } from "./config.js";
 import { rotation, shadowRotation } from "./rotation.js";
 import { calculateClearingScore, calculateCollisionScore, calculateLevel, randomTetromino } from "./metrics.js";
 import { ninjaStrike } from "./animations/ninjaStrike.js";
@@ -11,6 +11,7 @@ import { artilleryStrike } from "./animations/artilleryStrike.js";
 import { invasionStrike } from "./animations/invasionStrike.js";
 import { pauseCurrentTheme, playClear, playCollide, playGameOver, playLevelUp, playMainTheme, resumeCurrentTheme, stopMainTheme, stopSovietTheme } from './sound.js';
 import { riotStrike } from "./animations/riotStrike.js";
+import { shadowPush } from "./animations/shadowPush.js";
 
 export let grid = [];
 export let tetrominoObjects = [];
@@ -21,6 +22,7 @@ export let tetrominoId = 0;
 export let mainBoardData;
 export let emptyBoardData;
 export let clearBoardData;
+export let shadowFlag = false;
 export let tetrominosArray = [];
 export let filterRowsData = [];
 export let collectDropCells = new Set();
@@ -110,25 +112,16 @@ initializeGame();
 drawNextTetromino();
 
 function assembleTetrominos() {
-     for (let shape of tetrominoShapes) {
-          for (let cell of shape.cells) {
-
-               cell.x += Position;
-          }
-
-          tetrominosArray.push(
-               new Tetromino(
-                    shape.name,
-                    shape.color,
-                    shape.ghostColor,
-                    shape.cells
-               )
-          )
-     }
+     tetrominoShapes.forEach(shape => {
+          shape.cells.forEach(cell => cell.x += Position);
+          tetrominosArray.push(new Tetromino(
+               shape.name, shape.color, shape.ghostColor, shape.cells
+          ));
+     });
 }
 
 function resetGameplayInterval() {
-     if (gameplayStatus) clearInterval(gameplayStatus);
+     gameplayStatus && clearInterval(gameplayStatus);
      startGame();
 }
 
@@ -157,11 +150,14 @@ function initializeGame() {
 
 async function gameEngine() {
      if (!isCollision) return movePhase();
+     
+     tetrominoId = initiateId();
+     updateGrid() && gameOver();
+     initiateTetrominoInfo();
+     shadowFlag && redrawTetrominos();
+
      clearShadows();
      pauseGame();
-     tetrominoId = initiateId();
-     updateGrid();
-     initiateTetrominoInfo();
      clearHud();
      filterRowsData = filterRows();
      tetromino.defaultCoordinates();
@@ -179,18 +175,16 @@ async function gameEngine() {
           incrementAcceleration();
      }
 
-     if (manaLevel >= 100) manaLevel = 0;
-
+     manaLevel >= 100 && (manaLevel = 0);
      drawLevel(level);
      drawScore(score);
      drawMana(manaLevel);
 
-     isCollision = false;
      clearRowsMultiplier = 1;
+     isCollision = false;
+     shadowFlag = false;
      mainBoardData = copyImageData();
      drawTetromino();
-
-     if (gameoverCheck()) return gameOver();
      resumeGame();
 }
 
@@ -284,7 +278,7 @@ async function specialsPhase() {
 
 
 
-window.onkeydown = (key) => {
+window.onkeydown = async key => {
      if (pause) return;
 
      switch (key.code) {
@@ -302,6 +296,10 @@ window.onkeydown = (key) => {
                rotation();
                tetromino.calculateShadow();
                break;
+          case 'Space':
+               shadowFlag = await shadowPush();
+               isCollision = true;
+               break;
           case 'Escape':
                pauseEntireGame();
           default:
@@ -310,7 +308,7 @@ window.onkeydown = (key) => {
      gameEngine()
 }
 
-window.addEventListener('mousemove', (e) => {
+window.addEventListener('mousemove', e => {
      if (pause) return;
 
      const currentMouseX = e.offsetX;

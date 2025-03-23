@@ -116,11 +116,11 @@ async function clearCell(data) {
             else {
                 resolve()
                 cctx.clearRect(0, 0, cctx.canvas.width, cctx.canvas.height);
-                particlesData.forEach(cell => {
-                    cell.forEach(particle => {
-                        Object.assign(particle, { x: 0, y: 0, directionX: 0, directionY: 0, size: 0, color: '' });
-                        particlesPool.push(particle);
-                    });
+                particlesData.forEach((particle) => {
+                    for (let key in particle) {
+                        delete particle[key]
+                    }
+                    particlesPool.push(particle)
                 });
 
                 particlesData.length = 0;

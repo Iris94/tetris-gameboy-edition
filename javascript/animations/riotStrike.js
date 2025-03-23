@@ -18,10 +18,10 @@ export async function riotStrike() {
 
     pushAnimation = collectPushCells
     await riotPushAnimation(pushAnimation);
-
-    await delay(250);
-
     pullAnimation = calculateRiotPull();
+
+    await delay(350);
+
     await riotPullAnimation(pullAnimation);
     unitType(collectCells);
 }
@@ -119,7 +119,7 @@ function calculateRiotPush() {
     let collectCells = new Set();
 
     const pushToRight = () => {
-        for (let y = End; y > Start; y--) {
+        for (let y = End; y >= Start; y--) {
             if (grid[y].every(cell => cell === 0)) break;
 
             for (let x = Cols - 1; x >= 0; x--) {
@@ -148,7 +148,7 @@ function calculateRiotPush() {
     }
 
     const pushToLeft = () => {
-        for (let y = End; y > Start; y--) {
+        for (let y = End; y >= Start; y--) {
             if (grid[y].every(cell => cell === 0)) break;
 
             for (let x = 0; x < Cols; x++) {

@@ -37,11 +37,9 @@ export function lendObject () {
 
 export function randomTetromino () {
      let drawedTetromino = Randomize(tetrominosArray);
-
      if (drawedTetromino.name !== nextTetromino.name) return drawedTetromino;
 
-     Math.random() < 0.75 ? drawedTetromino = Randomize(tetrominosArray) : null
-
+     Math.random() < 0.85 && (drawedTetromino = Randomize(tetrominosArray));
      return drawedTetromino;
 }
 

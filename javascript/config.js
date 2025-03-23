@@ -28,8 +28,6 @@ export const octx = overlay.getContext("2d");
 export const ocontent = document.querySelector('#overlayContent');
 export const occtx = ocontent.getContext("2d");
 
-
-
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight
 
@@ -60,8 +58,6 @@ overlay.height = overlay.offsetHeight;
 ocontent.width = ocontent.offsetWidth;
 ocontent.height = ocontent.offsetHeight;
 
-
-
 export const Rows = 20;
 export const FullRows = 26;
 export const Start = 2;
@@ -71,13 +67,11 @@ export const Dx = boardCanvas.width / Cols;
 export const Dy = boardCanvas.height / Rows;
 export const Position = 4;
 
-
 export const createGrid = () => Array.from({ length: FullRows }, () => Array(Cols).fill(0));
 export const particlesObjectPool = () => Array.from({ length: 50000 }, () => ({}));
 export const tetrominoObjectPool = () => Array.from({ length: 250 }, () => ({}));
 export const activeTetrominoPool = () => Array.from({ length: 250 }, () => null);
 export const Randomize = (data) => data[Math.floor(Math.random() * data.length)];
-
 
 export const playGameButton = document.getElementById('start');
 export const resumeBtn = document.getElementById('resume');
@@ -91,7 +85,6 @@ gameBoard.forEach(node => {
     node.setAttribute(`height`, `${FullRows * Dy}`);
     node.style.top = `calc(-${3 * Dy}px)`;
 });
-
 
 export const Ninja = new Image();
 Ninja.src = './assets/ninja.png';

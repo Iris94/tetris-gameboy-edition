@@ -1,4 +1,4 @@
-import { canvas, End, Rows } from "./config.js";
+import { End } from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
 export function shadowRotation(data) {
@@ -20,26 +20,25 @@ export function shadowRotation(data) {
                let left = grid[cell.y]?.[cell.x - 1] !== 0 && calculation++;
 
                right && left && calculation++;
-               down && right && left && calculation++;
+               down && right && left && calculation + 2;
           }
           return calculation;
      };
 
      threshold = calculateData(data);
-     const collisionDetected = (data) => data.cells.some(cell => grid[cell.y]?.[cell.x] !== 0);
-     const bottomCollision = (data) => data.cells.some(cell => grid[cell.y + 1]?.[cell.x] !== 0);
+     const collisionDetected = (data) => data.cells.some(cell => grid[cell.y]?.[cell.x] !== 0 || cell.y === End);
 
      for (let i = 0; i < 4; i++) {
           let rotationData = 0;
           let shadowCopy = structuredClone(data);
 
           for (let j = 0; j < i; j++) {
-              // rotate(shadowCopy);
+              rotate(shadowCopy);
+              const shiftValue = tetromino.cells[2].x - shadowCopy.cells[2].x;
+              shadowCopy.cells.forEach(cell => cell.x += shiftValue);
           }
 
-          bottomCollision(shadowCopy) && shadowCopy.cells.forEach(cell => cell.y -= 1);
-
-          while (shadowCopy.cells.every(cell => cell.y + 1 < End && grid[cell.y + 1]?.[cell.x] === 0)) {
+          while (shadowCopy.cells.every(cell => cell.y + 1 <= End && grid[cell.y + 1]?.[cell.x] === 0)) {
                shadowCopy.cells.forEach(cell => cell.y += 1);
           }
 
@@ -68,19 +67,19 @@ function rotate(data) {
 
 export function rotation() {
      if (tetromino.name === 'O') return;
-    // if (tetromino.cells.some(cell => cell.y === Rows - 1)) return;
+     if (tetromino.cells.some(cell => cell.y === End)) return;
      const originals = structuredClone(tetromino.cells);
 
      rotate(tetromino);
-     let collisionDetected = tetromino.cells.some(cell => grid[cell.y]?.[cell.x] !== 0);
-     const wallkickData = [-1, +1];
+     let collisionDetected = tetromino.cells.some(cell => grid[cell.y]?.[cell.x] !== 0 || cell.y === End);
+     let wallkickData = [] = tetromino.name === 'I' ? [-1, +1, -2, +2] : [-1, +1];
 
      for (let i = 0; i < 4; i++) {
           if (!collisionDetected) break;
 
           for (let kick of wallkickData) {
                tetromino.cells.forEach(cell => cell.x += kick);
-               collisionDetected = tetromino.cells.some(cell => grid[cell.y]?.[cell.x] !== 0);
+               collisionDetected = tetromino.cells.some(cell => grid[cell.y]?.[cell.x] !== 0 || cell.y === End);
 
                if (!collisionDetected) break;
                tetromino.cells.forEach(cell => cell.x -= kick);

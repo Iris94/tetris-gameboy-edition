@@ -1,4 +1,4 @@
-import { Cols, ctx, End, Rows, sctx, Start } from "../config.js";
+import { Cols, ctx, End, FullRows, Rows, sctx, Start } from "../config.js";
 import { grid, score } from "../engine.js";
 import { playSovietTheme, stopMainTheme } from "../sound.js";
 import { clearFilteredRows } from "../updates.js";
@@ -39,7 +39,7 @@ export async function invasionStrike() {
 }
 
 async function finalizeInvasionStrike() {
-    const allRows = Array.from({ length: 20 }, (_, i) => i);
+    const allRows = Array.from({ length: FullRows }, (_, i) => i);
     clearFilteredRows(allRows);
     sctx.clearRect(0, 0, special.width, special.height);
     ctx.clearRect(0, 0, canvas.width, canvas.height)

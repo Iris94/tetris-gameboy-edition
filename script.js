@@ -13,4 +13,5 @@ import './javascript/animations/ninjaStrike.js';
 import './javascript/animations/artilleryStrike.js';
 import './javascript/animations/invasionStrike.js';
 import './javascript/animations/riotStrike.js';
+import './javascript/animations/shadowPush.js';
 import './javascript/animations/overlay.js';

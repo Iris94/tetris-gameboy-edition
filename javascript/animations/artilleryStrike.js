@@ -10,7 +10,7 @@ import { specialsIntro } from "./overlay.js";
 const lerp = (start, end, t) => start + (end - start) * t;
 
 export async function artilleryStrike() {
-    const artilleryTargets = [19, 18, 17, 16];
+    const artilleryTargets = [22, 21, 20, 19];
 
     stopSovietTheme();
     playMainTheme();    

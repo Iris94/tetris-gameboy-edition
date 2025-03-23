@@ -1,4 +1,4 @@
-import { Cols, ctx, End, hctx, manaCanvas, mctx, Rows, sctx, shadowCanvas, shctx, Start } from "./config.js";
+import { Cols, ctx, End, hctx, manaCanvas, mctx, sctx, shadowCanvas, shctx, Start } from "./config.js";
 import { grid, tetromino, tetrominoId, objectPoolArray, reuseObjectIdArray, tetrominoObjects } from "./engine.js";
 
 export const copyImageData = () => ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -9,13 +9,17 @@ export const clearHud = () => hctx.clearRect(0, 0, hudCanvas.width, hudCanvas.he
 export const clearSpecial = () => sctx.clearRect(0, 0, special.width, special.height);
 export const clearMana = () => mctx.clearRect(0, 0, manaCanvas.width, manaCanvas.height);
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-export const gameoverCheck = () => grid[2].some(cell => cell !== 0);
 export const unitType = (data) => data.forEach(shape => tetrominoObjects[shape - 1].unit = false);
 
 export function updateGrid() {
+     let gameoverCheck = false;
+
      tetromino.cells.forEach(cell => {
           grid[cell.y][cell.x] = tetrominoId;
+          if (cell.y === Start) gameoverCheck = true;
      })
+
+     return gameoverCheck;
 }
 
 export function initiateTetrominoInfo() {
@@ -99,7 +103,7 @@ export function clearFilteredRows(data) {
 export function shiftFilteredRows(data) {
      let target = data;
 
-     for (let y = target; y >= 0; y--) {
+     for (let y = target; y >= Start; y--) {
           if (grid[y].some(cell => cell > 0)) {
 
                for (let x = 0; x < Cols; x++) {
