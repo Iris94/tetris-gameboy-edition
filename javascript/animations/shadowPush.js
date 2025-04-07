@@ -2,6 +2,11 @@ import { Dx, Dy, sctx, special } from "../config.js";
 import { tetromino } from "../engine.js"
 import { clearMainBoard } from "../updates.js";
 
+const offscreenCanvas = document.createElement('canvas');
+offscreenCanvas.width = special.width;
+offscreenCanvas.height = special.height;
+const offctx = offscreenCanvas.getContext('2d');
+
 function getShadowPushData() {
     return [...tetromino.cells.map((cell, index) => {
         const shadow = tetromino.shadow.cells[index];
@@ -23,11 +28,6 @@ export async function shadowPush() {
 
 function animateShadowTravel(shadowData, color) {
     return new Promise(resolve => {
-        const offscreenCanvas = document.createElement('canvas');
-        offscreenCanvas.width = special.width;
-        offscreenCanvas.height = special.height;
-        const offctx = offscreenCanvas.getContext('2d');
-
         const startTime = performance.now();
 
         const animation = (currentTime) => {

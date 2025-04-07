@@ -50,21 +50,19 @@ export function animateClears(data, clearName) {
     }
 
     async function defaultCall() {
-        let promises = [];
+        let cellsToClear = [];
 
-        data.forEach(y =>
+        data.forEach(y => {
             grid[y].forEach((cell, x) => {
-                promises.push(new Promise(async resolve => {
-
+                if (cell !== 0) {
                     let block = tetrominoObjects[cell - 1];
                     let _cellName = block.name;
-                    await clearCell([{ x: x * Dx, y: y * Dy, clearName, _cellName }])
-                    resolve();
-                }))
-            })
-        )
+                    cellsToClear.push({ x: x * Dx, y: y * Dy, clearName, _cellName });
+                }
+            });
+        });
 
-        await Promise.all(promises);
+        await clearCell(cellsToClear);
     }
 }
 
@@ -114,16 +112,18 @@ async function clearCell(data) {
                 requestAnimationFrame(animation);
             }
             else {
-                resolve()
                 cctx.clearRect(0, 0, cctx.canvas.width, cctx.canvas.height);
-                particlesData.forEach((particle) => {
-                    for (let key in particle) {
-                        delete particle[key]
-                    }
-                    particlesPool.push(particle)
+                particlesData.forEach(particleArray => {
+                    particleArray.forEach(particle => {
+                        for (let key in particle) {
+                            delete particle[key];
+                        }
+                        particlesPool.push(particle); 
+                    });
                 });
-
                 particlesData.length = 0;
+                resolve();
+                console.log(particlesPool.length)
             }
         };
 
@@ -133,7 +133,7 @@ async function clearCell(data) {
 
 function initiateParticles(data) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const maxParticles = isMobile ? 250 : 500;
+    const maxParticles = isMobile ? 300 : 500;
     let particles = [];
 
     const colorPalettes = {
@@ -163,7 +163,7 @@ function initiateParticles(data) {
     const sovietRed = 'hsl(0, 85%, 50%)';
 
     for (let i = 0; i < maxParticles; i++) {
-        let lendedParticleObject = particlesPool.pop();
+        let lendedParticleObject = particlesPool.pop() || {};
         let startX = data.x;
         let endX = data.x + Dx;
         let startY = data.y;

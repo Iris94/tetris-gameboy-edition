@@ -25,7 +25,6 @@ export let clearBoardData;
 export let shadowFlag = false;
 export let tetrominosArray = [];
 export let filterRowsData = [];
-export let collectDropCells = new Set();
 export let dropCellsData = [];
 export let isCollision = false;
 export let targetRow = 0;
@@ -57,8 +56,22 @@ export class Tetromino {
           this.color = color;
           this.ghostColor = ghostColor;
           this.cells = cells;
+          this.shadowSwitch = false;
           this.positionZero = structuredClone(cells);
           this.shadow = { cells: structuredClone(cells), color: ghostColor, name };
+     }
+
+     async shadowMove() {
+          pauseGame();
+          shadowFlag = await shadowPush();
+          isCollision = true;
+          resumeGame();
+     }
+
+     calculateRotation() {
+          this.shadowSwitch = false;
+          rotation();
+          tetromino.calculateShadow();
      }
 
      calculateShadow() {
@@ -88,6 +101,7 @@ export class Tetromino {
           }
 
           this.cells.forEach(cell => cell.x -= 1);
+          this.shadowSwitch = true;
           tetromino.calculateShadow();
      }
 
@@ -100,6 +114,7 @@ export class Tetromino {
           }
 
           this.cells.forEach(cell => cell.x += 1);
+          this.shadowSwitch = true;
           tetromino.calculateShadow();
      }
 
@@ -150,7 +165,7 @@ function initializeGame() {
 
 async function gameEngine() {
      if (!isCollision) return movePhase();
-     
+
      tetrominoId = initiateId();
      updateGrid() && gameOver();
      initiateTetrominoInfo();
@@ -162,6 +177,7 @@ async function gameEngine() {
      filterRowsData = filterRows();
      tetromino.defaultCoordinates();
      tetromino = nextTetromino;
+     tetromino.calculateShadow();
      nextTetromino = randomTetromino();
      drawHud();
      drawNextTetromino();
@@ -231,7 +247,6 @@ function movePhase() {
      clearShadows();
      pasteImageData(mainBoardData);
      drawTetromino();
-     tetromino.calculateShadow();
 }
 
 async function specialsPhase() {
@@ -245,7 +260,8 @@ async function specialsPhase() {
           && await startArtillery();
 
      manaLevel >= 100
-          && await Randomize(allSpecials)();
+          && await artilleryStrike();
+     //Randomize(allSpecials)()
 
      async function startInvasion() {
           bonusScore = await invasionStrike();
@@ -276,12 +292,11 @@ async function specialsPhase() {
      }
 }
 
-
-
-window.onkeydown = async key => {
+document.addEventListener('keydown', async event => {
      if (pause) return;
+     if (event.repeat && !['ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) return;
 
-     switch (key.code) {
+     switch (event.code) {
           case 'ArrowDown':
                tetromino.moveDown();
                resetGameplayInterval();
@@ -293,20 +308,20 @@ window.onkeydown = async key => {
                tetromino.moveRight();
                break;
           case 'ArrowUp':
-               rotation();
-               tetromino.calculateShadow();
+               tetromino.calculateRotation();
                break;
           case 'Space':
-               shadowFlag = await shadowPush();
-               isCollision = true;
+               await tetromino.shadowMove();
                break;
           case 'Escape':
                pauseEntireGame();
+               break;
           default:
                break;
      }
-     gameEngine()
-}
+
+     gameEngine();
+});
 
 window.addEventListener('mousemove', e => {
      if (pause) return;

@@ -1,4 +1,4 @@
-import { cctx,  Dy, sctx, special } from "../config.js";
+import { cctx, Dy, sctx, special } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
 import { tetrominoObjects, grid, particlesPool } from "../engine.js";
 import { playArtilleryBomb, playArtilleryGun, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
@@ -7,13 +7,11 @@ import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
 
-const lerp = (start, end, t) => start + (end - start) * t;
-
 export async function artilleryStrike() {
     const artilleryTargets = [22, 21, 20, 19];
 
     stopSovietTheme();
-    playMainTheme();    
+    playMainTheme();
     await specialsIntro('artillery');
 
     for (const y of artilleryTargets) {
@@ -39,72 +37,59 @@ async function operationArtillery(y) {
     let copyGrid = structuredClone(grid);
     reconstructGrid(copyGrid, dropCellsData);
     redrawTetrominos(copyGrid);
-    
+
     playClear();
     await drops(dropCellsData);
 }
 
 async function animateBombTravel(target) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         playBombTravel();
-        const offscreenCanvas = document.createElement('canvas');
-        offscreenCanvas.width = special.width;
-        offscreenCanvas.height = special.height;
-        const offscreenCtx = offscreenCanvas.getContext('2d');
-        offscreenCtx.globalCompositeOperation = "destination-out";
-        offscreenCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        offscreenCtx.fillRect(0, 0, special.width, special.height);
-        offscreenCtx.globalCompositeOperation = "source-over";
-        offscreenCtx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
-        offscreenCtx.lineWidth = 2;
-
-        const startTime = performance.now();
         const bomb = supportBombParticle(target);
+        const startTime = performance.now();
 
-        const animationBombTravel = (currentTime) => {
+        const animation = (currentTime) => {
             const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / 1000, 1);
-            const bombArrival = Math.hypot(bomb.deltaX - bomb.x, bomb.deltaY - bomb.y);
-
-            const prevX = bomb.x;
-            const prevY = bomb.y;
-            bomb.x = lerp(bomb.x, bomb.deltaX, progress);
-            bomb.y = lerp(bomb.y, bomb.deltaY, progress);
-
-            offscreenCtx.beginPath();
-            offscreenCtx.moveTo(prevX, prevY);
-            offscreenCtx.lineTo(bomb.x, bomb.y);
-            offscreenCtx.stroke();
+            const progress = Math.min(elapsedTime / 250, 1);
 
             sctx.clearRect(0, 0, special.width, special.height);
-            sctx.drawImage(offscreenCanvas, 0, 0);
 
-            const fire = sctx.createRadialGradient(bomb.x, bomb.y, 0, bomb.x, bomb.y, 10);
-            fire.addColorStop(0, 'hsla(50, 100%, 89%, 1)');
-            fire.addColorStop(0.3, 'hsla(44, 100%, 50%, 1)');
-            fire.addColorStop(0.5, 'hsla(33, 100%, 50%, 1)');
-            fire.addColorStop(0.7, 'hsla(20, 91%, 47%, 1)');
-            fire.addColorStop(0.9, 'hsla(6, 84%, 25%, 1)');
-            fire.addColorStop(1, 'hsla(10, 66%, 11%, 1)');
+            const currentX = bomb.x + progress * (bomb.deltaX - bomb.x);
+            const currentY = bomb.y + progress * (bomb.deltaY - bomb.y);
 
-            sctx.fillStyle = fire;
+            sctx.lineWidth = 2;
+            sctx.globalAlpha = 1 - progress;
+            sctx.strokeStyle = 'hsla(20, 91%, 47%, 1)';
             sctx.beginPath();
-            sctx.arc(bomb.x, bomb.y, 7, 0, Math.PI * 2);
+            sctx.moveTo(bomb.x, bomb.y);
+            sctx.lineTo(currentX, currentY);
+            sctx.stroke();
+
+            sctx.globalAlpha = 1;
+            sctx.beginPath();
+            sctx.arc(currentX, currentY, 7, 0, 2 * Math.PI);
+            sctx.fillStyle = 'hsla(33, 100%, 50%, 1)';
+            sctx.shadowColor = '#fff';
+            sctx.shadowBlur = 2;
             sctx.fill();
 
-            if (progress < 1 && bombArrival > 2) {
-                requestAnimationFrame(animationBombTravel);
-            }
-            else {
-                cctx.clearRect(0, target * Dy, clear.width, Dy);
+            if (progress < 1) {
+                requestAnimationFrame(animation);
+            } else {
+                sctx.shadowBlur = 0;
                 sctx.clearRect(0, 0, special.width, special.height);
-
+                bomb.forEach((shell) => {
+                    for (let key in shell) {
+                        delete shell[key];
+                    }
+                    particlesPool.push(shell);
+                });
                 resolve({ deltaX: bomb.deltaX, deltaY: bomb.deltaY });
             }
         };
 
-        requestAnimationFrame(animationBombTravel);
-    })
+        requestAnimationFrame(animation);
+    });
 }
 
 function animateShellExplosion(targetX, targetY) {
@@ -143,18 +128,19 @@ function animateShellExplosion(targetX, targetY) {
 
             sctx.drawImage(offscreenCanvas, 0, 0);
 
-            elapsedTime < Math.max(...shells.map((shell) => shell.duration))
-                ? requestAnimationFrame(animateExplosion)
-                : (
-                    shells.forEach((shell) => {
-                        for (let key in shell) {
-                            delete shell[key];
-                        }
-                        particlesPool.push(shell);
-                    }),
-                    sctx.clearRect(0, 0, special.width, special.height),
-                    resolve()
-                );
+            if (elapsedTime < Math.max(...shells.map((shell) => shell.duration))) {
+                requestAnimationFrame(animateExplosion);
+            }
+            else {
+                shells.forEach((shell) => {
+                    for (let key in shell) {
+                        delete shell[key];
+                    }
+                    particlesPool.push(shell);
+                });
+                sctx.clearRect(0, 0, special.width, special.height);
+                resolve();
+            }
 
         };
 
@@ -166,7 +152,7 @@ function supportBombShells(x, y) {
     let shells = [];
 
     for (let i = 0; i < 50; i++) {
-        let shellParticle = particlesPool.pop();
+        let shellParticle = particlesPool.pop() || {};
 
         const angle = Math.random() * Math.PI * 2;
         const velocity = Math.random() * 1.5 + 0.5;
@@ -186,7 +172,7 @@ function supportBombShells(x, y) {
 
 function supportBombParticle(target) {
     let bomb = {};
-    let lendedParticleObject = particlesPool.pop();
+    let lendedParticleObject = particlesPool.pop() || {};
 
     const x = canvas.width * Math.random();
     const y = 0;
