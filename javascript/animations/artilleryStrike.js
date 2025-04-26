@@ -72,19 +72,18 @@ async function animateBombTravel(target) {
             sctx.shadowColor = '#fff';
             sctx.shadowBlur = 2;
             sctx.fill();
+            console.log(bomb)
 
             if (progress < 1) {
                 requestAnimationFrame(animation);
             } else {
                 sctx.shadowBlur = 0;
                 sctx.clearRect(0, 0, special.width, special.height);
-                bomb.forEach((shell) => {
-                    for (let key in shell) {
-                        delete shell[key];
-                    }
-                    particlesPool.push(shell);
-                });
                 resolve({ deltaX: bomb.deltaX, deltaY: bomb.deltaY });
+                for (let key in bomb) {
+                    delete bomb[key];
+                }
+                particlesPool.push(bomb);
             }
         };
 

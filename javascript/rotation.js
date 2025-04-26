@@ -7,55 +7,40 @@ export function shadowRotation(data) {
     }
 
     if (data.name === 'O' || !tetromino.shadowSwitch) return;
-    let threshold = 0;
-    let overrideCells = null;
-    let rotationStore = 0;
 
-    const calculateData = (data) => {
-        let calculation = 0;
-        for (let cell of data.cells) {
-            grid[cell.y - 1]?.[cell.x] !== 0 && calculation++;
-            grid[cell.y + 1]?.[cell.x] !== 0 && calculation++;
-            grid[cell.y]?.[cell.x + 1] !== 0 && calculation++;
-            grid[cell.y]?.[cell.x - 1] !== 0 && calculation++;
-            grid[cell.y]?.[cell.x + 1] && grid[cell.y]?.[cell.x - 1] && calculation++;
-            grid[cell.y + 1]?.[cell.x] && grid[cell.y]?.[cell.x + 1] && grid[cell.y]?.[cell.x - 1] && calculation++;
-        }
-        return calculation;
-    };
-
-    threshold = calculateData(data);
+    let shadowCells = null;
+    let maxDrop = -1;
 
     for (let i = 0; i < 4; i++) {
-        let rotationData = 0;
         let shadowCopy = structuredClone(data);
 
         for (let j = 0; j < i; j++) {
             rotate(shadowCopy);
-            const shiftValue = tetromino.cells[2].x - shadowCopy.cells[2].x;
-            shadowCopy.cells.forEach(cell => cell.x += shiftValue);
         }
 
+        let dropCount = 0;
         while (shadowCopy.cells.every(cell => cell.y + 1 <= End && grid[cell.y + 1]?.[cell.x] === 0)) {
             shadowCopy.cells.forEach(cell => cell.y += 1);
+            dropCount++;
         }
 
-        if (collisionDetected(shadowCopy)) continue;
-
-        rotationData = calculateData(shadowCopy);
-        if (rotationData <= threshold) continue;
-        threshold = rotationData;
-        overrideCells = shadowCopy.cells;
-        rotationStore = i;
+        if (!collisionDetected(shadowCopy) && dropCount > maxDrop) {
+            maxDrop = dropCount;
+            shadowCells = structuredClone(shadowCopy.cells);
+        }
     }
 
-    if (overrideCells) data.cells = overrideCells;
-    if (tetromino.shadowSwitch) matchTetrominoWithShadow(rotationStore);
-}
+    if (!shadowCells) return;
+    data.cells = shadowCells;
 
-function matchTetrominoWithShadow(data) {
-    for (let i = 0; i < data; i++) {
-        rotate(tetromino);
+    let tempTetromino = structuredClone(tetromino);
+    for (let i = 0; i < 4; i++) {
+        rotate(tempTetromino);
+        if (tempTetromino.cells.every((cell, idx) =>
+            cell.x === shadowCells[idx].x && cell.y === shadowCells[idx].y)) {
+            tetromino.cells = structuredClone(tempTetromino.cells);
+            break;
+        }
     }
 }
 
@@ -64,7 +49,7 @@ function collisionDetected(data) {
 }
 
 function rotate(data) {
-    if (data.cells.some(cell => grid[cell.y + 1][cell.x] !== 0)) 
+    if (data.cells.some(cell => grid[cell.y + 1][cell.x] !== 0))
         data.cells.forEach(cell => cell.y -= 1);
 
     data.cells.forEach(cell => {
@@ -78,7 +63,7 @@ function rotate(data) {
 
     const minX = Math.min(...data.cells.map(cell => cell.x));
     const maxX = Math.max(...data.cells.map(cell => cell.x));
-    
+
     const collisionByX = new Set(
         data.cells
             .filter(cell => grid[cell.y]?.[cell.x] !== 0)

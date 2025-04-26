@@ -36,7 +36,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 0;
+export let manaLevel = 92;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
@@ -76,29 +76,19 @@ export class Tetromino {
 
      calculateShadow() {
           this.shadow.cells = structuredClone(this.cells);
-          this.shadow.cells.sort((a, b) => b.y - a.y);
           shadowRotation(this.shadow);
      }
 
      moveDown() {
-          if (this.cells.some(cell =>
-               cell.y === End ||
-               grid[cell.y + 1][cell.x] !== 0)) {
-               isCollision = true;
-          }
-
-          else {
-               this.cells.forEach(cell => cell.y += 1);
-          }
+          const initializeMovement = !this.cells.some(cell => cell.y === End || grid[cell.y + 1][cell.x] !== 0);
+          initializeMovement
+               ? this.cells.forEach(cell => cell.y += 1)
+               : isCollision = true;
      }
 
      moveLeft() {
-          if (this.cells.some(cell =>
-
-               cell.x === 0 ||
-               grid[cell.y][cell.x - 1] !== 0)) {
-               return;
-          }
+          const initializeMovement = this.cells.some(cell => cell.x === 0 || grid[cell.y][cell.x - 1] !== 0);
+          if (initializeMovement) return;
 
           this.cells.forEach(cell => cell.x -= 1);
           this.shadowSwitch = true;
@@ -106,12 +96,8 @@ export class Tetromino {
      }
 
      moveRight() {
-          if (this.cells.some(cell =>
-
-               cell.x === Cols - 1 ||
-               grid[cell.y][cell.x + 1] !== 0)) {
-               return;
-          }
+          const initializeMovement = this.cells.some(cell => cell.x === Cols - 1 || grid[cell.y][cell.x + 1] !== 0);
+          if (initializeMovement) return;
 
           this.cells.forEach(cell => cell.x += 1);
           this.shadowSwitch = true;
@@ -260,8 +246,7 @@ async function specialsPhase() {
           && await startArtillery();
 
      manaLevel >= 100
-          && await artilleryStrike();
-     //Randomize(allSpecials)()
+          && await Randomize(allSpecials)();
 
      async function startInvasion() {
           bonusScore = await invasionStrike();
