@@ -1,4 +1,4 @@
-import { End } from "./config.js";
+import { Cols, End } from "./config.js";
 import { grid, tetromino } from "./engine.js";
 
 export function shadowRotation(data) {
@@ -9,7 +9,15 @@ export function shadowRotation(data) {
     if (data.name === 'O' || !tetromino.shadowSwitch) return;
 
     let shadowCells = null;
+    let isEdge = false;
     let maxDrop = -1;
+    let edgeShifts = [0];
+
+    tetromino.cells.forEach(cell => {
+        if (cell.x <= 0) edgeShifts = [-2, -1, 0];
+        if (cell.x >= Cols - 1) edgeShifts = [2, 1, 0];
+        if (edgeShifts.length > 1) isEdge = true
+    })
 
     for (let i = 0; i < 4; i++) {
         let shadowCopy = structuredClone(data);
@@ -18,15 +26,24 @@ export function shadowRotation(data) {
             rotate(shadowCopy);
         }
 
-        let dropCount = 0;
-        while (shadowCopy.cells.every(cell => cell.y + 1 <= End && grid[cell.y + 1]?.[cell.x] === 0)) {
-            shadowCopy.cells.forEach(cell => cell.y += 1);
-            dropCount++;
-        }
+        let shifts = isEdge ? edgeShifts : [0]; 
 
-        if (!collisionDetected(shadowCopy) && dropCount > maxDrop) {
-            maxDrop = dropCount;
-            shadowCells = structuredClone(shadowCopy.cells);
+        for (let shift of shifts) {
+            let shiftedCopy = structuredClone(shadowCopy);
+            shiftedCopy.cells.forEach(cell => cell.x += shift);
+
+            if (shiftedCopy.cells.some(cell => cell.x < 0 || cell.x >= Cols)) continue;
+
+            let dropCount = 0;
+            while (shiftedCopy.cells.every(cell => cell.y + 1 <= End && grid[cell.y + 1]?.[cell.x] === 0)) {
+                shiftedCopy.cells.forEach(cell => cell.y += 1);
+                dropCount++;
+            }
+
+            if (!collisionDetected(shiftedCopy) && dropCount > maxDrop) {
+                maxDrop = dropCount;
+                shadowCells = structuredClone(shiftedCopy.cells);
+            }
         }
     }
 

@@ -36,7 +36,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 92;
+export let manaLevel = 0;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
