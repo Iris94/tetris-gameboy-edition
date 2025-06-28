@@ -7,6 +7,9 @@ import './javascript/rotation.js';
 import './javascript/metrics.js';
 import './javascript/sound.js';
 
+import './javascript/controls/keyboard.js';
+import './javascript/controls/pointer.js';
+
 import './javascript/animations/drops.js';
 import './javascript/animations/clears.js';
 import './javascript/animations/ninjaStrike.js';

@@ -1,6 +1,7 @@
 let mainThemeAudio = null;
 let sovietThemeAudio = null;
-let currentTheme = null; 
+let currentTheme = null;
+let machineGunAudio = null;
 export let volume = 1;
 export const setVolume = (newVolume) => volume = Math.max(0, Math.min(newVolume, 1));
 
@@ -146,6 +147,21 @@ export function playInvasionIntro() {
     const audio = new Audio('sound/invasion-intro.mp3');
     audio.volume = 0.3;
     audio.play();
+}
+
+export function playInvasionMachineGun(stopGun = false) {
+    if (!machineGunAudio) {
+        machineGunAudio = new Audio('sound/invasion-machine-gun.mp3');
+        machineGunAudio.volume = 0.5;
+        machineGunAudio.loop = true;
+    }
+
+    if (stopGun) {
+        machineGunAudio.pause();
+        machineGunAudio.currentTime = 0;
+    } else {
+        machineGunAudio.play();
+    }
 }
 
 export function playGameOver() {

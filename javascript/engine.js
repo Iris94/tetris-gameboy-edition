@@ -39,11 +39,6 @@ export let level = 1;
 export let manaLevel = 0;
 export let pause = true;
 export let previousMouseX = 0;
-export let previousMouseY = 0;
-export let previousTouchX = 0;
-export let previousTouchY = 0;
-export let touchStartX = 0;
-export let touchStartY = 0;
 export let isDragging = false;
 export let gameplayStatus;
 export let gameplayAcceleration = 1000;
@@ -121,7 +116,7 @@ function assembleTetrominos() {
      });
 }
 
-function resetGameplayInterval() {
+export function resetGameplayInterval() {
      gameplayStatus && clearInterval(gameplayStatus);
      startGame();
 }
@@ -149,8 +144,10 @@ function initializeGame() {
      tetromino.calculateShadow();
 }
 
-async function gameEngine() {
+export async function gameEngine() {
+     if (menuOpened) return;
      if (!isCollision) return movePhase();
+     tetromino.calculateShadow();
 
      tetrominoId = initiateId();
      updateGrid() && gameOver();
@@ -236,167 +233,60 @@ function movePhase() {
 }
 
 async function specialsPhase() {
-     const allSpecials = [startInvasion, startArtillery, startNinja, startRiots];
+    const allSpecials = [startInvasion, startRiots, startArtillery, startNinja];
+    let specialTriggered = false;
+    let bonusScoreUpdate = 0;
 
-     if ((manaLevel === 25 || manaLevel === 75) && Math.random() < 0.25)
-          Math.random() < 0.50 ? await startRiots() : await startNinja();
+    switch (manaLevel) {
+        case 25:
+        case 75:
+            if (Math.random() < 0.25) {
+                bonusScoreUpdate = Math.random() < 0.50 ? await startRiots() : await startNinja();
+                specialTriggered = true;
+            }
+            break;
+        case 50:
+            if (Math.random() < 0.25) {
+                bonusScoreUpdate = await startArtillery();
+                specialTriggered = true;
+            }
+            break;
+        default:
+            if (manaLevel >= 100) {
+                bonusScoreUpdate = await Randomize(allSpecials)();
+                specialTriggered = true;
+            }
+            break;
+    }
 
-     manaLevel === 50
-          && Math.random() < 0.25
-          && await startArtillery();
+    if (specialTriggered) {
+        score += bonusScoreUpdate;
+        drawScore(score);
+        filterRowsData = filterRows();
+        if (filterRowsData.length > 0) await clearPhase();
+        tetromino.calculateShadow();
+    }
 
-     manaLevel >= 100
-          && await Randomize(allSpecials)();
+    async function startInvasion() {
+        bonusScore = await invasionStrike();
+        return bonusScore;
+    }
 
-     async function startInvasion() {
-          bonusScore = await invasionStrike();
-          score += bonusScore;
-          drawScore(score);
-     }
+    async function startRiots() {
+        bonusScore = await riotStrike();
+        return bonusScore;
+    }
 
-     async function startRiots() {
-          bonusScore = await riotStrike();
-          filterRowsData = filterRows();
-          filterRowsData.length > 0 && clearPhase();
-     }
+    async function startArtillery() {
+        await artilleryStrike();
+        return calculateClearingScore(4);
+    }
 
-     async function startArtillery() {
-          await artilleryStrike();
-          score += calculateClearingScore(4);
-          drawScore(score);
-          filterRowsData = filterRows();
-          filterRowsData.length > 0 && clearPhase();
-     }
-
-     async function startNinja() {
-          bonusScore = await ninjaStrike()
-          score += bonusScore;
-          drawScore(score);
-          filterRowsData = filterRows();
-          filterRowsData.length > 0 && clearPhase();
-     }
+    async function startNinja() {
+        bonusScore = await ninjaStrike();
+        return bonusScore;
+    }
 }
-
-document.addEventListener('keydown', async event => {
-     if (pause) return;
-     if (event.repeat && !['ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) return;
-
-     switch (event.code) {
-          case 'ArrowDown':
-               tetromino.moveDown();
-               resetGameplayInterval();
-               break;
-          case 'ArrowLeft':
-               tetromino.moveLeft();
-               break;
-          case 'ArrowRight':
-               tetromino.moveRight();
-               break;
-          case 'ArrowUp':
-               tetromino.calculateRotation();
-               break;
-          case 'Space':
-               await tetromino.shadowMove();
-               break;
-          case 'Escape':
-               pauseEntireGame();
-               break;
-          default:
-               break;
-     }
-
-     gameEngine();
-});
-
-window.addEventListener('mousemove', e => {
-     if (pause) return;
-
-     const currentMouseX = e.offsetX;
-     const currentMouseY = e.offsetY;
-     const deltaX = currentMouseX - previousMouseX;
-     const deltaY = currentMouseY - previousMouseY;
-
-     if (Math.abs(deltaX) > 20) {
-          deltaX > 0
-               ? tetromino.moveRight()
-               : tetromino.moveLeft();
-
-          previousMouseX = currentMouseX;
-          gameEngine();
-     }
-
-     if (deltaY > 20) {
-          tetromino.moveDown();
-          previousMouseY = currentMouseY;
-          resetGameplayInterval();
-          gameEngine();
-     }
-});
-
-window.addEventListener('click', (e) => {
-     e.preventDefault();
-     if (window.innerWidth < 720) return;
-     rotation();
-     gameEngine();
-     resetGameplayInterval();
-})
-
-window.history.pushState({ page: "game" }, "", "");
-
-window.addEventListener('popstate', (event) => {
-     if (event.state && event.state.page === "game") {
-          pauseEntireGame();
-          window.history.pushState({ page: "game" }, "", "");
-     }
-});
-
-function handleInteraction() {
-     if (pause) return;
-     rotation();
-     gameEngine();
-}
-
-window.addEventListener('touchstart', (e) => {
-     if (pause) return;
-     touchStartX = e.touches[0].clientX;
-     touchStartY = e.touches[0].clientY;
-     isDragging = false;
-});
-
-window.addEventListener('touchmove', (e) => {
-     if (pause) return;
-
-     const currentTouchX = e.touches[0].clientX;
-     const currentTouchY = e.touches[0].clientY;
-     const deltaX = currentTouchX - touchStartX;
-     const deltaY = currentTouchY - touchStartY;
-
-     if (Math.abs(deltaX) > 30) {
-          deltaX > 0
-               ? tetromino.moveRight()
-               : tetromino.moveLeft();
-
-          touchStartX = currentTouchX;
-          isDragging = true;
-          gameEngine();
-     } else if (Math.abs(deltaY) > 30) {
-          tetromino.moveDown();
-          touchStartY = currentTouchY;
-          isDragging = true;
-          resetGameplayInterval();
-          gameEngine();
-     }
-});
-
-window.addEventListener('touchend', (e) => {
-     if (pause) return;
-
-     if (!isDragging) {
-          handleInteraction();
-     }
-});
-
-
 
 playGameButton.onclick = () => {
      menuOpened = false;
@@ -425,7 +315,7 @@ restartBtn.onclick = () => {
      startGame();
 }
 
-function startGame() {
+export function startGame() {
      if (pause) return;
 
      clearInterval(gameplayStatus);
@@ -436,17 +326,17 @@ function startGame() {
      }, gameplayAcceleration);
 }
 
-function pauseGame() {
+export function pauseGame() {
      pause = true;
      clearInterval(gameplayStatus)
 }
 
-function resumeGame() {
+export function resumeGame() {
      pause = false;
      startGame();
 }
 
-function pauseEntireGame() {
+export function pauseEntireGame() {
      if (gameStarted && !menuOpened) {
           pauseCurrentTheme();
           pauseGame();
@@ -458,7 +348,7 @@ function pauseEntireGame() {
      }
 }
 
-function gameOver() {
+export function gameOver() {
      stopMainTheme();
      stopSovietTheme();
      playGameOver();
@@ -473,7 +363,7 @@ function gameOver() {
      gameoverTxt.classList.replace('hide', 'show');
 }
 
-function homeAndRestart() {
+export function homeAndRestart() {
      clearMainBoard();
      clearHud();
      clearSpecial();

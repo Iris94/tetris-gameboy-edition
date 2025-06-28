@@ -1,6 +1,6 @@
 import { tetrominoObjects, grid, particlesPool } from "../engine.js";
 import { cctx, ctx, Dx, Dy, Cols, sctx, clear } from "../config.js";
-import { playArtilleryBomb } from "../sound.js";
+import { playInvasionMachineGun } from "../sound.js";
 
 export function animateClears(data, clearName) {
     return new Promise(async (resolve) => {
@@ -19,21 +19,21 @@ export function animateClears(data, clearName) {
     async function invasionCall() {
         let delay = 0;
         let promises = [];
-
+        playInvasionMachineGun();
         data.forEach(cell => {
             promises.push(new Promise(res => {
                 setTimeout(async () => {
-                    await clearCell([{ x: cell.x * Dy, y: cell.y * Dy, clearName }]);
-                    playArtilleryBomb();
+                    await clearCell([{ x: cell.x * Dy, y: cell.y * Dy, clearName }], 375);
                     ctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
                     ctx.strokeRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
                     res();
                 }, delay);
             }));
-            delay += 200;
+            delay += 100;
         })
 
         await Promise.all(promises);
+        playInvasionMachineGun(true);
     }
 
     async function artilleryCall() {
@@ -66,7 +66,7 @@ export function animateClears(data, clearName) {
     }
 }
 
-async function clearCell(data) {
+async function clearCell(data, cellClearTime = 700) {
     return new Promise(resolve => {
         ctx.shadowColor = 'transparent';
         ctx.shadowOffsetX = 0;
@@ -89,7 +89,7 @@ async function clearCell(data) {
 
         const animation = (currentTime) => {
             const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / 750, 1);
+            const progress = Math.min(elapsedTime / cellClearTime, 1);
 
             for (let i = 0; i < particlesData.length; i++) {
                 for (let j = 0; j < particlesData[i].length; j++) {
