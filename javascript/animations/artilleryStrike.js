@@ -1,7 +1,7 @@
 import { cctx, Dy, sctx, special } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
 import { tetrominoObjects, grid, particlesPool } from "../engine.js";
-import { playArtilleryBomb, playArtilleryGun, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
+import { playArtilleryBomb, playArtilleryGun, playArtilleryOutro, playArtilleryTarget, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
 import { clearFilteredRows, shiftFilteredRows, shiftFilteredCols, reconstructGrid, prepareDropCells, collectBlocks } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { drops } from "./drops.js";
@@ -12,11 +12,14 @@ export async function artilleryStrike() {
 
     stopSovietTheme();
     playMainTheme();
-    await specialsIntro('artillery');
+    playArtilleryTarget();
 
+    await specialsIntro('artillery');
     for (const y of artilleryTargets) {
         await operationArtillery(y);
     }
+
+    playArtilleryOutro();
 }
 
 async function operationArtillery(y) {
@@ -72,7 +75,6 @@ async function animateBombTravel(target) {
             sctx.shadowColor = '#fff';
             sctx.shadowBlur = 2;
             sctx.fill();
-            console.log(bomb)
 
             if (progress < 1) {
                 requestAnimationFrame(animation);

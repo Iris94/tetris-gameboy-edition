@@ -21,9 +21,9 @@ export async function specialsIntro(data) {
             let startPosition = startPositionMap[data];
 
             const drawParams = {
-                ninja: () => [image, startPosition, 75, special.width + (special.width * 0.75), special.height],
-                artillery: () => [image, 0, startPosition, special.width + (special.width * 0.75), special.height],
-                riot: () => [image, 0, startPosition, special.width + (special.width * 0.75), special.height],
+                ninja: () => [image, 50, 50, special.width * 2 , special.height],
+                artillery: () => [image, 75, 75, special.width * 2 , special.height],
+                riot: () => [image, 0, 25, special.width * 2 , special.height],
                 invasion: () => [image, 0, startPosition, special.width + (special.width * 0.75), special.height / 1.1]
             };
 

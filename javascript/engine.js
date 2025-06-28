@@ -36,7 +36,7 @@ export let tetromino;
 export let nextTetromino;
 export let score = 0;
 export let level = 1;
-export let manaLevel = 0;
+export let manaLevel = 92;
 export let pause = true;
 export let previousMouseX = 0;
 export let previousMouseY = 0;
@@ -246,7 +246,8 @@ async function specialsPhase() {
           && await startArtillery();
 
      manaLevel >= 100
-          && await Randomize(allSpecials)();
+          && await startInvasion();
+          //await Randomize(allSpecials)();
 
      async function startInvasion() {
           bonusScore = await invasionStrike();
@@ -255,7 +256,7 @@ async function specialsPhase() {
      }
 
      async function startRiots() {
-          await riotStrike();
+          bonusScore = await riotStrike();
           filterRowsData = filterRows();
           filterRowsData.length > 0 && clearPhase();
      }

@@ -100,9 +100,45 @@ export function playArtilleryGun() {
     audio.play();
 }
 
+export function playArtilleryTarget() {
+    const audio = new Audio('sound/artillery-target.mp3');
+    audio.volume = volume;
+    audio.play();
+}
+
+export function playArtilleryOutro() {
+    const audio = new Audio('sound/artillery-outro.mp3');
+    audio.volume = volume;
+    audio.play();
+}
+
 export function playNinjaSlice() {
     const audio = new Audio('sound/ninja-slice.mp3');
     audio.volume = volume;
+    audio.play();
+}
+
+export function playNinjaIntro() {
+    const audio = new Audio('sound/ninja-intro.mp3');
+    audio.volume = volume;
+    audio.play();
+}
+
+export function playNinjaOutro() {
+    const audio = new Audio('sound/ninja-outro.mp3');
+    audio.volume = volume;
+    audio.play();
+}
+
+export function playRiotsIntro() {
+    const audio = new Audio('sound/riots-intro.mp3');
+    audio.volume = volume;
+    audio.play();
+}
+
+export function playRiotsSirens() {
+    const audio = new Audio('sound/riots-sirens.mp3');
+    audio.volume = volume / 2;
     audio.play();
 }
 
