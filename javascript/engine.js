@@ -1,5 +1,5 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawScore, drawLevel, drawMana } from "./draws.js";
-import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks, clearShadows } from "./updates.js";
+import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks, clearShadows, clearMana } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
 import { Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt, End } from "./config.js";
 import { rotation, shadowRotation } from "./rotation.js";
@@ -478,7 +478,7 @@ function homeAndRestart() {
      clearMainBoard();
      clearHud();
      clearSpecial();
-     drawMainBoard();
+     clearMana();
      mainBoardData = copyImageData();
      grid = createGrid();
      drawHud();

@@ -9,7 +9,6 @@ export function shadowRotation(data) {
     if (data.name === 'O' || !tetromino.shadowSwitch) return;
 
     let shadowCells = null;
-    let bestRotationCount = 0; // Track how many rotations the best position needed
     let isEdge = false;
     let maxDrop = -1;
     let edgeShifts = [0];
@@ -44,7 +43,6 @@ export function shadowRotation(data) {
             if (!collisionDetected(shiftedCopy) && dropCount > maxDrop) {
                 maxDrop = dropCount;
                 shadowCells = structuredClone(shiftedCopy.cells);
-                bestRotationCount = i; // Store the rotation count for the best position
             }
         }
     }
@@ -52,9 +50,14 @@ export function shadowRotation(data) {
     if (!shadowCells) return;
     data.cells = shadowCells;
 
-    // Apply the same number of rotations to the current tetromino
-    for (let i = 0; i < bestRotationCount; i++) {
-        rotate(tetromino);
+    let tempTetromino = structuredClone(tetromino);
+    for (let i = 0; i < 4; i++) {
+        rotate(tempTetromino);
+        if (tempTetromino.cells.every((cell, idx) =>
+            cell.x === shadowCells[idx].x && cell.y === shadowCells[idx].y)) {
+            tetromino.cells = structuredClone(tempTetromino.cells);
+            break;
+        }
     }
 }
 

@@ -28,6 +28,8 @@ export async function riotStrike() {
     const pullAnimation = calculateRiotPull();
     await riotPullAnimation(pullAnimation);
     unitType(collectCells);
+
+    return 1;
 }
 
 async function riotPushAnimation(data) {

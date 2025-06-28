@@ -1,6 +1,6 @@
 import { Cols, ctx, End, FullRows, Rows, sctx, Start } from "../config.js";
 import { grid, score } from "../engine.js";
-import { playSovietTheme, stopMainTheme } from "../sound.js";
+import { playInvasionIntro, playSovietTheme, stopMainTheme } from "../sound.js";
 import { clearFilteredRows } from "../updates.js";
 import { animateClears } from "./clears.js";
 import { specialsIntro } from "./overlay.js";
@@ -21,19 +21,17 @@ function getInvasionStrikeData() {
         [occupiedCells[i], occupiedCells[j]] = [occupiedCells[j], occupiedCells[i]];
     }
 
-    return occupiedCells
+    return occupiedCells;
 }
 
 export async function invasionStrike() {
     stopMainTheme(); 
     playSovietTheme();
-
+    playInvasionIntro();
     await specialsIntro('invasion');
     let targetCells = getInvasionStrikeData();
 
     await animateClears(targetCells, 'invasion');
-    bonusScore += Math.round(score / (200 * targetCells.length));
-
     await finalizeInvasionStrike(targetCells);
     return targetCells.length;
 }

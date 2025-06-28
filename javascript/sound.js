@@ -142,6 +142,12 @@ export function playRiotsSirens() {
     audio.play();
 }
 
+export function playInvasionIntro() {
+    const audio = new Audio('sound/invasion-intro.mp3');
+    audio.volume = 0.3;
+    audio.play();
+}
+
 export function playGameOver() {
     const audio = new Audio('sound/game-over.mp3');
     audio.volume = volume;
