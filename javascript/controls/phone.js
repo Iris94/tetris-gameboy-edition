@@ -1,12 +1,13 @@
-import { Dx, Dy, MOBILE_WIDTH_THRESHOLD } from "../config.js";
-import { pause, tetromino, gameEngine, resetGameplayInterval } from "../engine.js";
+import { Dx, MOBILE_WIDTH_THRESHOLD } from "../config.js";
+import { pause, tetromino, gameEngine } from "../engine.js";
 
 const pointerTarget = document.querySelector('#drop');
 let previousCellTouchX = null;
 let isOverCanvas = false;
 let isMobile = true;
 let hasMoved = false;
-let startTouchY = null;
+let tapCount = 0;
+let tapTimeout = null;
 
 window.addEventListener('DOMContentLoaded', updateDeviceType);
 window.addEventListener('resize', updateDeviceType);
@@ -21,36 +22,38 @@ pointerTarget.addEventListener('touchstart', (e) => {
 
     const rect = pointerTarget.getBoundingClientRect();
     const touchX = e.touches[0] ? e.touches[0].clientX - rect.left : null;
-    startTouchY = e.touches[0] ? e.touches[0].clientY : null;
     isOverCanvas = touchX !== null && touchX >= 0 && touchX <= rect.width;
-
+    
     if (!isOverCanvas) return;
+    
+    tapCount += 1;
     hasMoved = false;
 });
 
-pointerTarget.addEventListener('touchend', async (e) => {
+pointerTarget.addEventListener('touchend', (e) => {
     e.preventDefault();
     if (pause || !isOverCanvas || !isMobile) return;
 
-    const endTouchY = e.changedTouches[0] ? e.changedTouches[0].clientY : null;
-    const swipeStart = Math.floor(startTouchY / Dy);
-    const swipeEnd = Math.floor(endTouchY / Dy);
-    const swipeCheck = swipeStart - swipeEnd;
-
-    if (swipeCheck >= 3) {
-        hasMoved = true;
-        tetromino.calculateRotation();
-        gameEngine();
+    if (tapTimeout) {
+        clearTimeout(tapTimeout);
     }
 
-    if (!hasMoved) {
-        await tetromino.shadowMove();
-        gameEngine();
-    }
+    tapTimeout = setTimeout(() => {
+        if (tapCount > 1) {
+            hasMoved = true;
+            tetromino.calculateRotation();
+            gameEngine();
+        } else if (!hasMoved) {
+            tetromino.shadowMove().then(() => {
+                gameEngine();
+            });
+        }
+        tapCount = 0;
+        tapTimeout = null;
+    }, 75);
 
     isOverCanvas = false;
     previousCellTouchX = null;
-    startTouchY = 0;
 });
 
 pointerTarget.addEventListener('touchmove', e => {
