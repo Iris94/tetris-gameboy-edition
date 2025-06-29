@@ -5,6 +5,8 @@ const pointerTarget = document.querySelector('#drop');
 let previousCellTouchX = null;
 let isOverCanvas = false;
 let isMobile = true;
+let hasMoved = false;
+let clickStartTime = 0;
 
 window.addEventListener('DOMContentLoaded', updateDeviceType);
 window.addEventListener('resize', updateDeviceType);
@@ -13,9 +15,35 @@ function updateDeviceType() {
     isMobile = window.innerWidth <= MOBILE_WIDTH_THRESHOLD;
 }
 
-pointerTarget.addEventListener('touchstart', e => {
+pointerTarget.addEventListener('touchstart', (e) => {
     e.preventDefault();
-})
+    if (pause || !isMobile) return;
+
+    const rect = pointerTarget.getBoundingClientRect();
+    const touchX = e.touches[0] ? e.touches[0].clientX - rect.left : null;
+    isOverCanvas = touchX !== null && touchX >= 0 && touchX <= rect.width;
+
+    if (!isOverCanvas) return;
+
+    clickStartTime = performance.now();
+    hasMoved = false; 
+});
+
+pointerTarget.addEventListener('touchend', async (e) => {
+    e.preventDefault();
+    if (pause || !isOverCanvas || !isMobile) return;
+
+    const clickEndTime = performance.now();
+    const clickDuration = clickEndTime - clickStartTime;
+
+    if (clickDuration <= 200 && !hasMoved) {
+        await tetromino.shadowMove();
+        gameEngine();
+    }
+
+    isOverCanvas = false;
+    previousCellTouchX = null;
+});
 
 pointerTarget.addEventListener('touchmove', e => {
     if (!isMobile) return;
@@ -23,7 +51,7 @@ pointerTarget.addEventListener('touchmove', e => {
     e.preventDefault();
     const rect = pointerTarget.getBoundingClientRect();
     const currentTouchX = e.touches[0] ? e.touches[0].clientX - rect.left : null;
-
+    isOverCanvas = true;
     if (pause || !isOverCanvas || !currentTouchX) return;
 
     const cellTouchX = Math.floor(currentTouchX / Dx);
