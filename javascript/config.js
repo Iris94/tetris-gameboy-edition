@@ -66,6 +66,7 @@ export const Cols = 10;
 export const Dx = boardCanvas.width / Cols;
 export const Dy = boardCanvas.height / Rows;
 export const Position = 4;
+export const MOBILE_WIDTH_THRESHOLD = 768;
 
 export const createGrid = () => Array.from({ length: FullRows }, () => Array(Cols).fill(0));
 export const particlesObjectPool = () => Array.from({ length: 50000 }, () => ({}));

@@ -1,84 +1,90 @@
+import { Dx, MOBILE_WIDTH_THRESHOLD } from "../config.js";
 import { pause, tetromino, gameEngine, resetGameplayInterval } from "../engine.js";
-import { rotation } from "../rotation.js";
 
 const pointerTarget = document.querySelector('#drop');
 let moveDownInterval = null;
-let previousMouseX = 0;
-let previousMouseY = 0;
+let previousCellMouseX = null;
 let isOverCanvas = false;
-let isMouseDown = false;
+let clickStartTime = 0;
+let isMobile = false;
 
-pointerTarget.addEventListener('mouseover', () => {
-    isOverCanvas = true;
-});
+window.addEventListener('DOMContentLoaded', updateDeviceType);
+window.addEventListener('resize', updateDeviceType);
 
-pointerTarget.addEventListener('mouseout', () => {
-    isOverCanvas = false;
-    if (isMouseDown) {
-        isMouseDown = false;
-        clearInterval(moveDownInterval);
-    }
-});
+function updateDeviceType() {
+    isMobile = window.innerWidth <= MOBILE_WIDTH_THRESHOLD;
+}
 
-pointerTarget.addEventListener('mousemove', e => {
-    if (pause || !isOverCanvas) return;
+pointerTarget.addEventListener('mouseover', () => (isOverCanvas = true));
+pointerTarget.addEventListener('mouseout', () => (isOverCanvas = false));
+pointerTarget.addEventListener('contextmenu', (e) => e.preventDefault());
 
+pointerTarget.addEventListener('mousemove', (e) => {
+    if (pause || !isOverCanvas || isMobile) return;
     const currentMouseX = e.offsetX;
-    const deltaX = currentMouseX - previousMouseX;
+    const cellMouseX = Math.floor(currentMouseX / Dx);
+    let cellX = getTetrominoMiddleX(tetromino);
+    
+    if (previousCellMouseX === null || cellMouseX !== previousCellMouseX) {
+        while (cellX !== cellMouseX) {
+            const moved = cellX < cellMouseX
+                ? tetromino.moveRight()
+                : tetromino.moveLeft();
 
-    if (Math.abs(deltaX) > 20) {
-        deltaX > 0 ? tetromino.moveRight() : tetromino.moveLeft();
-        previousMouseX = currentMouseX;
+            if (!moved) break;
+
+            cellX = getTetrominoMiddleX(tetromino);
+        }
+        gameEngine();
+    }
+
+    previousCellMouseX = cellMouseX;
+});
+
+pointerTarget.addEventListener('mousedown', (e) => {
+    if (pause || !isOverCanvas || e.button !== 0 || isMobile) return;
+
+    clickStartTime = performance.now();
+
+    moveDownInterval = setTimeout(() => {
+        if (!pause && isOverCanvas) {
+            moveDownInterval = setInterval(() => {
+                if (!pause && isOverCanvas) {
+                    tetromino.moveDown();
+                    resetGameplayInterval();
+                    gameEngine();
+                }
+            }, 25);
+        }
+    }, 200);
+});
+
+pointerTarget.addEventListener('mouseup', async (e) => {
+    if (pause || !isOverCanvas || isMobile) return;
+
+    const clickEndTime = performance.now();
+    const clickDuration = clickEndTime - clickStartTime;
+
+    if (moveDownInterval) {
+        clearInterval(moveDownInterval);
+        clearTimeout(moveDownInterval);
+        moveDownInterval = null;
+    }
+
+    if (e.button === 0 && clickDuration <= 200) {
+        await tetromino.shadowMove();
+        gameEngine();
+    }
+
+    if (e.button === 2) {
+        tetromino.calculateRotation();
         gameEngine();
     }
 });
 
-pointerTarget.addEventListener('mousedown', e => {
-    if (pause || !isOverCanvas || e.button !== 0) return; 
-    isMouseDown = true;
-
-    moveDownInterval = setInterval(() => {
-        if (!pause && isMouseDown && isOverCanvas) {
-            tetromino.moveDown();
-            resetGameplayInterval();
-            gameEngine();
-        }
-    }, 25); 
-});
-
-pointerTarget.addEventListener('mouseup', e => {
-    if (e.button !== 0) return; 
-    isMouseDown = false;
-    clearInterval(moveDownInterval);
-});
-
-pointerTarget.addEventListener('click', e => {
-    e.preventDefault();
-    console.log('test')
-})
-
-
-// window.addEventListener('mousedown', e => {
-//     if (pause || e.button !== 0) return; // Left button only
-//     isMouseDown = true;
-//     moveDownInterval = setInterval(() => {
-//         if (!pause && isMouseDown) {
-//             tetromino.moveDown();
-//             resetGameplayInterval();
-//             gameEngine();
-//         }
-//     }, 100); // Match invasion.js animation speed
-// });
-
-// window.addEventListener('mouseup', e => {
-//     if (e.button !== 0) return; // Left button only
-//     isMouseDown = false;
-//     clearInterval(moveDownInterval);
-// });
-
-// window.addEventListener('contextmenu', e => {
-//     e.preventDefault();
-//     if (pause) return;
-//     rotation();
-//     gameEngine();
-// });
+function getTetrominoMiddleX(data) {
+    const xCoords = data.cells.map(cell => cell.x);
+    const minX = Math.min(...xCoords);
+    const maxX = Math.max(...xCoords);
+    return Math.floor((minX + maxX) / 2);
+}
