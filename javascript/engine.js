@@ -240,13 +240,13 @@ async function specialsPhase() {
     switch (manaLevel) {
         case 25:
         case 75:
-            if (Math.random() < 0.25) {
+            if (Math.random() < 0.33) {
                 bonusScoreUpdate = Math.random() < 0.50 ? await startRiots() : await startNinja();
                 specialTriggered = true;
             }
             break;
         case 50:
-            if (Math.random() < 0.25) {
+            if (Math.random() < 0.33) {
                 bonusScoreUpdate = await startArtillery();
                 specialTriggered = true;
             }
