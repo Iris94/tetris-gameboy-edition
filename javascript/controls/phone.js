@@ -1,4 +1,4 @@
-import { Dx, MOBILE_WIDTH_THRESHOLD } from "../config.js";
+import { Dx, Dy, MOBILE_WIDTH_THRESHOLD } from "../config.js";
 import { pause, tetromino, gameEngine, resetGameplayInterval } from "../engine.js";
 
 const pointerTarget = document.querySelector('#drop');
@@ -6,7 +6,7 @@ let previousCellTouchX = null;
 let isOverCanvas = false;
 let isMobile = true;
 let hasMoved = false;
-let clickStartTime = 0;
+let startTouchY = null;
 
 window.addEventListener('DOMContentLoaded', updateDeviceType);
 window.addEventListener('resize', updateDeviceType);
@@ -21,28 +21,36 @@ pointerTarget.addEventListener('touchstart', (e) => {
 
     const rect = pointerTarget.getBoundingClientRect();
     const touchX = e.touches[0] ? e.touches[0].clientX - rect.left : null;
+    startTouchY = e.touches[0] ? e.touches[0].clientY : null;
     isOverCanvas = touchX !== null && touchX >= 0 && touchX <= rect.width;
 
     if (!isOverCanvas) return;
-
-    clickStartTime = performance.now();
-    hasMoved = false; 
+    hasMoved = false;
 });
 
 pointerTarget.addEventListener('touchend', async (e) => {
     e.preventDefault();
     if (pause || !isOverCanvas || !isMobile) return;
 
-    const clickEndTime = performance.now();
-    const clickDuration = clickEndTime - clickStartTime;
+    const endTouchY = e.changedTouches[0] ? e.changedTouches[0].clientY : null;
+    const swipeStart = Math.floor(startTouchY / Dy);
+    const swipeEnd = Math.floor(endTouchY / Dy);
+    const swipeCheck = swipeStart - swipeEnd;
 
-    if (clickDuration <= 200 && !hasMoved) {
+    if (swipeCheck >= 3) {
+        hasMoved = true;
+        tetromino.calculateRotation();
+        gameEngine();
+    }
+
+    if (!hasMoved) {
         await tetromino.shadowMove();
         gameEngine();
     }
 
     isOverCanvas = false;
     previousCellTouchX = null;
+    startTouchY = 0;
 });
 
 pointerTarget.addEventListener('touchmove', e => {
@@ -67,7 +75,7 @@ pointerTarget.addEventListener('touchmove', e => {
         }
         gameEngine();
     }
-
+    hasMoved = true;
     previousCellTouchX = cellTouchX;
 })
 
