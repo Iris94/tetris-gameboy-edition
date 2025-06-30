@@ -1,6 +1,7 @@
 import { Cols, ctx, dctx, Dx, Dy, End, Rows, Start } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
-import { tetrominoObjects, grid } from "../engine.js";
+import { tetrominoObjects, grid, getSpecialsScore, updateSpecialsScore } from "../engine.js";
+import { riotBonus } from "../metrics.js";
 import { playMainTheme, playRiotsIntro, playRiotsSirens, stopSovietTheme } from "../sound.js";
 import { clearMainBoard, delay, unitType } from "../updates.js";
 import { specialsIntro } from "./overlay.js";
@@ -13,32 +14,38 @@ export async function riotStrike() {
             if (grid[y][x] !== 0) movedCells++
         }
     }
-    if (movedCells === 0) return 0;
+    if (movedCells === 0) return;
+
+    let cells = riotBonus(movedCells);
+    let value = (cells * movedCells) / 2;
+    getSpecialsScore({ value: value, perCell: value, cells: 2 });
 
     stopSovietTheme();
     playMainTheme();
     playRiotsIntro();
-    await delay(100); 
+    await delay(100);
     playRiotsSirens();
     await specialsIntro('riot');
 
     const { collectPushCells, collectCells } = calculateRiotPush();
     await riotPushAnimation(collectPushCells);
-    await delay(200); 
+    updateSpecialsScore();
+
+    await delay(200);
     const pullAnimation = calculateRiotPull();
     await riotPullAnimation(pullAnimation);
-    unitType(collectCells);
+    updateSpecialsScore();
 
-    return movedCells;
+    unitType(collectCells);
 }
 
 async function riotPushAnimation(data) {
     return new Promise(resolve => {
-        dctx.shadowColor = "#1C2526"; 
+        dctx.shadowColor = "#1C2526";
         dctx.shadowOffsetX = -0.75;
         dctx.shadowOffsetY = -0.75;
-        dctx.shadowBlur = 5; 
-        dctx.strokeStyle = "#FF4500"; 
+        dctx.shadowBlur = 5;
+        dctx.strokeStyle = "#FF4500";
         dctx.lineWidth = 1;
 
         const startTime = performance.now();
@@ -47,14 +54,14 @@ async function riotPushAnimation(data) {
         const animation = (currentTime) => {
             const elapsedTime = currentTime - startTime;
             const progress = Math.min(elapsedTime / 200, 1);
-            const easeProgress = 1 - Math.pow(1 - progress, 2); 
+            const easeProgress = 1 - Math.pow(1 - progress, 2);
 
             dctx.clearRect(0, 0, drop.width, drop.height);
 
             data.forEach(cell => {
                 const path = cell.preX + (cell.subX - cell.preX) * easeProgress;
                 dctx.fillStyle = cell.color;
-                dctx.globalAlpha = 0.8 + Math.sin(progress * Math.PI) * 0.2; 
+                dctx.globalAlpha = 0.8 + Math.sin(progress * Math.PI) * 0.2;
                 dctx.fillRect(path * Dx, cell.initY * Dy, Dx, Dy);
                 dctx.strokeRect(path * Dx, cell.initY * Dy, Dx, Dy);
                 dctx.globalAlpha = 1;
@@ -75,11 +82,11 @@ async function riotPushAnimation(data) {
 
 async function riotPullAnimation(data) {
     return new Promise(resolve => {
-        dctx.shadowColor = "#1C2526"; 
+        dctx.shadowColor = "#1C2526";
         dctx.shadowOffsetX = -0.75;
         dctx.shadowOffsetY = -0.75;
         dctx.shadowBlur = 5;
-        dctx.strokeStyle = "#FF4500"; 
+        dctx.strokeStyle = "#FF4500";
         dctx.lineWidth = 1;
         ctx.shadowColor = 'transparent';
         ctx.shadowOffsetX = 0;

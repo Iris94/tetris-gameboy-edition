@@ -1,4 +1,4 @@
-import { tetrominoObjects, grid, particlesPool } from "../engine.js";
+import { tetrominoObjects, grid, particlesPool, updateSpecialsScore } from "../engine.js";
 import { cctx, ctx, Dx, Dy, Cols, sctx, clear } from "../config.js";
 import { playInvasionMachineGun } from "../sound.js";
 
@@ -25,6 +25,7 @@ export function animateClears(data, clearName) {
                     await clearCell([{ x: cell.x * Dy, y: cell.y * Dy, clearName }], 375);
                     ctx.clearRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
                     ctx.strokeRect(cell.x * Dx, cell.y * Dy, Dx, Dy);
+                    updateSpecialsScore();
                     res();
                 }, delay);
             }));
@@ -45,6 +46,7 @@ export function animateClears(data, clearName) {
 
             ctx.clearRect(x * Dx, data * Dy, Dx, Dy);
             ctx.strokeRect(x * Dx, data * Dy, Dx, Dy);
+            updateSpecialsScore();
         }
     }
 
@@ -65,7 +67,7 @@ export function animateClears(data, clearName) {
     }
 }
 
-async function clearCell(data, cellClearTime = 700) {
+async function clearCell(data, cellClearTime = 700,) {
     return new Promise(resolve => {
         ctx.shadowColor = 'transparent';
         ctx.shadowOffsetX = 0;

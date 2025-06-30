@@ -316,6 +316,17 @@ main {
     justify-content: space-between;
 }
 
+.track-score {
+    display: flex;
+    flex-direction: column;
+}
+
+#score-to-add {
+    position: relative;
+    left: 100%;
+    color: lightgreen;
+}
+
 .canvasWrap {
     width: 60%;
     height: 100%;

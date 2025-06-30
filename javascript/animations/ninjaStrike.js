@@ -1,7 +1,7 @@
-import { sctx, Cols, Dx, Dy, End, Start } from "../config.js";
+import { sctx, Cols, Dx, Dy, End, Start, special } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
-import { bonusScore, getSpecialsScore, grid, tetrominoObjects } from "../engine.js";
-import { ninjaBonus, updateSpecialsVisual } from "../metrics.js";
+import { specials, getSpecialsScore, grid, tetrominoObjects, updateSpecialsScore } from "../engine.js";
+import { ninjaBonus } from "../metrics.js";
 import { playMainTheme, playNinjaIntro, playNinjaOutro, playNinjaSlice, stopSovietTheme } from "../sound.js";
 import { reconstructGrid, clearSingularCells, collectBlocks, prepareDropCells, shiftFilteredCols, unitType } from "../updates.js";
 import { drops } from "./drops.js";
@@ -46,8 +46,9 @@ function getDataNinjaStrike() {
 export async function ninjaStrike() {
     const { ninjaCells, ninjaIds, singularCellsToClear } = getDataNinjaStrike();
     if (ninjaCells.length === 0) return 0;
-    let { value, cells } = ninjaBonus(ninjaCells.length);
-    getSpecialsScore({value, cells});
+
+    let value = ninjaBonus(ninjaCells.length);
+    getSpecialsScore({value: value, perCell: value, cells: ninjaCells.length});
 
     stopSovietTheme();
     playMainTheme();
@@ -62,7 +63,7 @@ export async function ninjaStrike() {
 
 async function operationNinja({ ninjaCells, ninjaIds, singularCellsToClear }) {
     const copyTetrominoObjects = structuredClone(tetrominoObjects);
-    console.log(bonusScore)
+    console.log(specials)
 
     singularCellsToClear.length > 0
         && clearSingularCells(singularCellsToClear);
@@ -83,10 +84,11 @@ async function operationNinja({ ninjaCells, ninjaIds, singularCellsToClear }) {
 
 async function animateStrike(ninjaCells) {
     offctx.clearRect(0, 0, special.width, special.height);
+
     for (let slice of ninjaCells) {
         playNinjaSlice();
+        updateSpecialsScore();
         await sliceAnimation(slice, offctx, offscreenCanvas);
-        // updateSpecialsVisual(bonusScore.value)
     }
     await sliceFadeOut(ninjaCells, offscreenCanvas);
 }

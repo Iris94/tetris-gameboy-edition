@@ -1,5 +1,6 @@
-import { Cols, ctx, End, FullRows, Rows, sctx, Start } from "../config.js";
-import { grid, score } from "../engine.js";
+import { Cols, ctx, End, FullRows, sctx, Start } from "../config.js";
+import { getSpecialsScore, grid } from "../engine.js";
+import { invasionBonus } from "../metrics.js";
 import { playInvasionIntro, playSovietTheme, stopMainTheme } from "../sound.js";
 import { clearFilteredRows } from "../updates.js";
 import { animateClears } from "./clears.js";
@@ -25,11 +26,16 @@ function getInvasionStrikeData() {
 }
 
 export async function invasionStrike() {
+    let targetCells = getInvasionStrikeData();
+    if (targetCells.length === 0) return;
+
+    let value = invasionBonus(targetCells.length);
+    getSpecialsScore({value: value, perCell: value, cells: targetCells.length}); 
+
     stopMainTheme(); 
     playSovietTheme();
     playInvasionIntro();
     await specialsIntro('invasion');
-    let targetCells = getInvasionStrikeData();
 
     await animateClears(targetCells, 'invasion');
     await finalizeInvasionStrike(targetCells);

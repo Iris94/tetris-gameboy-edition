@@ -1,6 +1,7 @@
 import { cctx, Dy, sctx, special } from "../config.js";
 import { redrawTetrominos } from "../draws.js";
-import { tetrominoObjects, grid, particlesPool } from "../engine.js";
+import { tetrominoObjects, grid, particlesPool, getSpecialsScore } from "../engine.js";
+import { artilleryBonus } from "../metrics.js";
 import { playArtilleryBomb, playArtilleryGun, playArtilleryOutro, playArtilleryTarget, playBombTravel, playClear, playMainTheme, stopSovietTheme } from "../sound.js";
 import { clearFilteredRows, shiftFilteredRows, shiftFilteredCols, reconstructGrid, prepareDropCells, collectBlocks } from "../updates.js";
 import { animateClears } from "./clears.js";
@@ -8,16 +9,11 @@ import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
 
 export async function artilleryStrike() {
-    let clearedCells = 0;
+    const clearedCells = 40;
     const artilleryTargets = [22, 21, 20, 19];
 
-    artilleryTargets.forEach(row => {
-        grid[row].forEach(cell => {
-            if (cell !== 0) clearedCells++;
-        })
-    })
-
-    if (clearedCells === 0) return 0;
+    let value =  artilleryBonus(clearedCells);
+    getSpecialsScore({value: value, perCell: value, cells: clearedCells});
 
     stopSovietTheme();
     playMainTheme();

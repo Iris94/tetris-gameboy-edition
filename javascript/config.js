@@ -84,6 +84,7 @@ export const gameBoard = document.querySelectorAll('.game-board');
 export const scoreScreen = document.querySelector('.track-score');
 export const levelScreen = document.querySelector('.track-level');
 export const scoreTag = document.querySelector('#score-tag');
+export const scoreToAdd = document.querySelector('#score-to-add');
 export const levelTag = document.querySelector('#level-tag');
 export const updatesTag = document.querySelector('#updates-tag');
 

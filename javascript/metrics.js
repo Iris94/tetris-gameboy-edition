@@ -1,12 +1,13 @@
-import { tetrominoObjectPool, Randomize, scoreTag, levelTag, updatesTag } from "./config.js";
+import { tetrominoObjectPool, Randomize, scoreTag, levelTag, updatesTag, scoreToAdd } from "./config.js";
 import { level, nextTetromino, clearMultiplier, tetrominosArray, score } from "./engine.js";
 
 export const calculateCollisionScore = () => level * clearMultiplier;
 export const calculateClearingScore = (data) => ((level + level) * clearMultiplier) * (data** 2);
-export const artilleryBonus = (data) => ({ value: Math.max(Math.ceil(score / 100), 10), cells: data });
-export const ninjaBonus = (data) => ({ value: Math.max(Math.ceil(score / 100), 10), cells: data });
-export const invasionBonus = (data) => ({ value: Math.max(Math.ceil(score / 50), 10), cells: data });
-export const riotBonus = (data) => ({ value: Math.max(Math.ceil(score / 200), 10), cells: data });
+export const artilleryBonus = () => Math.max(Math.ceil(score / 100), 10);
+export const ninjaBonus = () => Math.max(Math.ceil(score / 100), 10);
+export const invasionBonus = () => Math.max(Math.ceil(score / 50), 10);
+export const riotBonus = () => Math.max(Math.ceil(score / 300), 10);
+export const getScoreData = (data) => data;
 export const updateScore = () => scoreTag.textContent = score;
 export const updateLevel = () => levelTag.textContent = level;
 
@@ -32,6 +33,10 @@ export function calculateLevel (data) {
      }
 
      return linesClearedBonus;
+}
+
+export function updateScoreToAdd () {
+     scoreToAdd.textContent = `+ ${123123}`
 }
 
 // export function updateSpecialsVisual (valueData) {
