@@ -81,6 +81,11 @@ export const startBtn = document.getElementById('start');
 export const descriptionTxt = document.getElementById('description');
 export const gameoverTxt = document.getElementById('gameOver');
 export const gameBoard = document.querySelectorAll('.game-board');
+export const scoreScreen = document.querySelector('.track-score');
+export const levelScreen = document.querySelector('.track-level');
+export const scoreTag = document.querySelector('#score-tag');
+export const levelTag = document.querySelector('#level-tag');
+export const updatesTag = document.querySelector('#updates-tag');
 
 gameBoard.forEach(node => {
     node.setAttribute(`height`, `${FullRows * Dy}`);

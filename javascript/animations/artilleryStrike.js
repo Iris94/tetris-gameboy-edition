@@ -8,7 +8,16 @@ import { drops } from "./drops.js";
 import { specialsIntro } from "./overlay.js";
 
 export async function artilleryStrike() {
+    let clearedCells = 0;
     const artilleryTargets = [22, 21, 20, 19];
+
+    artilleryTargets.forEach(row => {
+        grid[row].forEach(cell => {
+            if (cell !== 0) clearedCells++;
+        })
+    })
+
+    if (clearedCells === 0) return 0;
 
     stopSovietTheme();
     playMainTheme();
@@ -20,6 +29,7 @@ export async function artilleryStrike() {
     }
 
     playArtilleryOutro();
+    return clearedCells;
 }
 
 async function operationArtillery(y) {

@@ -1,6 +1,6 @@
 :root {
     --screen-wrap: #616a79;
-    --test-screen: rgba(0,0,0,0.1);
+    --test-screen: rgba(0, 0, 0, 0.1);
     --mono: #808086;
 }
 
@@ -309,12 +309,31 @@ main {
     overflow: hidden;
 }
 
+.score-screen {
+    width: 85%;
+    height: 45px;
+    display: flex;
+    justify-content: space-between;
+}
+
 .canvasWrap {
     width: 60%;
     height: 100%;
     border-left: 2px rgb(106, 105, 105) solid;
     border-right: 2px rgb(106, 105, 105) solid;
     position: relative;
+
+    .updates-screen {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+    }
 }
 
 #board {

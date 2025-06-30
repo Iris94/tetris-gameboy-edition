@@ -17,9 +17,11 @@
                 <div class="y-line-2"></div>
 
                 <div class="gameboy-screen-wrap">
-
+                    <div class="score-screen">
+                        <div class="track-score hide">SCORE:&nbsp; <span id="score-tag"></span></div>
+                        <div class="track-level hide">LEVEL:&nbsp; <span id="level-tag"></span></div>
+                    </div>
                     <div class="screen">
-
                         <div class="menu" id="mainMenu">
                             <h1>Super
                                 <span>t</span>
@@ -52,6 +54,10 @@
                             <canvas id="special" class="game-board"></canvas>
                             <canvas id="clear" class="game-board"></canvas>
                             <canvas id="drop" class="game-board"></canvas>
+
+                            <div class="updates-screen">
+                                <span id="updates-tag"></span>
+                            </div>
                         </div>
                         <canvas id="hudCanvas"></canvas>
                     </div>

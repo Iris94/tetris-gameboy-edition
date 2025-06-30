@@ -125,30 +125,6 @@ export function drawNextTetromino() {
      hctx.shadowBlur = 0;
 }
 
-export function drawScore(score) {
-     hctx.strokeStyle = 'rgba(220, 215, 186, 0.1)';
-     hctx.lineWidth = 1;
-
-     hctx.strokeRect(0, 75, hudCanvas.width, 75);
-     hctx.font = "12px Gill Sans";
-     hctx.fillStyle = 'rgba(220, 215, 186, 0.9)';
-
-     hctx.fillText("score", 20, 110);
-     hctx.fillText(`${score}`, 20, 130);
-}
-
-export function drawLevel(level) {
-     hctx.strokeStyle = 'rgba(220, 215, 186, 0.1)';
-     hctx.lineWidth = 1;
-
-     hctx.strokeRect(0, 170, hudCanvas.width, 75);
-     hctx.font = "12px Gill Sans";
-     hctx.fillStyle = 'rgba(220, 215, 186, 0.9)';
-
-     hctx.fillText("level", 20, 205);
-     hctx.fillText(`${level}`, 20, 225);
-}
-
 export function drawMana(data) {
      const maxHeight = (manaCanvas.height / 5) * 3;
      const currentHeight = maxHeight * (data / 100);

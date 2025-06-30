@@ -12,7 +12,6 @@ export function animateClears(data, clearName) {
         } else {
             await defaultCall();
         }
-
         resolve();
     });
 
@@ -123,7 +122,6 @@ async function clearCell(data, cellClearTime = 700) {
                 });
                 particlesData.length = 0;
                 resolve();
-                console.log(particlesPool.length)
             }
         };
 

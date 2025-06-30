@@ -6,14 +6,14 @@ import { clearMainBoard, delay, unitType } from "../updates.js";
 import { specialsIntro } from "./overlay.js";
 
 export async function riotStrike() {
-    let isGridEmpty = true;
+    let movedCells = 0;
+
     for (let y = End; y >= Start; y--) {
-        if (grid[y].some(cell => cell !== 0)) {
-            isGridEmpty = false;
-            break;
+        for (let x = 0; x < Cols; x++) {
+            if (grid[y][x] !== 0) movedCells++
         }
     }
-    if (isGridEmpty) return;
+    if (movedCells === 0) return 0;
 
     stopSovietTheme();
     playMainTheme();
@@ -29,7 +29,7 @@ export async function riotStrike() {
     await riotPullAnimation(pullAnimation);
     unitType(collectCells);
 
-    return 1;
+    return movedCells;
 }
 
 async function riotPushAnimation(data) {
