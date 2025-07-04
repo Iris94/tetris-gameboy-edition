@@ -1,11 +1,11 @@
-import { tetrominoObjectPool, Randomize, scoreTag, levelTag, updatesTag, scoreToAdd } from "./config.js";
+import { tetrominoObjectPool, Randomize, scoreTag, levelTag } from "./config.js";
 import { level, nextTetromino, clearMultiplier, tetrominosArray, score } from "./engine.js";
 
 export const calculateCollisionScore = () => level * clearMultiplier;
 export const calculateClearingScore = (data) => ((level + level) * clearMultiplier) * (data** 2);
 export const artilleryBonus = () => Math.max(Math.ceil(score / 100), 10);
 export const ninjaBonus = () => Math.max(Math.ceil(score / 100), 10);
-export const invasionBonus = () => Math.max(Math.ceil(score / 50), 10);
+export const invasionBonus = () => Math.max(Math.ceil(score / 250), 10);
 export const riotBonus = () => Math.max(Math.ceil(score / 300), 10);
 export const getScoreData = (data) => data;
 export const updateScore = () => scoreTag.textContent = score;
@@ -34,22 +34,6 @@ export function calculateLevel (data) {
 
      return linesClearedBonus;
 }
-
-export function updateScoreToAdd () {
-     scoreToAdd.textContent = `+ ${123123}`
-}
-
-// export function updateSpecialsVisual (valueData) {
-//      let span = document.createElement('div');
-//      span.classList.add('temp');
-//      span.classList.add('start');
-//      span.textContent = valueData;
-//      updatesScreen.appendChild(span)
-
-//      setTimeout(() => {
-//           updatesScreen.removeChild(span)
-//      }, 2500);
-// }
 
 export function lendObject () {
      const object = tetrominoObjectPool.find(o => o.id === null);

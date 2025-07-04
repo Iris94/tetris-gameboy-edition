@@ -1,5 +1,5 @@
 import { Dx, MOBILE_WIDTH_THRESHOLD } from "../config.js";
-import { pause, tetromino, gameEngine, resetGameplayInterval } from "../engine.js";
+import { pause, tetromino, gameEngine, resetGameplayInterval, switchToKeyboard } from "../engine.js";
 
 const pointerTarget = document.querySelector('#drop');
 let moveDownInterval = null;
@@ -21,6 +21,8 @@ pointerTarget.addEventListener('contextmenu', (e) => e.preventDefault());
 
 pointerTarget.addEventListener('mousemove', (e) => {
     if (pause || !isOverCanvas || isMobile) return;
+    if (e) switchToKeyboard(false);
+
     const currentMouseX = e.offsetX;
     const cellMouseX = Math.floor(currentMouseX / Dx);
     let cellX = getTetrominoMiddleX(tetromino);
@@ -43,6 +45,7 @@ pointerTarget.addEventListener('mousemove', (e) => {
 
 pointerTarget.addEventListener('mousedown', (e) => {
     if (pause || !isOverCanvas || e.button !== 0 || isMobile) return;
+    if (e) switchToKeyboard(false);
 
     clickStartTime = performance.now();
 

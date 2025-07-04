@@ -1,5 +1,5 @@
 import { Dx, MOBILE_WIDTH_THRESHOLD } from "../config.js";
-import { pause, tetromino, gameEngine } from "../engine.js";
+import { pause, tetromino, gameEngine, switchToKeyboard } from "../engine.js";
 
 const pointerTarget = document.querySelector('#drop');
 let previousCellTouchX = null;
@@ -19,6 +19,7 @@ function updateDeviceType() {
 pointerTarget.addEventListener('touchstart', (e) => {
     e.preventDefault();
     if (pause || !isMobile) return;
+    if (e) switchToKeyboard(false);
 
     const rect = pointerTarget.getBoundingClientRect();
     const touchX = e.touches[0] ? e.touches[0].clientX - rect.left : null;
@@ -58,8 +59,9 @@ pointerTarget.addEventListener('touchend', (e) => {
 
 pointerTarget.addEventListener('touchmove', e => {
     if (!isMobile) return;
-
     e.preventDefault();
+    if (e) switchToKeyboard(false);
+    
     const rect = pointerTarget.getBoundingClientRect();
     const currentTouchX = e.touches[0] ? e.touches[0].clientX - rect.left : null;
     isOverCanvas = true;

@@ -1,7 +1,7 @@
 import { drawMainBoard, drawTetromino, redrawTetrominos, drawHud, drawNextTetromino, drawMana } from "./draws.js";
 import { clearMainBoard, clearHud, clearFilteredRows, filterRows, copyImageData, pasteImageData, updateGrid, shiftFilteredCols, initiateId, initiateTetrominoInfo, shiftFilteredRows, checkForClears, clearSpecial, reconstructGrid, prepareDropCells, collectBlocks, clearShadows, clearMana } from "./updates.js";
 import { tetrominoShapes } from "./tetrominos.js";
-import { Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt, End, scoreScreen, levelScreen, scoreToAdd, scoreTag } from "./config.js";
+import { Cols, createGrid, Randomize, Position, tetrominoObjectPool, activeTetrominoPool, particlesObjectPool, playGameButton, startBtn, restartBtn, resumeBtn, descriptionTxt, gameoverTxt, End, scoreScreen, levelScreen, scoreToAdd, scoreTag, levelTag, updatesTag } from "./config.js";
 import { rotation, shadowRotation } from "./rotation.js";
 import { artilleryBonus, calculateClearingScore, calculateCollisionScore, calculateLevel, invasionBonus, ninjaBonus, randomTetromino, riotBonus, updateLevel, updateScore } from "./metrics.js";
 import { ninjaStrike } from "./animations/ninjaStrike.js";
@@ -45,6 +45,7 @@ export let gameplayStatus;
 export let gameplayAcceleration = 1000;
 export let menuOpened = true;
 export let gameStarted = false;
+export let keyboardMode = true;
 
 export class Tetromino {
     constructor(name, color, ghostColor, cells) {
@@ -148,7 +149,6 @@ function initializeGame() {
 export async function gameEngine() {
     if (menuOpened) return;
     if (!isCollision) return movePhase();
-    tetromino.calculateShadow();
 
     tetrominoId = initiateId();
     updateGrid() && gameOver();
@@ -172,18 +172,19 @@ export async function gameEngine() {
         manaLevel++;
         holdManaPoints--;
         await specialsPhase();
+        manaLevel >= 100 && (manaLevel = 0);
         drawMana(manaLevel);
     }
-
+    
     if (variableGoalSystem > (level * 5)) {
         playLevelUp();
         level++;
         updateLevel();
         incrementAcceleration();
+        animateLevelUp();
     }
 
-    manaLevel >= 100 && (manaLevel = 0);
-    drawMana(manaLevel);
+    tetromino.calculateShadow();
     clearRowsMultiplier = 1;
     holdManaPoints = 0;
     isCollision = false;
@@ -267,7 +268,7 @@ export async function specialsPhase() {
             }
             break;
         default:
-            if (manaLevel >= 100) {
+            if (manaLevel === 100) {
                 await Randomize(allSpecials)();
                 variableGoalSystem += 8;
                 specialTriggered = true;
@@ -310,8 +311,29 @@ export async function specialsScoreSystem() {
     scoreTag.style.color = 'inherit';
 }
 
+export async function animateLevelUp() {
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    for (let i = 0; i < 3; i++) {
+        levelScreen.style.color = i % 2 === 0 ? 'lightblue' : 'inherit';
+        levelScreen.style.transition = 'all 250ms';
+        levelScreen.style.transform = i % 2 === 0 ? 'scale(1.05)' : 'scale(1)';
+        levelTag.style.color = i % 2 === 0 ? 'lightblue' : 'inherit';
+        levelTag.style.transition = 'all 250ms';
+        levelTag.style.transform = i % 2 === 0 ? 'scale(1.05)' : 'scale(1)';
+
+        await wait(250);
+    }
+
+    levelScreen.style.color = 'inherit';
+    levelScreen.style.transform = 'scale(1)';
+    levelTag.style.color = 'inherit';
+    levelTag.style.transform = 'scale(1)';
+}
+
 export const getSpecialsScore = (data) => specials = data;
 export const updateSpecialsScore = () => scoreToAdd.textContent = `+ ${specials.value += specials.perCell}`;
+export const switchToKeyboard = (data) => keyboardMode = data;
 
 
 playGameButton.onclick = () => {

@@ -1,8 +1,9 @@
-import { pause, resetGameplayInterval, tetromino, pauseEntireGame, gameEngine, menuOpened } from "../engine.js";
+import { pause, resetGameplayInterval, tetromino, pauseEntireGame, gameEngine, menuOpened, switchToKeyboard } from "../engine.js";
 
 document.addEventListener('keydown', async event => {
      if (pause || menuOpened) return;
      if (event.repeat && !['ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) return;
+     if (event) switchToKeyboard(true);
 
      switch (event.code) {
           case 'ArrowDown':

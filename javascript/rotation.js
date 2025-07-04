@@ -1,12 +1,12 @@
 import { Cols, End } from "./config.js";
-import { grid, tetromino } from "./engine.js";
+import { grid, keyboardMode, tetromino } from "./engine.js";
 
 export function shadowRotation(data) {
     while (data.cells.every(cell => cell.y + 1 <= End && grid[cell.y + 1]?.[cell.x] === 0)) {
         data.cells.forEach(cell => cell.y += 1);
     }
 
-    if (data.name === 'O' || !tetromino.shadowSwitch) return;
+    if (data.name === 'O' || !tetromino.shadowSwitch || keyboardMode) return;
 
     let shadowCells = null;
     let isEdge = false;
