@@ -1,4 +1,4 @@
-import { Dx, MOBILE_WIDTH_THRESHOLD } from "../config.js";
+import { Dx, MOBILE_WIDTH_THRESHOLD, keyboardGuide, mouseGuide, phoneGuide } from "../config.js";
 import { pause, tetromino, gameEngine, resetGameplayInterval, switchToKeyboard } from "../engine.js";
 
 const pointerTarget = document.querySelector('#drop');
@@ -15,13 +15,17 @@ function updateDeviceType() {
     isMobile = window.innerWidth <= MOBILE_WIDTH_THRESHOLD;
 }
 
-pointerTarget.addEventListener('mouseover', () => (isOverCanvas = true));
-pointerTarget.addEventListener('mouseout', () => (isOverCanvas = false));
+pointerTarget.addEventListener('mouseover', () => {
+    isOverCanvas = true;
+    if (!isMobile) mouseControls(); 
+});
+
 pointerTarget.addEventListener('contextmenu', (e) => e.preventDefault());
 
 pointerTarget.addEventListener('mousemove', (e) => {
     if (pause || !isOverCanvas || isMobile) return;
     if (e) switchToKeyboard(false);
+    mouseControls(); 
 
     const currentMouseX = e.offsetX;
     const cellMouseX = Math.floor(currentMouseX / Dx);
@@ -46,6 +50,7 @@ pointerTarget.addEventListener('mousemove', (e) => {
 pointerTarget.addEventListener('mousedown', (e) => {
     if (pause || !isOverCanvas || e.button !== 0 || isMobile) return;
     if (e) switchToKeyboard(false);
+    mouseControls(); 
 
     clickStartTime = performance.now();
 
@@ -64,6 +69,7 @@ pointerTarget.addEventListener('mousedown', (e) => {
 
 pointerTarget.addEventListener('mouseup', async (e) => {
     if (pause || !isOverCanvas || isMobile) return;
+    mouseControls(); 
 
     const clickEndTime = performance.now();
     const clickDuration = clickEndTime - clickStartTime;
@@ -90,4 +96,13 @@ function getTetrominoMiddleX(data) {
     const minX = Math.min(...xCoords);
     const maxX = Math.max(...xCoords);
     return Math.floor((minX + maxX) / 2);
+}
+
+function mouseControls() {
+    mouseGuide.classList.add('show');
+    mouseGuide.classList.remove('hide');
+    keyboardGuide.classList.add('hide');
+    keyboardGuide.classList.remove('show');
+    phoneGuide.classList.add('hide');
+    phoneGuide.classList.remove('show');
 }

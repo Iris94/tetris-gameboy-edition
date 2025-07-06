@@ -1,9 +1,11 @@
+import { keyboardGuide, mouseGuide, phoneGuide } from "../config.js";
 import { pause, resetGameplayInterval, tetromino, pauseEntireGame, gameEngine, menuOpened, switchToKeyboard } from "../engine.js";
 
 document.addEventListener('keydown', async event => {
      if (pause || menuOpened) return;
      if (event.repeat && !['ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) return;
      if (event) switchToKeyboard(true);
+     keyboardControls();
 
      switch (event.code) {
           case 'ArrowDown':
@@ -31,3 +33,12 @@ document.addEventListener('keydown', async event => {
 
      gameEngine();
 });
+
+function keyboardControls () {
+     keyboardGuide.classList.add('show');
+     keyboardGuide.classList.remove('hide');
+     phoneGuide.classList.add('hide');
+     phoneGuide.classList.remove('show');
+     mouseGuide.classList.add('hide');
+     mouseGuide.classList.remove('show');
+}

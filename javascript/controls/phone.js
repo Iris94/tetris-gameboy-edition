@@ -1,4 +1,4 @@
-import { Dx, MOBILE_WIDTH_THRESHOLD } from "../config.js";
+import { Dx, MOBILE_WIDTH_THRESHOLD, keyboardGuide, mouseGuide, phoneGuide } from "../config.js";
 import { pause, tetromino, gameEngine, switchToKeyboard } from "../engine.js";
 
 const pointerTarget = document.querySelector('#drop');
@@ -20,6 +20,7 @@ pointerTarget.addEventListener('touchstart', (e) => {
     e.preventDefault();
     if (pause || !isMobile) return;
     if (e) switchToKeyboard(false);
+    phoneControls(); 
 
     const rect = pointerTarget.getBoundingClientRect();
     const touchX = e.touches[0] ? e.touches[0].clientX - rect.left : null;
@@ -82,11 +83,20 @@ pointerTarget.addEventListener('touchmove', e => {
     }
     hasMoved = true;
     previousCellTouchX = cellTouchX;
-})
+});
 
 function getTetrominoMiddleX(data) {
     const xCoords = data.cells.map(cell => cell.x);
     const minX = Math.min(...xCoords);
     const maxX = Math.max(...xCoords);
     return Math.floor((minX + maxX) / 2);
+}
+
+function phoneControls() {
+    phoneGuide.classList.add('show');
+    phoneGuide.classList.remove('hide');
+    keyboardGuide.classList.add('hide');
+    keyboardGuide.classList.remove('show');
+    mouseGuide.classList.add('hide');
+    mouseGuide.classList.remove('show');
 }

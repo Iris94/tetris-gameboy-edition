@@ -87,6 +87,9 @@ export const scoreTag = document.querySelector('#score-tag');
 export const scoreToAdd = document.querySelector('#score-to-add');
 export const levelTag = document.querySelector('#level-tag');
 export const updatesTag = document.querySelector('#updates-tag');
+export const keyboardGuide = document.querySelector('.keyboard-guide');
+export const mouseGuide = document.querySelector('.mouse-guide');
+export const phoneGuide = document.querySelector('.phone-guide');
 
 gameBoard.forEach(node => {
     node.setAttribute(`height`, `${FullRows * Dy}`);

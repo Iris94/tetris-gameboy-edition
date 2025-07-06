@@ -498,3 +498,43 @@ main {
     align-items: end;
     height: 2rem;
 }
+
+.controls-guide {
+    width: 25%;
+    height: 65%;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+.keyboard-guide,
+.phone-guide,
+.mouse-guide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 20px;
+
+    > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    img {
+        width: 50px;
+    }
+
+    span {
+        text-align: center;
+        font-size: 12px;
+    }
+}
